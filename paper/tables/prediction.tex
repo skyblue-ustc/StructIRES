@@ -1,8 +1,7 @@
 \begin{table*}[t]
 \centering
-\caption{IRES identification benchmark. Published values are references. UTR-LM was rerun from all
-ten released checkpoints; RNA-FM has a released-CSV audit and an explicitly partial 6/10-checkpoint
-rerun. Upstream native training
+\caption{IRES identification benchmark. Published values are references. RNA-FM and UTR-LM were
+rerun from all ten released checkpoints. Upstream native training
 selects checkpoints on test AUPR. Project pilots are not directly comparable with that released
 repeated-holdout protocol.}
 \label{tab:prediction}
@@ -11,7 +10,7 @@ repeated-holdout protocol.}
 Status & Method & AUC & AUPR & F1 \\
 \midrule
 Released CSV audit & RNA-FM & 0.779 & 0.615 & 0.506 \\
-Released checkpoint rerun (6/10) & RNA-FM & .778$\pm$.011 & .612$\pm$.017 & .519$\pm$.023 \\
+Released checkpoint rerun & RNA-FM & .778$\pm$.009 & .614$\pm$.014 & .510$\pm$.023 \\
 Released checkpoint rerun & UTR-LM & 0.765 & 0.581 & 0.493 \\
 Published & RNA-BERT & 0.740 & 0.530 & 0.460 \\
 Published & ERNIE-RNA & 0.670 & 0.350 & 0.330 \\

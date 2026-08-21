@@ -9,7 +9,11 @@ diversity under matched query budgets. In a reconstructed-fold shortcut audit, h
 features reached AUC 0.723 and AUPR 0.452, but fell to AUC 0.578 and AUPR 0.250 on an exact
 90\%-identity cluster-disjoint 174-nt split. Zero-shot transfer to 2,179 labelled direct-RNA
 sequences further fell to AUC 0.368 and AUPR 0.037. A composition control transferred at AUC 0.579
-and AUPR 0.058, with substantial miscalibration. Constrained-design effect sizes remain
+and AUPR 0.058. A full ten-checkpoint RNA-FM rerun reproduced its native benchmark
+(AUC $0.778\pm0.009$, AUPR $0.614\pm0.014$), yet its predeclared direct-RNA ensemble reached
+only AUC 0.600 and AUPR 0.058, with specificity 0.001 and ECE 0.906 at the released threshold.
+Individual transfer AUCs ranged from 0.251 to 0.821 despite similar native performance.
+Constrained-design effect sizes remain
 predeclared pending matched-budget experiments; computational candidates are not claimed as
 experimentally improved.
 \textbf{Availability and implementation:} Code and frozen manifests will be released after

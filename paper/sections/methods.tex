@@ -21,6 +21,11 @@ source/length-stratified performance are secondary outcomes. As a strict source-
 models are fitted only to the 44,634-sequence 55k library, with ten internal validation folds for
 threshold selection and ensembling, and are evaluated once on all 276 \texttt{IRESite\_exp} records.
 The held-out source is not used for fitting, thresholding, calibration, or model selection.
+Released RNA-FM, UTR-LM and IRESfinder models are also executed on their author-native repeated
+holdouts. Every local run stores predictions, input and checkpoint hashes, and a run manifest. We
+report mean and sample standard deviation across holdouts but do not interpret them as independent
+folds. The released RNA-FM and UTR-LM checkpoints were selected upstream on test AUPR, so these
+rows are protocol reproductions rather than independent blind-test estimates.
 
 \subsection{Cross-assay audit}
 Models trained on the legacy reporter assay are evaluated without adaptation on normalized
@@ -31,6 +36,10 @@ distribution. As low-capacity shortcut controls, composition logistic regression
 test fold and the following fold for validation; direct-RNA labels are never used for fitting,
 threshold selection, or model choice. AUC and AUPR uncertainty is estimated with 2,000 stratified
 bootstrap resamples of the direct-RNA evaluation set.
+For RNA-FM, each released checkpoint is first evaluated separately. The predeclared transfer
+result is the arithmetic mean probability across all ten checkpoints; no fold, probability
+direction or threshold is selected using direct-RNA labels. Pairwise prediction correlations and
+per-checkpoint direct-RNA metrics are reported only as a frozen post hoc stability audit.
 
 \subsection{Seeded full-length optimization}
 Starting from experimentally supported viral IRESes, all variants share seeds, editable positions,

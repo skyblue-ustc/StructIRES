@@ -4,9 +4,10 @@ Last updated: 2026-08-22 (Asia/Shanghai)
 
 ## Current phase
 
-**P1 — published-classifier reproduction.** The assay-shift gate and RNA-FM fold-0 scale gate are
-complete. Remaining released RNA-FM checkpoints are downloading in non-overlapping shards; each
-available fold is evaluated separately when an unoccupied GPU can be allocated.
+**P3/P4 — result consolidation and manuscript freeze.** P1 is complete: all ten released RNA-FM
+checkpoints passed size, SHA-256 and `torch.load` checks and were evaluated separately on their
+official test holdouts. The final native summary and ten-checkpoint direct-RNA transfer are frozen.
+DeepCIP official inference remains a time-boxed environment blocker rather than a claimed result.
 
 ## Completed
 
@@ -51,8 +52,8 @@ available fold is evaluated separately when an unoccupied GPU can be allocated.
   overlap the IRES-LM benchmark with 100\% label agreement. Removing them changes native repeated
   means from 0.605/0.274/0.346 to 0.602/0.267/0.337 (AUC/AUPR/F1).
 - [x] Downloaded and verified the released RNA-FM fold-0 checkpoint, then completed frozen native
-  inference: AUC 0.777114, AUPR 0.594668 and F1 0.524311 on 4,678 test records. This is a scale-gate
-  result; the ten-checkpoint aggregate remains in progress.
+  inference: AUC 0.777114, AUPR 0.594668 and F1 0.524311 on 4,678 test records. This passed the
+  scale gate before the remaining folds were run.
 - [x] Ran frozen RNA-FM fold-0 transfer on all 2,179 labelled IRES-TrAPPr sequences. Ranking retained
   weak signal (AUC 0.618, 95\% CI 0.582--0.652), but AUPR was 0.061 and the released 0.5 threshold
   predicted virtually every record positive (specificity 0.003; ECE 0.925).
@@ -74,13 +75,31 @@ available fold is evaluated separately when an unoccupied GPU can be allocated.
   being approximated under an incompatible Python ABI.
 - [x] Completed released RNA-FM native inference for folds 0, 1, 2, 5, 6 and 9. The manifest-backed
   available-fold summary is 0.777740$\pm$0.011009 / 0.611767$\pm$0.016782 /
-  0.519049$\pm$0.023373 (AUC/AUPR/F1). It is explicitly reported as 6/10 folds, not substituted
-  for the pending ten-fold aggregate.
+  0.519049$\pm$0.023373 (AUC/AUPR/F1). This immutable 6/10 snapshot is retained only to document
+  execution history; the final ten-fold aggregate supersedes it.
 - [x] Evaluated the frozen six-checkpoint arithmetic ensemble on direct-RNA IRES-TrAPPr labels
   without tuning. Individual AUCs varied from 0.251 to 0.641 and pairwise Spearman correlations
   were 0.440--0.705; the ensemble yielded AUC 0.583 (95\% CI 0.549--0.616), AUPR 0.055 and ECE
   0.908. The preceding five-checkpoint subset yielded only 0.432/0.041, demonstrating unstable
   out-of-assay ranking while threshold transfer fails consistently.
+- [x] Completed all ten released RNA-FM native checkpoint reruns. The final repeated-holdout
+  summary (`released_rnafm_native_10fold_summary_v1_20260822`) is AUC
+  0.778420$\pm$0.009106, AUPR 0.614020$\pm$0.013919 and F1
+  0.509881$\pm$0.022686. Accuracy, sensitivity, specificity, MCC and ECE are also recomputed from
+  saved predictions; the overlapping-holdout non-independence warning is retained.
+- [x] Re-downloaded the previously corrupt fold-7 checkpoint without deleting the quarantined
+  file. The fresh SHA-256 is `012944...288`, differs from the corrupt `558517...81a4`, and loads
+  and evaluates successfully. All ten usable RNA-FM checkpoints are now complete.
+- [x] Completed the predeclared ten-checkpoint arithmetic ensemble on direct-RNA labels with no
+  tuning: AUC 0.600 (95\% CI 0.567--0.632), AUPR 0.058 (0.054--0.063), F1 0.097, specificity
+  0.001 and ECE 0.906. Frozen individual-checkpoint AUCs span 0.251--0.821 and pairwise Spearman
+  correlations span 0.338--0.705, so checkpoint selection on direct-RNA labels is prohibited.
+- [x] Upgraded IRESfinder native and similarity-aware runs to preserve predictions, full metric
+  panels and 2,000-replicate stratified-bootstrap intervals. The similarity-aware result is AUC
+  0.599 (0.583--0.617), AUPR 0.199 (0.190--0.211), MCC 0.121 and ECE 0.521.
+- [x] Added a provenance-checked unified result ledger. `paper/data/benchmark_results.csv` and
+  `paper/tables/unified_results.tex` are generated from `configs/benchmark_ledger.json`; local
+  rows include run IDs plus SHA-256 hashes of their metric files and run manifests.
 
 ## Frozen scientific story
 
@@ -91,6 +110,29 @@ The paper has three separate result blocks:
 1. cross-assay failure/transfer audit;
 2. primary full-length seeded IRES design;
 3. secondary 174-nt legacy IRES-DM reproduction.
+
+## First-round decision gate
+
+The completed benchmark changes the next-stage emphasis without changing the project mainline:
+
+1. **Do not claim novelty from swapping in another RNA foundation model.** RNA-FM already matches
+   its native paper result, while direct-RNA performance varies much more across checkpoints than
+   native performance does.
+2. **Make assay-aware checkpoint robustness the scorer contribution.** The next corrected baseline
+   should train or choose heads only on validation data under similarity-aware splits, then compare
+   a single head, a fixed all-checkpoint ensemble, uncertainty-aware conservative aggregation and
+   a small direct-RNA calibrated head under nested, group-aware evaluation.
+3. **Carry uncertainty into the design objective.** Full-length IRES optimization should improve a
+   conservative aggregate across valid scorers rather than exploit one legacy checkpoint; the
+   planned structure-ensemble and cargo-context constraints remain the protection against
+   function-score gaming.
+4. **Use explicit kill criteria.** If a validation-clean, similarity-aware scorer cannot exceed
+   composition/IRESfinder controls on AUPR and calibration, freeze the paper as a benchmark and
+   assay-transfer study rather than presenting unsupported generated-sequence quality claims.
+
+The immediate experimental priority is therefore R4 (validation-clean RNA-FM/UTR-LM or frozen
+embedding heads on the exact component split), followed by a group-aware direct-RNA calibration
+pilot. Generation and structure/energy optimization resume only after this scorer gate.
 
 ## Readiness matrix
 
@@ -127,20 +169,24 @@ The paper has three separate result blocks:
 | same run | same | Hashed 3–6-mer: AUC 0.578 (0.559--0.595), AUPR 0.250 (0.229--0.273) | Large decline from reconstructed mixed-source folds. |
 | `published_ireslm_release_audit_v1_20260821` | Recompute upstream released ten-fold CSV; no checkpoint rerun | RNA-FM: AUC 0.779, AUPR 0.615, F1 0.506; UTR-LM: 0.765/0.581/0.493 | Released aggregates reproduce exactly, but upstream selects checkpoints on test AUPR. |
 | `released_utrlm_native_10fold_v1_20260821` | Frozen released checkpoints; author-native repeated test folds; inference only | AUC 0.764938, AUPR 0.580823, F1 0.492983 | Ten-fold checkpoint execution reproduces the release to floating-point tolerance. |
-| `iresfinder_released_repeated10_v2_20260821` | Original released features/training data; Python 3 adapter; author-native repeated test folds | AUC 0.605074, AUPR 0.273844, F1 0.346292 | Full 46,774-sequence rerun with hashed inputs reproduces the published rounded aggregate. |
-| `iresfinder_similarity_split_hamming90_len174_v1_20260821` | Released IRESfinder; frozen exact 90\% identity component-disjoint test | AUC 0.599, AUPR 0.199, F1 0.313 | Only modest AUC change versus its native repeated folds, but performance remains weak. |
+| `iresfinder_released_repeated10_v3_20260822` | Original released features/training data; Python 3 adapter; author-native repeated test folds | AUC 0.605074, AUPR 0.273844, F1 0.346292, MCC 0.109, ECE 0.345 | Full predictions and per-holdout bootstrap intervals now accompany the reproduced aggregate. |
+| `iresfinder_similarity_split_hamming90_len174_v2_20260822` | Released IRESfinder; frozen exact 90\% identity component-disjoint test | AUC 0.599 (0.583--0.617), AUPR 0.199 (0.190--0.211), F1 0.313 | Full metric panel and predictions; performance remains weak. |
 | `iresfinder_cross_assay_transfer_v1_20260821` | Released IRESfinder; zero-shot direct-RNA IRES-TrAPPr transfer | AUC 0.460 (0.422--0.496), AUPR 0.043 (0.041--0.047), F1 0.081 | Ranking is below random and calibration fails (ECE 0.518). |
 | `iresfinder_training_overlap_audit_v1_20260822` | Exact released-training versus benchmark audit | 695/722 IRESfinder training sequences overlap; overlap-removed native AUC/AUPR/F1 0.602/0.267/0.337 | Contamination is real and disclosed, but does not explain cross-assay failure. |
 | `released_rnafm_native_fold0_v1_20260822` | Frozen released RNA-FM checkpoint; native fold-0 test; inference only | AUC 0.777114, AUPR 0.594668, F1 0.524311 | Scale gate passes; public checkpoint rerun is at the released-performance scale. |
 | `released_rnafm_native_fold9_v1_20260822` | Frozen released RNA-FM checkpoint; native fold-9 test; inference only | AUC 0.759165, AUPR 0.593812, F1 0.471766 | Second valid checkpoint rerun; checkpoint and predictions are hashed. |
-| `released_rnafm_native_available2_summary_v1_20260822` | Folds 0 and 9 only; per-fold 2,000-replicate stratified bootstrap | AUC 0.768140$\pm$0.012692, AUPR 0.594240$\pm$0.000605, F1 0.498038$\pm$0.037155 | Operational partial summary; never substitute for the pending 10-fold aggregate. |
+| `released_rnafm_native_available2_summary_v1_20260822` | Folds 0 and 9 only; per-fold 2,000-replicate stratified bootstrap | AUC 0.768140$\pm$0.012692, AUPR 0.594240$\pm$0.000605, F1 0.498038$\pm$0.037155 | Historical partial summary; never substitute for the final 10-fold aggregate. |
 | `released_rnafm_native_available5_summary_v1_20260822` | Folds 0, 1, 2, 6 and 9; per-fold 2,000-replicate stratified bootstrap | AUC 0.775705$\pm$0.010974, AUPR 0.610537$\pm$0.018457, F1 0.517090$\pm$0.025575 | Historical partial snapshot retained for provenance. |
 | `released_rnafm_cross_assay_available5_v1_20260822` | Frozen folds 0, 1, 2, 6 and 9; arithmetic probability ensemble; no direct-label tuning | AUC 0.432 (0.396--0.466), AUPR 0.041 (0.039--0.044), F1 0.097 | Native performance does not imply stable assay transfer. |
 | `released_rnafm_cross_assay_available5_heterogeneity_audit_v1_20260822` | Post hoc per-fold evaluation and pairwise prediction correlation; no selection | Per-fold AUC 0.251--0.618; Spearman 0.443--0.672 | Fold 0 alone materially overstates transfer. |
-| `released_rnafm_native_available6_summary_v1_20260822` | Folds 0, 1, 2, 5, 6 and 9; per-fold 2,000-replicate stratified bootstrap | AUC 0.777740$\pm$0.011009, AUPR 0.611767$\pm$0.016782, F1 0.519049$\pm$0.023373 | Current partial summary; four checkpoints remain. |
+| `released_rnafm_native_available6_summary_v1_20260822` | Folds 0, 1, 2, 5, 6 and 9; per-fold 2,000-replicate stratified bootstrap | AUC 0.777740$\pm$0.011009, AUPR 0.611767$\pm$0.016782, F1 0.519049$\pm$0.023373 | Historical partial snapshot retained for provenance. |
 | `released_rnafm_cross_assay_available6_v1_20260822` | Frozen six-fold arithmetic probability ensemble; no direct-label tuning | AUC 0.583 (0.549--0.616), AUPR 0.055 (0.052--0.061), F1 0.097 | Ranking moves with checkpoint composition; calibration remains unusable. |
 | `released_rnafm_cross_assay_available6_heterogeneity_audit_v1_20260822` | Post hoc per-fold evaluation and pairwise prediction correlation; no selection | Per-fold AUC 0.251--0.641; Spearman 0.440--0.705 | Stable native metrics coexist with unstable direct-RNA ranking. |
 | `released_rnafm_cross_assay_fold0_v1_20260822` | Frozen RNA-FM fold 0; zero-shot direct-RNA transfer | AUC 0.618 (0.582--0.652), AUPR 0.061 (0.057--0.067), F1 0.097 | Rank signal survives weakly, but threshold transfer and calibration fail severely (ECE 0.925). |
+| `released_rnafm_native_10fold_summary_v1_20260822` | All ten released checkpoints; official repeated holdouts; per-holdout bootstrap | AUC 0.778420$\pm$0.009106, AUPR 0.614020$\pm$0.013919, F1 0.509881$\pm$0.022686 | Final local checkpoint reproduction; upstream test-selected-checkpoint warning remains. |
+| `released_rnafm_cross_assay_10fold_v1_20260822` | All ten released checkpoints; arithmetic ensemble; no direct-label tuning | AUC 0.600 (0.567--0.632), AUPR 0.058 (0.054--0.063), F1 0.097 | Weak ranking but unusable threshold transfer: specificity 0.001, ECE 0.906. |
+| `released_rnafm_cross_assay_10fold_heterogeneity_audit_v1_20260822` | Frozen post hoc per-checkpoint transfer audit; no selection | Per-fold AUC 0.251--0.821; Spearman 0.338--0.705 | Native similarity does not imply stable cross-assay ranking. |
+| `released_utrlm_native_10fold_summary_v1_20260822` | Full metrics recomputed from all saved UTR-LM predictions | AUC 0.764938$\pm$0.009281, AUPR 0.580823$\pm$0.016453, F1 0.492983$\pm$0.015945 | Adds sensitivity, specificity, MCC, ECE and per-holdout bootstrap intervals without rerunning the model. |
 | `deepcip_data_overlap_audit_v3_20260822` | Exact released DeepCIP split and cross-benchmark audit | 1,089/1,164 DeepCIP test sequences match IRES-LM 55k; cross-assay label agreement 46.7\% | DeepCIP test is train-disjoint internally, yet label semantics are assay-specific on the same sequences. |
 
 The attempted local 130M RNA-AR probe produced no accepted score. Standard Transformers ignored
@@ -161,14 +207,14 @@ uses the official `cuhkaih/rnafm` Hugging Face release and requires SHA-256 veri
 - [ ] Build sequence-cluster and viral-family split candidates; check overlap/leakage.
 - [x] Complete RNA-FM native fold-0 scale gate using the verified official checkpoint.
 - [x] Resolve and execute the exact released UTR-LM backbone and all ten fold checkpoints.
-- [ ] Finish the ten RNA-FM fold checkpoint downloads and run the same frozen-checkpoint audit.
+- [x] Finish the ten RNA-FM fold checkpoint downloads and run the same frozen-checkpoint audit.
 - [x] Rerun IRESfinder on all unique sequences and the released repeated test folds.
 
 ### 2026-08-29 to 2026-09-04
 
 - [x] Run simple k-mer/GC/length baselines on the reconstructed legacy random split.
 - [ ] Repeat the lightweight baselines on frozen similarity/family splits and within each assay.
-- [ ] Complete the ten-fold ensemble evaluation of legacy IRES-LM transfer without direct-label tuning (fold-0 gate complete).
+- [x] Complete the ten-fold ensemble evaluation of legacy IRES-LM transfer without direct-label tuning.
 - [ ] Produce the assay-shift gate report with calibration, rank correlation and top-k overlap.
 - [ ] Freeze the full-length seed panel and cargo panel only after the report.
 
@@ -197,6 +243,8 @@ uses the official `cuhkaih/rnafm` Hugging Face release and requires SHA-256 veri
 | 2026-08-21 | Add cargo-context robustness. | Experimental IRES–cargo work links crosstalk/structure consistency to restored circRNA translation. |
 | 2026-08-21 | Do not treat the released random split as ordinary ten-fold CV. | Test membership repeats 0–6 times per unique sequence. |
 | 2026-08-21 | Reject the first local RNA-AR probe. | Standard loader ignored custom HoPE `bias_raw` weights. |
+| 2026-08-22 | Freeze the ten-checkpoint RNA-FM reproduction and transfer audit. | Native AUC is stable near 0.778, but direct-RNA per-fold AUC spans 0.251--0.821 and the final ensemble ECE is 0.906. |
+| 2026-08-22 | Prioritize an assay-aware, checkpoint-robust scorer before sequence optimization. | A single native-performing checkpoint is not a reliable cross-assay oracle; conservative aggregation must be validated before use in design. |
 
 ## Update rule
 

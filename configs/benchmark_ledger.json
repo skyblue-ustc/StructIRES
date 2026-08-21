@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "entries": [
+    {
+      "result_id": "published_rnafm",
+      "model": "RNA-FM",
+      "result_status": "published_reference",
+      "evaluation_regime": "paper native",
+      "assay": "legacy reporter",
+      "metrics": {"auc": 0.779, "aupr": 0.615, "f1": 0.506},
+      "note": "Copied from the audited published benchmark; not a local rerun."
+    },
+    {
+      "result_id": "published_utrlm",
+      "model": "UTR-LM",
+      "result_status": "published_reference",
+      "evaluation_regime": "paper native",
+      "assay": "legacy reporter",
+      "metrics": {"auc": 0.765, "aupr": 0.581, "f1": 0.493},
+      "note": "Copied from the audited published benchmark; not a local rerun."
+    },
+    {
+      "result_id": "published_rnabert",
+      "model": "RNA-BERT",
+      "result_status": "published_reference",
+      "evaluation_regime": "paper native",
+      "assay": "legacy reporter",
+      "metrics": {"auc": 0.740, "aupr": 0.530, "f1": 0.460}
+    },
+    {
+      "result_id": "published_ernierna",
+      "model": "ERNIE-RNA",
+      "result_status": "published_reference",
+      "evaluation_regime": "paper native",
+      "assay": "legacy reporter",
+      "metrics": {"auc": 0.670, "aupr": 0.350, "f1": 0.330}
+    },
+    {
+      "result_id": "published_evo2",
+      "model": "Evo-2",
+      "result_status": "published_reference",
+      "evaluation_regime": "paper native",
+      "assay": "legacy reporter",
+      "metrics": {"auc": 0.610, "aupr": 0.310, "f1": 0.330}
+    },
+    {
+      "result_id": "published_ireslm",
+      "model": "IRES-LM",
+      "result_status": "published_reference",
+      "evaluation_regime": "paper native",
+      "assay": "legacy reporter",
+      "metrics": {"auc": 0.770, "aupr": 0.600, "f1": 0.500}
+    },
+    {
+      "result_id": "published_deepcip",
+      "model": "DeepCIP",
+      "result_status": "published_reference",
+      "evaluation_regime": "paper native",
+      "assay": "circRNA screen",
+      "metrics": {"auc": 0.730, "aupr": 0.500, "f1": 0.270}
+    },
+    {
+      "result_id": "published_irespy",
+      "model": "IRESpy",
+      "result_status": "published_reference",
+      "evaluation_regime": "paper native",
+      "assay": "legacy reporter",
+      "metrics": {"auc": 0.670, "aupr": 0.370, "f1": 0.110}
+    },
+    {
+      "result_id": "published_iresfinder",
+      "model": "IRESfinder",
+      "result_status": "published_reference",
+      "evaluation_regime": "paper native",
+      "assay": "legacy reporter",
+      "metrics": {"auc": 0.610, "aupr": 0.270, "f1": 0.350}
+    },
+    {
+      "result_id": "local_rnafm_native_10fold",
+      "model": "RNA-FM",
+      "result_status": "released_checkpoint_rerun",
+      "evaluation_regime": "local official split",
+      "assay": "legacy reporter",
+      "note": "Ten overlapping released 90/10 holdouts; checkpoints were selected upstream on test AUPR.",
+      "source": {
+        "run_id": "released_rnafm_native_10fold_summary_v1_20260822",
+        "metric_file": "aggregate_metrics.csv",
+        "aggregation": "first",
+        "metric_mapping": {"auc": "auc_mean", "aupr": "aupr_mean", "f1": "f1_mean", "accuracy": "accuracy_mean", "sensitivity": "sensitivity_mean", "specificity": "specificity_mean", "mcc": "mcc_mean", "ece10": "ece10_mean"},
+        "std_mapping": {"auc": "auc_std", "aupr": "aupr_std", "f1": "f1_std", "accuracy": "accuracy_std", "sensitivity": "sensitivity_std", "specificity": "specificity_std", "mcc": "mcc_std", "ece10": "ece10_std"}
+      }
+    },
+    {
+      "result_id": "local_utrlm_native_10fold",
+      "model": "UTR-LM",
+      "result_status": "released_checkpoint_rerun",
+      "evaluation_regime": "local official split",
+      "assay": "legacy reporter",
+      "note": "Ten overlapping released 90/10 holdouts; checkpoints were selected upstream on test AUPR.",
+      "source": {
+        "run_id": "released_utrlm_native_10fold_summary_v1_20260822",
+        "metric_file": "aggregate_metrics.csv",
+        "aggregation": "first",
+        "metric_mapping": {"auc": "auc_mean", "aupr": "aupr_mean", "f1": "f1_mean", "accuracy": "accuracy_mean", "sensitivity": "sensitivity_mean", "specificity": "specificity_mean", "mcc": "mcc_mean", "ece10": "ece10_mean"},
+        "std_mapping": {"auc": "auc_std", "aupr": "aupr_std", "f1": "f1_std", "accuracy": "accuracy_std", "sensitivity": "sensitivity_std", "specificity": "specificity_std", "mcc": "mcc_std", "ece10": "ece10_std"}
+      }
+    },
+    {
+      "result_id": "local_iresfinder_native_10fold",
+      "model": "IRESfinder",
+      "result_status": "released_model_rerun",
+      "evaluation_regime": "local official split",
+      "assay": "legacy reporter",
+      "note": "Ten overlapping released 90/10 holdouts; full metrics recomputed from released scores.",
+      "source": {
+        "run_id": "iresfinder_released_repeated10_v3_20260822",
+        "metric_file": "metrics.csv",
+        "aggregation": "mean",
+        "metric_mapping": {"auc": "auc", "aupr": "aupr", "f1": "f1", "accuracy": "accuracy", "sensitivity": "sensitivity", "specificity": "specificity", "mcc": "mcc", "ece10": "ece10"}
+      }
+    },
+    {
+      "result_id": "local_iresfinder_similarity",
+      "model": "IRESfinder",
+      "result_status": "released_model_rerun",
+      "evaluation_regime": "similarity-aware split",
+      "assay": "legacy reporter",
+      "note": "Frozen exact 90% identity component-disjoint 174-nt test set.",
+      "source": {
+        "run_id": "iresfinder_similarity_split_hamming90_len174_v2_20260822",
+        "metric_file": "metrics.csv",
+        "aggregation": "first",
+        "metric_mapping": {"auc": "auc", "aupr": "aupr", "f1": "f1", "accuracy": "accuracy", "sensitivity": "sensitivity", "specificity": "specificity", "mcc": "mcc", "ece10": "ece10"},
+        "ci_mapping": {"auc": ["auc_ci_low", "auc_ci_high"], "aupr": ["aupr_ci_low", "aupr_ci_high"]}
+      }
+    },
+    {
+      "result_id": "local_iresfinder_cross_assay",
+      "model": "IRESfinder",
+      "result_status": "zero_shot_transfer",
+      "evaluation_regime": "cross-assay/direct-RNA",
+      "assay": "direct-RNA MPRA",
+      "note": "All labelled direct-RNA records; no direct-label tuning.",
+      "source": {
+        "run_id": "iresfinder_cross_assay_transfer_v1_20260821",
+        "metric_file": "metrics.csv",
+        "aggregation": "first",
+        "selector": {"subset": "all_labelled"},
+        "metric_mapping": {"auc": "auc", "aupr": "aupr", "f1": "f1", "accuracy": "accuracy", "sensitivity": "sensitivity", "specificity": "specificity", "mcc": "mcc", "ece10": "ece10"},
+        "ci_mapping": {"auc": ["auc_ci_low", "auc_ci_high"], "aupr": ["aupr_ci_low", "aupr_ci_high"]}
+      }
+    },
+    {
+      "result_id": "local_rnafm_cross_assay_10fold",
+      "model": "RNA-FM",
+      "result_status": "zero_shot_transfer",
+      "evaluation_regime": "cross-assay/direct-RNA",
+      "assay": "direct-RNA MPRA",
+      "note": "Arithmetic mean of ten released checkpoints; no direct-label tuning.",
+      "source": {
+        "run_id": "released_rnafm_cross_assay_10fold_v1_20260822",
+        "metric_file": "metrics.csv",
+        "aggregation": "first",
+        "selector": {"subset": "all_labelled"},
+        "metric_mapping": {"auc": "auc", "aupr": "aupr", "f1": "f1", "accuracy": "accuracy", "sensitivity": "sensitivity", "specificity": "specificity", "mcc": "mcc", "ece10": "ece10"},
+        "ci_mapping": {"auc": ["auc_ci_low", "auc_ci_high"], "aupr": ["aupr_ci_low", "aupr_ci_high"]}
+      }
+    }
+  ]
+}

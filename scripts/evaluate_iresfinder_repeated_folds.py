@@ -5,13 +5,18 @@ from __future__ import annotations
 
 import argparse
 import csv
+import gzip
 import hashlib
 import json
 import zipfile
 from pathlib import Path
 
 import pandas as pd
-from sklearn.metrics import accuracy_score, average_precision_score, f1_score, roc_auc_score
+
+from ires_design.classification import (
+    binary_classification_metrics,
+    stratified_bootstrap_intervals,
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -19,6 +24,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dataset-zip", type=Path, required=True)
     parser.add_argument("--predictions", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument("--bootstrap-replicates", type=int, default=2000)
+    parser.add_argument("--seed", type=int, default=42)
     return parser.parse_args()
 
 
@@ -43,11 +50,15 @@ def main() -> int:
         if len(members) != 1:
             raise ValueError(f"expected one canonical CSV member, found {members}")
         with archive.open(members[0]) as handle:
-            data = pd.read_csv(handle, usecols=["fold", "type", "idx", "IRES_class_600"])
+            data = pd.read_csv(
+                handle,
+                usecols=["fold", "type", "idx", "Sequence", "IRES_class_600"],
+            )
     predictions = pd.read_csv(args.predictions)
     required_columns = {"id", "probability"}
     if not required_columns.issubset(predictions.columns):
-        raise ValueError(f"missing prediction columns: {required_columns - set(predictions.columns)}")
+        missing = required_columns - set(predictions.columns)
+        raise ValueError(f"missing prediction columns: {missing}")
     predictions["idx"] = predictions["id"].str.removeprefix("idx_").astype(int)
     if predictions["idx"].duplicated().any():
         raise ValueError("duplicate prediction idx")
@@ -55,34 +66,56 @@ def main() -> int:
         raise ValueError("probabilities must be in [0, 1]")
     prediction_map = predictions.set_index("idx")["probability"]
     rows: list[dict[str, object]] = []
+    prediction_rows: list[dict[str, object]] = []
     for fold in range(10):
         test = data[(data["fold"] == fold) & (data["type"] == "test")].copy()
         probabilities = test["idx"].map(prediction_map)
         if probabilities.isna().any():
             raise ValueError(f"missing IRESfinder predictions in fold {fold}")
         labels = test["IRES_class_600"].astype(int)
-        predicted = (probabilities >= 0.5).astype(int)
+        metric_values = binary_classification_metrics(labels, probabilities, threshold=0.5)
         rows.append(
             {
                 "model": "IRESfinder",
                 "status": "released_model_rerun_py3_adapter",
                 "protocol": "released_native_test_fold",
                 "fold": fold,
-                "n": len(test),
-                "n_positive": int(labels.sum()),
-                "auc": float(roc_auc_score(labels, probabilities)),
-                "aupr": float(average_precision_score(labels, probabilities)),
-                "f1": float(f1_score(labels, predicted, zero_division=0)),
-                "accuracy": float(accuracy_score(labels, predicted)),
+                **metric_values,
+                **stratified_bootstrap_intervals(
+                    labels,
+                    probabilities,
+                    replicates=args.bootstrap_replicates,
+                    seed=args.seed + fold,
+                ),
             }
         )
+        for idx, sequence, label, probability in zip(
+            test["idx"], test["Sequence"], labels, probabilities
+        ):
+            canonical = str(sequence).upper().replace("T", "U")
+            prediction_rows.append(
+                {
+                    "fold": fold,
+                    "idx": int(idx),
+                    "sequence_sha256": hashlib.sha256(canonical.encode("ascii")).hexdigest(),
+                    "label": int(label),
+                    "probability": float(probability),
+                    "prediction": int(probability >= 0.5),
+                }
+            )
     with (args.output_dir / "metrics.csv").open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
         writer.writeheader()
         writer.writerows(rows)
+    with gzip.open(
+        args.output_dir / "predictions.csv.gz", "wt", encoding="utf-8", newline=""
+    ) as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(prediction_rows[0]))
+        writer.writeheader()
+        writer.writerows(prediction_rows)
     metrics = pd.DataFrame(rows)
     summary = {
-        "schema_version": 1,
+        "schema_version": 2,
         "experiment": "iresfinder_released_repeated_fold_rerun",
         "scope": "classification-only reproduction",
         "dataset_zip": str(args.dataset_zip.resolve()),
@@ -91,10 +124,38 @@ def main() -> int:
         "predictions_sha256": sha256(args.predictions),
         "decision_threshold": 0.5,
         "n_folds": 10,
-        "auc_mean": float(metrics["auc"].mean()),
-        "aupr_mean": float(metrics["aupr"].mean()),
-        "f1_mean": float(metrics["f1"].mean()),
-        "accuracy_mean": float(metrics["accuracy"].mean()),
+        "bootstrap_replicates_per_fold": args.bootstrap_replicates,
+        "bootstrap_seed": args.seed,
+        "repeated_holdout_non_independence_warning": (
+            "Released test folds overlap; fold mean and standard deviation are descriptive, "
+            "not independent-fold uncertainty."
+        ),
+        "metric_means": {
+            name: float(metrics[name].mean())
+            for name in (
+                "auc",
+                "aupr",
+                "f1",
+                "accuracy",
+                "sensitivity",
+                "specificity",
+                "mcc",
+                "ece10",
+            )
+        },
+        "metric_standard_deviations": {
+            name: float(metrics[name].std(ddof=1))
+            for name in (
+                "auc",
+                "aupr",
+                "f1",
+                "accuracy",
+                "sensitivity",
+                "specificity",
+                "mcc",
+                "ece10",
+            )
+        },
         "compatibility_note": (
             "Original Perl features and released training data; Python 2.7 orchestration ported "
             "to the installed scikit-learn API."

@@ -10,7 +10,11 @@ import zipfile
 from pathlib import Path
 
 import pandas as pd
-from sklearn.metrics import accuracy_score, average_precision_score, f1_score, roc_auc_score
+
+from ires_design.classification import (
+    binary_classification_metrics,
+    stratified_bootstrap_intervals,
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -19,6 +23,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--predictions", type=Path, required=True)
     parser.add_argument("--assignments", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument("--bootstrap-replicates", type=int, default=2000)
+    parser.add_argument("--seed", type=int, default=42)
     return parser.parse_args()
 
 
@@ -73,25 +79,25 @@ def main() -> int:
         raise ValueError("missing IRESfinder probabilities")
 
     test = merged[merged["split"] == "test"].copy()
-    predicted = (test["probability"] >= 0.5).astype(int)
     metrics = {
         "model": "IRESfinder",
         "status": "released_model_rerun_py3_adapter",
         "protocol": "frozen_hamming90_len174_cluster_disjoint_test",
-        "n": int(len(test)),
-        "n_positive": int(test["label"].sum()),
-        "auc": float(roc_auc_score(test["label"], test["probability"])),
-        "aupr": float(average_precision_score(test["label"], test["probability"])),
-        "f1": float(f1_score(test["label"], predicted, zero_division=0)),
-        "accuracy": float(accuracy_score(test["label"], predicted)),
-        "decision_threshold": 0.5,
+        **binary_classification_metrics(test["label"], test["probability"], threshold=0.5),
+        **stratified_bootstrap_intervals(
+            test["label"],
+            test["probability"],
+            replicates=args.bootstrap_replicates,
+            seed=args.seed,
+        ),
     }
     pd.DataFrame([metrics]).to_csv(args.output_dir / "metrics.csv", index=False)
-    test[["ID", "idx", "label", "source", "cluster_id", "probability"]].to_csv(
+    test["prediction"] = (test["probability"] >= 0.5).astype(int)
+    test[["ID", "idx", "label", "source", "cluster_id", "probability", "prediction"]].to_csv(
         args.output_dir / "predictions.csv.gz", index=False, compression="gzip"
     )
     manifest = {
-        "schema_version": 1,
+        "schema_version": 2,
         "experiment": "iresfinder_similarity_split_rerun",
         "scope": "classification-only reproduction",
         "dataset_zip": str(args.dataset_zip.resolve()),
@@ -100,6 +106,8 @@ def main() -> int:
         "predictions_sha256": sha256(args.predictions),
         "assignments": str(args.assignments.resolve()),
         "assignments_sha256": sha256(args.assignments),
+        "bootstrap_replicates": args.bootstrap_replicates,
+        "bootstrap_seed": args.seed,
         "test_labels_used_for_training_thresholding_or_model_choice": False,
         "metrics": metrics,
     }

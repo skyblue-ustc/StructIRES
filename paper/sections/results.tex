@@ -34,11 +34,14 @@ AUC/AUPR/F1 of 0.779/0.615/0.506 and UTR-LM values of 0.765/0.581/0.493. We then
 released UTR-LM checkpoints on their native test folds and obtained 0.764938/0.580823/0.492983;
 the maximum fold-level absolute deviation from the released CSV was $3.74\times10^{-6}$. The first
 verified released RNA-FM checkpoint was then rerun on its 4,678-record native test fold, giving
-AUC 0.777114, AUPR 0.594668 and F1 0.524311. Four additional valid checkpoints (folds 1, 2, 6 and
-9) were subsequently rerun, followed by fold 5. Across the six available folds, the interim mean
-and standard deviation were 0.777740$\pm$0.011009, 0.611767$\pm$0.016782 and
-0.519049$\pm$0.023373. We label this explicitly as a 6/10-checkpoint operational result; the final
-aggregate awaits the remaining large checkpoint downloads. Source inspection further showed that both
+AUC 0.777114, AUPR 0.594668 and F1 0.524311. After size, SHA-256 and deserialization checks, we
+executed all ten released checkpoints separately. Their final repeated-holdout mean and sample
+standard deviation were 0.778420$\pm$0.009106, 0.614020$\pm$0.013919 and
+0.509881$\pm$0.022686 for AUC, AUPR and F1, respectively. Accuracy, sensitivity, specificity,
+MCC and ECE were 0.771612$\pm$0.040410, 0.600109$\pm$0.054448,
+0.813427$\pm$0.062923, 0.377099$\pm$0.036561 and 0.219028$\pm$0.048236. These
+standard deviations are descriptive because the released test holdouts overlap. Source inspection
+further showed that both
 released training scripts evaluate the test set after every epoch and select the saved checkpoint
 using test AUPR. We therefore label these values as released-protocol references rather than
 independent blind-test estimates; corrected reruns reserve validation data for model selection.
@@ -102,6 +105,13 @@ near-neighbour split from strong absolute discrimination.
 
 \input{tables/prediction}
 
+Table~\ref{tab:unified-results} provides the full metric panel while preserving the distinction
+between published references, local official-split reruns, similarity-aware evaluation and
+cross-assay transfer. Its local rows are generated from explicit immutable run directories and
+include hashes of the metric file and run manifest in the accompanying CSV ledger.
+
+\input{tables/unified_results}
+
 \subsection{Cross-assay transfer}
 The normalized IRES-TrAPPr supplement contained 2,300 unique sequences, including 111 with an
 unambiguous active call and 2,068 with an unambiguous inactive call. Only one sequence exactly
@@ -128,19 +138,29 @@ native benchmark. Across all labelled direct-RNA records it achieved AUC 0.460 (
 a direct-RNA activity oracle.
 
 The released RNA-FM fold-0 checkpoint retained modest zero-shot rank signal on the direct-RNA set
-(AUC 0.618, 95\% CI 0.582--0.652), but this did not generalize across equally native-performing
-checkpoints. Across folds 0, 1, 2, 5, 6 and 9, AUC varied from 0.251 to 0.641 and pairwise checkpoint
-rank correlations ranged from only 0.440 to 0.705. The arithmetic-mean six-checkpoint ensemble
-reached AUC 0.583 (0.549--0.616) and AUPR 0.055 (0.052--0.061), against prevalence 0.051. Its
-interim five-checkpoint predecessor without fold 5 had reached only 0.432/0.041, illustrating that
-out-of-assay ranking is highly sensitive to checkpoint composition. At the released 0.5 threshold,
-the six-checkpoint ensemble assigned every active record and 99.7\% of inactive records to the
-positive class, yielding F1 0.097, specificity 0.003 and ECE 0.908. On the high-similarity subset
-it reached AUC 0.585 and AUPR 0.038. Thus selecting fold 0 alone would materially overstate the
-stability of transfer even though the current partial ensemble has above-random ranking. The final
-analysis will repeat the
-predeclared arithmetic ensemble after all ten checkpoints are available, without selecting a fold,
-direction or threshold on direct-RNA labels.
+(AUC 0.618, 95\% CI 0.582--0.652), but this did not generalize consistently across equally
+native-performing checkpoints. Across all ten folds, frozen post hoc AUC varied from 0.251 to
+0.821 and pairwise checkpoint rank correlations ranged from only 0.338 to 0.705. The predeclared
+arithmetic-mean ten-checkpoint ensemble reached AUC 0.600 (0.567--0.632) and AUPR 0.058
+(0.054--0.063), against prevalence 0.051. Earlier immutable five-, six-, seven- and
+nine-checkpoint snapshots ranged from AUC 0.432 to 0.602, illustrating that out-of-assay ranking
+is sensitive to checkpoint composition. At the released 0.5 threshold, the final ensemble
+assigned every active record and 99.85\% of inactive records to the positive class, yielding F1
+0.097, specificity 0.001 and ECE 0.906. On the high-similarity subset it reached AUC 0.577 and
+AUPR 0.038. Thus neither the best post hoc fold nor fold 0 is a valid standalone transfer result.
+The final aggregate uses every released checkpoint without selecting a fold, direction or
+threshold on direct-RNA labels.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.99\textwidth]{figures/fig4_checkpoint_stability.pdf}
+  \caption{Released RNA-FM checkpoint stability audit. (a) Each line connects one checkpoint's
+  native-holdout and zero-shot direct-RNA AUROC; the black diamond is the ten-checkpoint arithmetic
+  ensemble. (b) Native AUROC is only weakly associated with direct-RNA AUROC. (c) Pairwise
+  Spearman correlations of direct-RNA predictions show substantial checkpoint heterogeneity. All
+  direct-RNA analyses are post hoc frozen evaluations and are not used for checkpoint selection.}
+  \label{fig:checkpoint-stability}
+\end{figure*}
 
 \begin{figure*}[t]
   \centering
