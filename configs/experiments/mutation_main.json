@@ -27,7 +27,7 @@
     "seed_set_manifest": "assets/manifests/mutation_seed_set.json",
     "minimum_seed_sequences": 10,
     "required_named_seeds": ["IAPV", "HCV", "CrPV", "SV-A"],
-    "required_types": ["IV", "V", "VI"],
+    "required_types": ["IV", "VI"],
     "max_edit_distance": 10,
     "max_edit_fraction": 0.03,
     "population_size": 50,

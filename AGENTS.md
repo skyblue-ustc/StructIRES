@@ -26,6 +26,15 @@
 - RFamLlama and GenerRNA are optional proposal backbones, not same-task IRES design baselines.
 - Without wet-lab validation, use `computational candidate enrichment`, not verified biological improvement.
 
+## Biosafety boundary
+
+- Keep the project computational and limited to short, isolated, non-coding IRES regulatory fragments.
+- Do not design or reconstruct complete viral genomes, replication-competent constructs, coding virulence factors, or infectious systems.
+- Do not optimize pathogenicity, replication, host range, immune evasion, transmission, or expression of harmful cargo.
+- Use inert reporter cargo contexts only; HCV and other pathogen-derived IRES controls are evaluation references, not targets for enhanced biological activity.
+- Do not provide wet-lab construction, delivery, culture, infection, or validation protocols.
+- Generated candidate sequences remain in ignored local run artifacts pending explicit biosafety and publication review.
+
 ## File safety
 
 - Do not commit large or licensed assets.

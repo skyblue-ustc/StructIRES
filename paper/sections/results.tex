@@ -29,20 +29,124 @@ $0.452\pm0.016$. These are shortcut-control pilots rather than claims against pu
 Published reference values and project runs remain visibly separated in
 Table~\ref{tab:prediction} and Figure~\ref{fig:prediction-pilot}.
 
+We independently recomputed the released ten-fold CSV aggregates and recovered RNA-FM
+AUC/AUPR/F1 of 0.779/0.615/0.506 and UTR-LM values of 0.765/0.581/0.493. We then executed all ten
+released UTR-LM checkpoints on their native test folds and obtained 0.764938/0.580823/0.492983;
+the maximum fold-level absolute deviation from the released CSV was $3.74\times10^{-6}$. The first
+verified released RNA-FM checkpoint was then rerun on its 4,678-record native test fold, giving
+AUC 0.777114, AUPR 0.594668 and F1 0.524311. Four additional valid checkpoints (folds 1, 2, 6 and
+9) were subsequently rerun. Across the five available folds, the interim mean and standard
+deviation were 0.775705$\pm$0.010974, 0.610537$\pm$0.018457 and
+0.517090$\pm$0.025575. We label this explicitly as a 5/10-checkpoint operational result; the final
+aggregate awaits the remaining large checkpoint downloads. Source inspection further showed that both
+released training scripts evaluate the test set after every epoch and select the saved checkpoint
+using test AUPR. We therefore label these values as released-protocol references rather than
+independent blind-test estimates; corrected reruns reserve validation data for model selection.
+
+We also ran the released IRESfinder classifier over all 46,774 unique sequences using its original
+Perl framed-k-mer extractor, released training data and feature indices, with only the Python 2.7
+orchestration ported to the current scikit-learn API. Evaluation on the same ten repeated native
+test folds yielded AUC/AUPR/F1 of 0.605074/0.273844/0.346292, reproducing the published rounded
+values of 0.61/0.27/0.35. The author-provided 14-sequence example retained all labels and differed
+in probability by at most 0.000190 from the released output.
+
+An exact sequence audit showed that 695 of the 722 released IRESfinder training sequences occurred
+in the IRES-LM benchmark, all from the 55k source, with 100\% label agreement. Removing these records
+from every native test fold reduced mean AUC/AUPR/F1 from 0.605/0.274/0.346 to
+0.602/0.267/0.337. The frozen component-disjoint test contained 55 exact training overlaps;
+removing them yielded 0.602/0.197/0.309 versus 0.599/0.199/0.313 on the full cluster test. We
+therefore disclose the contamination and report both views rather than treating IRESfinder as a
+fully independent external model.
+
+The released DeepCIP data provide a complementary same-sequence assay audit. Its three balanced
+training subsets each contain 7,898 sequences and share the same 3,949 positives while subsampling
+the negative pool; the balanced 1,164-sequence fixed test set has no exact overlap with any of the
+three training subsets. However, 1,089 test sequences (93.6\%) occur exactly in the IRES-LM 55k
+source. The DeepCIP circRNA-screen label and IRES-LM legacy label agree for only 46.7\% of these
+identical sequences. Thus the released DeepCIP test is internally train-disjoint, yet it cannot be
+treated as an interchangeable label view of the legacy benchmark.
+
+Generalization weakened when an entire source was withheld. Training only on the 44,634-sequence
+55k reporter library and testing on all 276 \texttt{IRESite\_exp} records reduced composition AUC to 0.600
+(95\% bootstrap CI 0.533--0.668) and hashed k-mer AUC to 0.601 (0.537--0.664). AUPR was 0.694 and
+0.681, respectively, against a held-out positive prevalence of 0.565. Thresholds selected only
+within the 55k source gave low recall (0.199 and 0.179) and F1 (0.316 and 0.293). Thus even before
+sequence-cluster evaluation, a complete source holdout exposes materially weaker portability than
+the reconstructed mixed-source folds.
+
+The exact 174-nt similarity graph contained 85,039 edges at $\geq90\%$ identity and 32,538
+connected components; the two largest contained 3,318 and 3,202 sequences. Assigning complete
+components yielded 31,249 training, 6,696 validation, and 6,696 test sequences with zero identity
+edges crossing a split. On this frozen test set, composition achieved AUC 0.634 (95\% bootstrap CI
+0.616--0.650), AUPR 0.230, and F1 0.336. The three-seed k-mer ensemble fell from its reconstructed
+mixed-source AUC/AUPR of 0.723/0.452 to 0.578 (0.559--0.595)/0.250 (0.229--0.273), with F1 0.252.
+The reversal of the apparent k-mer advantage indicates that near-neighbour structure materially
+inflated the mixed-source random-fold estimate.
+
+Applying the released IRESfinder model without refitting to the same component-disjoint test set
+gave AUC 0.599, AUPR 0.199 and F1 0.313. Its AUC changed only modestly from the released repeated-fold
+rerun, although its ranking remained below the composition control and its AUPR was only 0.035 above
+the cluster-test positive prevalence of 0.165. This result separates robustness to the particular
+near-neighbour split from strong absolute discrimination.
+
 \begin{figure*}[t]
   \centering
   \includegraphics[width=0.98\textwidth]{figures/fig2_prediction_pilot.pdf}
-  \caption{Dataset shortcut audit and leakage-aware lightweight pilot. Error bars show standard
-  deviation over ten reconstructed test folds; the next fold is used only for threshold selection.
-  Similarity-cluster results are intentionally pending.}
+  \caption{Dataset shortcut audit and identification controls. In panel b, bars and error bars
+  show repeated-fold mean and standard deviation (reconstructed project folds for the two controls
+  and released native folds for IRESfinder); diamonds show the frozen 90\%-identity
+  cluster-disjoint 174-nt test result. Project thresholds are chosen only on validation data;
+  IRESfinder uses its released threshold.}
   \label{fig:prediction-pilot}
 \end{figure*}
 
 \input{tables/prediction}
 
 \subsection{Cross-assay transfer}
-\textbf{Pending locked assay-shift run.} This section will report transfer and calibration rather
-than selecting a favorable cross-assay subset.
+The normalized IRES-TrAPPr supplement contained 2,300 unique sequences, including 111 with an
+unambiguous active call and 2,068 with an unambiguous inactive call. Only one sequence exactly
+matched the legacy benchmark. Nevertheless, 2,048 sequences had a nearest legacy sequence at
+$\geq90\%$ local-alignment identity and $\geq80\%$ coverage, and a 174-nt legacy fragment was
+exactly contained in 1,405 direct-RNA constructs. This apparent overlap did not imply functional
+agreement: the nearest legacy label agreed with the direct-RNA call for only 28.2\% of labelled
+sequences, and agreement among exact-containment cases was 21.1\%.
+
+Both frozen shortcut controls lost substantial discrimination and calibration under assay transfer
+(Table~\ref{tab:assay-shift}; Figure~\ref{fig:assay-shift}). Composition features yielded AUC
+0.579 and AUPR 0.058 on all 2,179 labelled direct-RNA sequences, only slightly above the 0.051
+positive prevalence. The hashed 3--6-mer model reversed below random ranking (AUC 0.368; AUPR
+0.037), despite reaching AUC 0.723 and AUPR 0.452 on reconstructed legacy folds. Restricting the
+analysis to high-similarity sequences did not rescue transfer: composition fell to AUC 0.500 and
+the k-mer model to 0.274. These results support treating the historical reporter score as
+assay-specific rather than as a portable activity oracle.
+
+The released IRESfinder model failed under the same zero-shot transfer despite reproducing its
+native benchmark. Across all labelled direct-RNA records it achieved AUC 0.460 (95\% CI
+0.422--0.496), AUPR 0.043 (0.041--0.047) against prevalence 0.051, and F1 0.081 at its released
+0.5 threshold. Its calibration error was 0.518. On the high-similarity subset, AUC decreased to
+0.393. Thus successful software reproduction on the legacy benchmark does not validate a model as
+a direct-RNA activity oracle.
+
+The released RNA-FM fold-0 checkpoint retained modest zero-shot rank signal on the direct-RNA set
+(AUC 0.618, 95\% CI 0.582--0.652), but AUPR was only 0.061 (0.057--0.067) against prevalence 0.051.
+At the released 0.5 threshold it assigned every active record and 99.7\% of inactive records to the
+positive class, yielding F1 0.097 and ECE 0.925. The high-similarity subset showed the same pattern
+(AUC 0.629, AUPR 0.043). This provisional one-checkpoint result sharpens the distinction between
+ranking and deployable probability transfer; the final manuscript will report the ten-checkpoint
+ensemble without selecting a threshold on direct-RNA labels.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.99\textwidth]{figures/fig3_assay_shift.pdf}
+  \caption{Frozen lightweight assay-shift audit. (a) Sequence similarity and exact fragment
+  containment are common but distributed differently among direct-RNA labels. (b) Bars show the
+  reconstructed legacy-fold result; diamonds show zero-shot direct-RNA transfer. The dashed line
+  is direct-RNA active prevalence. (c) Reliability curves show severe probability
+  miscalibration; marker area scales with bin count.}
+  \label{fig:assay-shift}
+\end{figure*}
+
+\input{tables/assay_shift}
 
 \subsection{Constrained full-length optimization}
 \textbf{Pending baseline gate.} The primary claim requires paired robust-full versus score-only

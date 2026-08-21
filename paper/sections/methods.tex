@@ -11,15 +11,26 @@ The released random-split file was audited as ten repeated stratified 90/10 hold
 mutually exclusive ten-fold partition. Published values are retained as external references. For a
 leakage-aware random-split pilot, we reconstruct deterministic folds stratified by label, source,
 and coarse length group, and reserve the next fold for threshold selection. The strict view clusters
-sequences at 90\% nucleotide identity before splitting. AUPR is primary
+the dominant 174-nt subset by exhaustive all-pairs ungapped Hamming identity at 90\%, takes graph
+connected components, and assigns whole components to a deterministic 70/15/15
+train/validation/test split. All identity edges are checked after assignment and any crossing edge
+invalidates the split. This exact equal-length view is reported separately from the pending gapped,
+cross-length and family-held-out audits. AUPR is primary
 because positives comprise about 19.6\% of the published dataset; AUC, F1, calibration, and
-source/length-stratified performance are secondary outcomes.
+source/length-stratified performance are secondary outcomes. As a strict source-holdout control,
+models are fitted only to the 44,634-sequence 55k library, with ten internal validation folds for
+threshold selection and ensembling, and are evaluated once on all 276 \texttt{IRESite\_exp} records.
+The held-out source is not used for fitting, thresholding, calibration, or model selection.
 
 \subsection{Cross-assay audit}
 Models trained on the legacy reporter assay are evaluated without adaptation on normalized
 IRES-TrAPPr measurements. We report rank association, calibration where labels permit, top-$k$
 overlap, and disagreements stratified by length, type, source, and distance from the training
-distribution.
+distribution. As low-capacity shortcut controls, composition logistic regression and hashed
+3--6-mer linear classifiers are fitted as ten-member ensembles. Each member excludes one legacy
+test fold and the following fold for validation; direct-RNA labels are never used for fitting,
+threshold selection, or model choice. AUC and AUPR uncertainty is estimated with 2,000 stratified
+bootstrap resamples of the direct-RNA evaluation set.
 
 \subsection{Seeded full-length optimization}
 Starting from experimentally supported viral IRESes, all variants share seeds, editable positions,

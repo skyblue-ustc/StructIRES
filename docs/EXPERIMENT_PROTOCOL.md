@@ -1,5 +1,14 @@
 # Frozen experiment protocol
 
+## Biosafety and release boundary
+
+All work is in silico and restricted to short, isolated, non-coding IRES regulatory fragments in
+benign reporter contexts. The project excludes complete viral genomes, replication-competent
+constructs, pathogen-enhancement objectives, harmful cargo, and wet-lab construction or infection
+protocols. Pathogen-derived positive controls may be evaluated as published references but are not
+optimized for enhanced biological activity. Generated candidates stay in ignored local run outputs
+until a separate biosafety and publication review approves any release.
+
 ## Shared candidate schema
 
 All methods emit JSONL matching `CandidateRecord`:
