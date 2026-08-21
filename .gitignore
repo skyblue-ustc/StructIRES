@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+
+# IDE / OS
+.DS_Store
+.idea/
+.vscode/
+.codex
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+
+# Model and optimizer artifacts
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.ckpt
+*.joblib
+*.pkl
+*.wandb
+checkpoints/
+wandb/
+
+# Local assets. Keep only documentation and small manifests.
+assets/*
+!assets/README.md
+!assets/manifests/
+assets/manifests/*
+!assets/manifests/.gitkeep
+!assets/manifests/example_model_manifest.json
+!assets/manifests/literature_sources.json
+!assets/manifests/ires_trappr_supplement.json
+
+# Run outputs
+runs/*
+!runs/README.md
+results/
+logs/
+
+# External repositories and downloaded papers
+external/
+third_party/
+papers/
+
+# Build artifacts
+build/
+dist/
+site/
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out

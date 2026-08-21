@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "audit_date": "2026-08-21",
+  "cache_policy": "PDFs are ignored local research assets and are not redistributed by this repository.",
+  "sources": [
+    {
+      "id": "ires_ai_2026_supplement",
+      "title": "Programmable RNA translation through deep learning-driven IRES discovery and de novo generation — Supplementary Information",
+      "url": "https://www.nature.com/articles/s42256-026-01213-z",
+      "local_cache_path": "assets/papers/core/chu_2026_ires_ai_supplement.pdf",
+      "sha256": "ff16ba27f4a3af53ec9a562f956eff34299082e30474b69df6bb8316ac67dc4b",
+      "role": "direct_same_task"
+    },
+    {
+      "id": "ires_trappr_2026",
+      "title": "IRES-TrAPPr reveals novel insights into viral and cellular mRNA translation",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13174604/",
+      "local_cache_path": "assets/papers/core/may_2026_ires_trappr.pdf",
+      "sha256": "8197aefed56e7b06f979cc10ac066a35d9b3508426a641e5764e5de06cffc6ed",
+      "role": "assay_and_data_anchor"
+    },
+    {
+      "id": "ires_structure_protein_2026",
+      "title": "Integrating RNA structure and protein interactions to uncover the mechanisms of viral and cellular IRES function",
+      "url": "https://link.springer.com/article/10.1186/s13062-025-00706-y",
+      "local_cache_path": "assets/papers/core/delli_ponti_2026_ires_structure_protein.pdf",
+      "sha256": "2854a9ebac452ce5085c145aa57b05e9f6f1cecd3e267c6991870f889b47f0ba",
+      "role": "structure_only_baseline"
+    },
+    {
+      "id": "albatross_2026",
+      "title": "An RNA Language Model trained on sequence alone reveals the structural logic of Internal Ribosome Entry Sites",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13228543/",
+      "local_cache_path": "assets/papers/core/sychla_2026_albatross.pdf",
+      "sha256": "7ab7758b2fda5028966363a38a20fd001dd00b075d4909faabc3f406da7a709e",
+      "role": "structure_evaluator"
+    },
+    {
+      "id": "ires_cargo_context_2026",
+      "title": "IRES–cargo interplay structurally modulates circular RNA translation",
+      "url": "https://www.nature.com/articles/s41422-026-01233-9.pdf",
+      "local_cache_path": "assets/papers/core/chen_2026_ires_cargo_context.pdf",
+      "sha256": "316bccb892e67a036a81cc8512d2a66f4a4fa5f5e29256bb6fdb6d2e8a6ea9ac",
+      "role": "cargo_context_evidence"
+    },
+    {
+      "id": "lamar_2025",
+      "title": "A foundation language model to decipher diverse regulation of RNAs",
+      "url": "https://link.springer.com/article/10.1186/s13059-025-03752-x",
+      "local_cache_path": "assets/papers/core/zhou_2025_lamar.pdf",
+      "sha256": "fc436d939a09e31fb391ba50e48f75df15123ad1f083b84c7c2bcc340a0cf5f2",
+      "role": "secondary_evaluator"
+    },
+    {
+      "id": "parade_2025",
+      "title": "A generative framework for enhanced cell-type specificity in rationally designed mRNAs",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11722239/",
+      "local_cache_path": "assets/papers/core/khoroshkin_2025_parade.pdf",
+      "sha256": "1484aa636c117a460b67c16d21dc9204f5b6371b84339aebff08dae98fe82fa5",
+      "role": "algorithmic_control_precedent"
+    },
+    {
+      "id": "sandstorm_gardn_2025",
+      "title": "Generative and predictive neural networks for the design of functional RNA molecules",
+      "url": "https://www.nature.com/articles/s41467-025-59389-8",
+      "local_cache_path": "assets/papers/core/riley_2025_sandstorm_gardn.pdf",
+      "sha256": "cb9257d725ce7c28f059b0ca0230f5930895747dbd027099a373ed00635b2e1b",
+      "role": "predictor_generator_precedent"
+    },
+    {
+      "id": "garnet_2024",
+      "title": "GARNET: generative RNA design using a language model",
+      "url": "https://www.nature.com/articles/s41467-024-54812-y",
+      "local_cache_path": "assets/papers/core/allen_2024_garnet.pdf",
+      "sha256": "e5596676cb13bf583b4956275b0790ea93a1f3e54e2f0daf597b92dcd4670211",
+      "role": "lm_mutation_precedent"
+    },
+    {
+      "id": "rfamllama_2024",
+      "title": "RFamLlama: an efficient conditional language model for RNA sequence generation across diverse structural families",
+      "url": "https://openreview.net/forum?id=dXnQedxEJD",
+      "local_cache_path": "assets/papers/core/sun_2024_rfamllama.pdf",
+      "sha256": "3f55b77b0b298c125b69b00ca9fbc77cb3474d4183cda14242c788b6f7fc6c49",
+      "role": "optional_proposal_backbone"
+    },
+    {
+      "id": "generna_2024",
+      "title": "GenerRNA: A generative pre-trained language model for de novo RNA design",
+      "url": "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0310814",
+      "local_cache_path": "assets/papers/core/zhao_2024_generRNA.pdf",
+      "sha256": "8433aa638150eb8b301a468fbb73c722ced7de23b6f83d77779bf96d46dd37d2",
+      "role": "optional_proposal_backbone"
+    },
+    {
+      "id": "goforth_2026",
+      "title": "GoForth: Language Models for RNA Design under Structure, Sequence, and Coding Constraints",
+      "url": "https://arxiv.org/abs/2605.07608",
+      "local_cache_path": "assets/papers/core/lindsey_2026_goforth.pdf",
+      "sha256": "eea15788658934199034364c65e45be8d4e82796990ad27b1b8b9b093d769ed8",
+      "role": "optional_structure_proposal"
+    },
+    {
+      "id": "weingarten_gabbay_2016_supplement",
+      "title": "Systematic discovery of cap-independent translation sequences in human and viral genomes — Supplement",
+      "url": "https://doi.org/10.1126/science.aad4939",
+      "local_cache_path": "assets/papers/core/weingarten_gabbay_2016_supplement.pdf",
+      "sha256": "4fc6c858044285a38cb88073600ff8a9917f582f1aab4292e84ae0cc7f8f9965",
+      "role": "legacy_assay_source"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+\begin{table*}[t]
+\centering
+\caption{IRES identification benchmark. Published values are references, not rerun results. Pilot
+values are mean $\pm$ standard deviation over reconstructed nested folds and are not directly
+comparable with the released repeated-holdout protocol.}
+\label{tab:prediction}
+\begin{tabular}{llccc}
+\toprule
+Status & Method & AUC & AUPR & F1 \\
+\midrule
+Published & RNA-FM & 0.779 & 0.615 & 0.506 \\
+Published & UTR-LM & 0.765 & 0.581 & 0.493 \\
+Published & RNA-BERT & 0.740 & 0.530 & 0.460 \\
+Published & ERNIE-RNA & 0.670 & 0.350 & 0.330 \\
+Published & Evo-2 & 0.610 & 0.310 & 0.330 \\
+Published & IRES-LM & 0.770 & 0.600 & 0.500 \\
+Published & DeepCIP & 0.730 & 0.500 & 0.270 \\
+Published & IRESpy & 0.670 & 0.370 & 0.110 \\
+Published & IRESfinder & 0.610 & 0.270 & 0.350 \\
+\midrule
+Project pilot, reconstructed & Composition logistic & .710$\pm$.009 & .405$\pm$.015 & .436$\pm$.016 \\
+Project pilot, reconstructed & Hashed k-mer linear & .723$\pm$.011 & .452$\pm$.016 & .452$\pm$.013 \\
+Project, cluster split & Local RNA-AR frozen probe & -- & -- & -- \\
+Project, cluster split & Structure-aware model & -- & -- & -- \\
+\bottomrule
+\end{tabular}
+\end{table*}

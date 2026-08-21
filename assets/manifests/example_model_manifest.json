@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "baseline_id": "official_rfamllama",
+  "asset_type": "model",
+  "source_url": "https://huggingface.co/jinyuan22/RFamLlama-base",
+  "source_revision": "REPLACE_WITH_COMMIT_OR_TAG",
+  "local_path": "assets/external/models/RFamLlama-base",
+  "sha256": "REPLACE_WITH_HASH_OR_FILE_MANIFEST_HASH",
+  "license": "VERIFY_MODEL_WEIGHT_LICENSE",
+  "downloaded_at": "YYYY-MM-DDTHH:MM:SSZ",
+  "notes": "Do not copy the model into Git."
+}
+

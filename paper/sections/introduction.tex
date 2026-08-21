@@ -1,0 +1,20 @@
+\section{Introduction}
+
+IRES elements recruit translation machinery independently of the canonical cap-dependent pathway
+and are attractive components for synthetic and therapeutic RNA systems. Their activity depends on
+more than a short sequence motif: alternative RNA structures, host factors, construct design, cell
+type, and downstream coding context can all alter translation.
+
+Recent IRES-AI work established useful same-task prediction, evolutionary mutation, and diffusion
+generation baselines using 46,774 labelled sequences. However, 95.4\% of that identification set
+comes from a 174-nt DNA/lentiviral reporter library. RNA-based IRES-TrAPPr measurements and recent
+IRES--cargo studies motivate an explicit audit of whether this legacy signal transfers to direct-RNA
+and full-length contexts.
+
+We therefore ask a narrower and more defensible question: can conservative, assay-aware
+optimization improve the computational robustness of bona fide full-length viral IRES variants
+without sacrificing their structural ensemble or creating adverse cargo interactions? Our
+contributions are: (i) an assay-labelled cross-assay audit; (ii) a locked identification benchmark
+with random, similarity-cluster, and source-held-out views; (iii) a generator-agnostic constrained
+optimization layer evaluated against IRES-specific and matched-budget search baselines; and (iv) a
+reproducible reporting package that separates optimization scorers from independent evaluators.

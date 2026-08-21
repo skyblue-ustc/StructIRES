@@ -1,0 +1,55 @@
+\section{Results}
+
+\subsection{Dataset composition reveals a strong assay and length imbalance}
+The assembled IRES-AI identification set contains 46,774 unique sequences, of which 9,172 are
+positive and 37,602 are negative. Of these, 44,641 sequences are exactly 174 nt. Figure~\ref{fig:overview}
+places this legacy benchmark alongside the direct-RNA and structure/context evidence used by the
+primary task.
+
+The released long-form split is not a mutually exclusive ten-fold partition: 16,176 sequences
+never occur in a test set and 12,294 occur in two or more test sets. We therefore separate external
+published values from a deterministic reconstructed-fold pilot and reserve similarity-cluster
+evaluation for the locked benchmark.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.98\textwidth]{figures/fig1_overview.pdf}
+  \caption{Assay-labelled project route. The legacy identification benchmark is reproduced but is
+  not treated as equivalent to direct-RNA activity. Full-length design is evaluated with independent
+  function, structural-ensemble, cargo-context, applicability, and diversity criteria.}
+  \label{fig:overview}
+\end{figure*}
+
+\input{tables/data_sources}
+
+\subsection{Identification benchmark}
+On reconstructed nested folds, composition features already achieved AUC $0.710\pm0.009$ and AUPR
+$0.405\pm0.015$, while hashed 3--6-mer features achieved AUC $0.723\pm0.011$ and AUPR
+$0.452\pm0.016$. These are shortcut-control pilots rather than claims against published models.
+Published reference values and project runs remain visibly separated in
+Table~\ref{tab:prediction} and Figure~\ref{fig:prediction-pilot}.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.98\textwidth]{figures/fig2_prediction_pilot.pdf}
+  \caption{Dataset shortcut audit and leakage-aware lightweight pilot. Error bars show standard
+  deviation over ten reconstructed test folds; the next fold is used only for threshold selection.
+  Similarity-cluster results are intentionally pending.}
+  \label{fig:prediction-pilot}
+\end{figure*}
+
+\input{tables/prediction}
+
+\subsection{Cross-assay transfer}
+\textbf{Pending locked assay-shift run.} This section will report transfer and calibration rather
+than selecting a favorable cross-assay subset.
+
+\subsection{Constrained full-length optimization}
+\textbf{Pending baseline gate.} The primary claim requires paired robust-full versus score-only
+effects under identical candidate and oracle-query budgets.
+
+\input{tables/design_ablation}
+
+\subsection{Legacy 174-nt de novo benchmark}
+IRES-DM released outputs are an external reference. A strict superiority claim requires retraining
+under the shared data and budget protocol.

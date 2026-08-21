@@ -1,0 +1,35 @@
+\section{Methods}
+
+\subsection{Data provenance and assay labels}
+Every record retains its source study, assay context, construct, cell type, length, IRES type or
+family, and evidence level. DNA/lentiviral reporter labels, circRNA-plasmid measurements, and
+direct-RNA measurements are never pooled into an unlabeled target. Exact and similarity-based
+overlaps are frozen before model fitting.
+
+\subsection{IRES identification benchmark}
+The released random-split file was audited as ten repeated stratified 90/10 holdouts rather than a
+mutually exclusive ten-fold partition. Published values are retained as external references. For a
+leakage-aware random-split pilot, we reconstruct deterministic folds stratified by label, source,
+and coarse length group, and reserve the next fold for threshold selection. The strict view clusters
+sequences at 90\% nucleotide identity before splitting. AUPR is primary
+because positives comprise about 19.6\% of the published dataset; AUC, F1, calibration, and
+source/length-stratified performance are secondary outcomes.
+
+\subsection{Cross-assay audit}
+Models trained on the legacy reporter assay are evaluated without adaptation on normalized
+IRES-TrAPPr measurements. We report rank association, calibration where labels permit, top-$k$
+overlap, and disagreements stratified by length, type, source, and distance from the training
+distribution.
+
+\subsection{Seeded full-length optimization}
+Starting from experimentally supported viral IRESes, all variants share seeds, editable positions,
+edit limits, initial populations, candidate counts, and oracle-query budgets. The nested objective
+variants are score-only, MFE, ensemble, context, and robust-full. Robust-full combines conservative
+function aggregation, base-pair-probability preservation, cargo crosstalk, applicability, novelty,
+and batch-diversity objectives under a fixed NSGA-II implementation.
+
+\subsection{Evaluation and statistics}
+Optimization scorers are not used as sole final evaluators. We report paired effects over biological
+seeds and random seeds 42, 43, and 44, including raw candidate counts, validity survival, confidence
+intervals, wall time, and peak accelerator memory. A result is interpreted as computational
+enrichment or robustness unless prospectively validated in an appropriate assay.
