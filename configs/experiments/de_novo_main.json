@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "experiment_id": "legacy_de_novo_174nt_v2",
+  "task": "de_novo",
+  "expected_length": 174,
+  "assay_context": "legacy_dna_lentiviral_reporter",
+  "scientific_role": "secondary_legacy_benchmark",
+  "baseline_ids": [
+    "ires_dm",
+    "ires_dm_retrained",
+    "random_screen",
+    "score_only_ga",
+    "official_rfamllama",
+    "generna",
+    "natural_iresbase"
+  ],
+  "controlled_baseline_ids": ["ires_dm_retrained", "random_screen", "score_only_ga"],
+  "variants": ["raw", "score_only", "mfe", "ensemble", "robust_full"],
+  "seeds": [42, 43, 44],
+  "protocol": {
+    "candidate_pool_size": 10000,
+    "evaluation_size": 1000,
+    "top_k": 100,
+    "oracle_query_budget": 10000,
+    "paired_initialization": true,
+    "save_raw_candidates": true,
+    "report_survival": true
+  },
+  "evaluation": {
+    "primary": ["ires_lm_legacy_dna_above_floor", "ires_lm_legacy_dna_active_rank"],
+    "external": ["ires_trappr_rna_transfer", "lamar_ires"],
+    "structure": ["mfe_per_nt_reference_distance", "ensemble_diversity", "pairing_profile_distance"],
+    "validity": ["length_valid", "alphabet_valid", "gc", "max_homopolymer", "low_complexity"],
+    "novelty": ["nearest_train_identity", "unique_rate", "pairwise_identity"],
+    "efficiency": ["generator_calls", "oracle_calls", "wall_seconds", "peak_memory_mb"]
+  },
+  "output_root": "runs/legacy_de_novo_174nt_v2"
+}
