@@ -71,3 +71,13 @@ python scripts/run_source_holdout_benchmark.py \
 
 The host currently has no `pdflatex`, `latexmk`, or `tectonic`; compilation must be checked in a
 TeX-enabled environment before any venue wrapper is frozen.
+
+Audit cross-fold heterogeneity after a multi-checkpoint direct-RNA transfer run:
+
+```bash
+PYTHONPATH=scripts python scripts/audit_rnafm_cross_assay_heterogeneity.py \
+  --transfer-run /path/to/released_rnafm_cross_assay_available6_v1_20260822 \
+  --output-dir /path/to/released_rnafm_cross_assay_available6_heterogeneity_audit_v1_20260822 \
+  --bootstrap-replicates 2000 \
+  --seed 42
+```

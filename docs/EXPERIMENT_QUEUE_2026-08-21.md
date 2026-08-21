@@ -62,15 +62,19 @@ independent DeepCIP CPU dependency download is allowed to continue without block
 
 ### Execution update at 2026-08-22 03:25 CST
 
-- Native checkpoint reruns are complete for RNA-FM folds 0, 1, 2, 6 and 9.
-- `released_rnafm_native_available5_summary_v1_20260822` reports the five-fold interim
-  AUC/AUPR/F1 as 0.775705$\pm$0.010974 / 0.610537$\pm$0.018457 /
-  0.517090$\pm$0.025575. This is not a ten-fold result.
+- Native checkpoint reruns are complete for RNA-FM folds 0, 1, 2, 5, 6 and 9.
+- `released_rnafm_native_available6_summary_v1_20260822` reports the six-fold interim
+  AUC/AUPR/F1 as 0.777740$\pm$0.011009 / 0.611767$\pm$0.016782 /
+  0.519049$\pm$0.023373. This is not a ten-fold result.
 - Nodes 47, 48 and 46 continue the non-overlapping remaining downloads 3--4, 5 and 8, and 7,
   respectively.
 - DeepCIP P2 is paused after a time-boxed exact-environment attempt: both cached PyTorch archives
   fail integrity checks and the independent replacement fetch exhausted proxy retries. The released
   data-overlap audit remains valid; official model inference is not marked reproduced.
+- Six-checkpoint direct-RNA transfer is complete for the currently valid folds. The frozen
+  arithmetic ensemble reached AUC 0.583 and AUPR 0.055; per-fold AUCs ranged from 0.251 to 0.641.
+  No fold or direction is selected from direct-RNA labels. Repeat the same predeclared ensemble when
+  all ten checkpoints are available.
 
 Classification reproduction requires 22 weight files: one RNA-FM backbone, one UTR-LM backbone,
 ten released IRES-RNAFM folds and ten released IRES-UTRLM folds. The UTR-LM set (11 files) is
