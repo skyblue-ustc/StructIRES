@@ -1,38 +1,43 @@
 # IRES Design
 
-Reproducible, baseline-first experiments for computational design of internal ribosome entry site (IRES) RNA sequences.
+Reproducible, baseline-first experiments for assay- and context-aware computational design of internal ribosome entry site (IRES) RNA sequences.
 
 > Status: active research repository. The current claims are computational candidate enrichment under specified reporter/MPRA settings; no generated sequence is claimed to have improved biological activity without experimental validation.
 
 ## Scope
 
-This repository has one main story: evaluate established RNA/IRES design backbones under a shared protocol, then measure whether data-calibrated structure and energy constraints improve candidate quality without sacrificing predicted function, novelty, or diversity.
+This repository has one main story: optimize experimentally supported, full-length viral IRESes while resisting single-oracle score hacking and preserving structural function in downstream cargo contexts.
 
-Two tasks are kept separate:
+Three result tracks are kept separate:
 
-- **Task A — de novo design:** generate batches of 174-nt IRES candidates without a natural seed.
-- **Task B — mutation design:** optimize frozen natural or measured IRES seeds under a fixed edit and oracle-query budget.
+- **Task 0 — assay-shift audit:** test whether models learned from the 2016 DNA/lentiviral reporter data transfer to the 2026 RNA-based IRES-TrAPPr assay.
+- **Task 1 — primary seeded design:** optimize a frozen panel of full-length viral IRESes under matched edit and oracle-query budgets.
+- **Task 2 — legacy de novo benchmark:** reproduce 174-nt IRES-DM-style design under its original reporter context; this is not the primary biological claim.
 
 The proposed layer is deliberately generator-agnostic:
 
 ```text
-candidate source -> locked function scorers -> structure/energy objectives
-                 -> NSGA-II/Pareto search -> diversity-aware selection
-                 -> independent evaluation
+full-length IRES seed -> assay-labelled function scorers
+                      -> ensemble structure + IRES-cargo context objectives
+                      -> standard NSGA-II/Pareto search
+                      -> independent, uncertainty-aware evaluation
 ```
 
 ## Baselines
 
 | ID | Role | Main comparison |
 |---|---|---|
-| `official_rfamllama` | public RNA LM backbone | paired Raw-to-Full ablation |
-| `generna` | independent public RNA LM backbone | paired Raw-to-Full ablation |
-| `ires_ea` | IRES-specific mutation design | Task B baseline |
-| `ires_dm` | IRES-specific diffusion design | released-output external reference |
-| `lm_likelihood_mutation` | general LM mutation ranking | Task B baseline |
-| `random_mutation` | non-neural lower bound | Task B baseline |
-| `nsga2` | standard multi-objective search | shared optimizer/control |
-| `natural_iresbase` | experimentally supported reference | distribution anchor, not a trainable model |
+| `ires_ea` | exact IRES mutation method | direct Task 1 baseline |
+| `structure_only_mutation` | published fold/MFE mutation rule | structure-only Task 1 baseline |
+| `score_only_ga` | predictor-guided GA | primary paired control |
+| `lm_likelihood_mutation` | general LM mutation ranking | naturalness/fitness-prior control |
+| `random_mutation` | non-neural lower bound | budget-matched Task 1 control |
+| `ires_dm` | released IRES diffusion outputs | external Task 2 reference |
+| `ires_dm_retrained` | same-protocol IRES-DM retraining | strict Task 2 baseline |
+| `random_screen` | large random pool plus top-k | strong Task 2 lower bound |
+| `nsga2` | standard multi-objective search | shared optimizer, not the novelty |
+
+RFamLlama and GenerRNA remain optional proposal/likelihood ablations. They are generic RNA generators, not same-task IRES activity-design baselines.
 
 RFamLlama is the work of Sun, Li, and Deng (2024). This project does not claim RFamLlama or its Rfam-conditioned pretraining method as an original contribution. See [third-party provenance](THIRD_PARTY.md).
 
@@ -74,7 +79,7 @@ ires-design normalize-output input.fasta output.jsonl \
   --method official_rfamllama --task de_novo --seed 42
 ```
 
-See [baseline setup](docs/BASELINES.md) and the [frozen experiment protocol](docs/EXPERIMENT_PROTOCOL.md) before adding model-specific code.
+Read the [literature and baseline audit](docs/LITERATURE_AUDIT_2026-08-21.md), [baseline setup](docs/BASELINES.md), and [frozen experiment protocol](docs/EXPERIMENT_PROTOCOL.md) before adding model-specific code.
 
 ## Reproducibility contract
 
@@ -87,7 +92,7 @@ Every formal run records:
 - scorer versions and whether each scorer is used for optimization or evaluation;
 - raw candidates, validity/survival counts, and complete per-sequence results.
 
-The optimization scorer is never presented as the sole final judge. IRES-DM released outputs are not described as a strict budget-matched comparison unless the model is retrained under the shared protocol.
+The optimization scorer is never presented as the sole final judge. Every functional score carries its assay context. IRES-DM released outputs are not described as a strict budget-matched comparison unless the model is retrained under the shared protocol.
 
 ## Publication and patent note
 
@@ -96,4 +101,3 @@ Keep the GitHub repository **private until the intended patent application has b
 ## License
 
 The new project code is released under Apache License 2.0. External repositories, datasets, checkpoints, and model weights retain their own licenses and are not redistributed here.
-

@@ -1,10 +1,11 @@
 {
   "schema_version": 1,
-  "experiment_id": "smoke_v1",
+  "experiment_id": "legacy_de_novo_smoke_v2",
   "task": "de_novo",
   "expected_length": 174,
-  "baseline_ids": ["official_rfamllama", "generna", "ires_dm", "natural_iresbase"],
-  "controlled_baseline_ids": ["official_rfamllama", "generna"],
+  "assay_context": "legacy_dna_lentiviral_reporter",
+  "baseline_ids": ["ires_dm", "ires_dm_retrained", "random_screen", "score_only_ga"],
+  "controlled_baseline_ids": ["ires_dm_retrained", "random_screen", "score_only_ga"],
   "variants": ["raw"],
   "seeds": [42],
   "protocol": {
@@ -15,6 +16,5 @@
     "save_raw_candidates": true,
     "report_survival": true
   },
-  "output_root": "runs/smoke_v1"
+  "output_root": "runs/legacy_de_novo_smoke_v2"
 }
-

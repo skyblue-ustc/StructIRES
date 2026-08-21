@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "retrieved_at": "2026-08-21",
+  "source_article": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13174604/",
+  "retrieval_endpoint": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC13174604/supplementaryFiles?includeInlineImage=false",
+  "license": "CC BY 4.0 article/preprint; verify metadata and repository terms before redistribution",
+  "local_root": "assets/papers/supplementary/ires_trappr",
+  "notes": "Record counts exclude the header and include controls/duplicates. Active counts are the literal spreadsheet labels, not deduplicated biological positives.",
+  "files": [
+    {
+      "name": "media-1.xlsx",
+      "sha256": "a53fc58ecb34276aac257ba00db4b4f263666afa5c6b7704308e9736b93a41bd",
+      "records": 240,
+      "description": "IAPV variants and assay controls; 47 active, 190 inactive, 3 n/a labels; 226 unique sequence cells."
+    },
+    {
+      "name": "media-2.xlsx",
+      "sha256": "18f82747299acc30ade6db16434beb189a3457392186d411d0c5bc42dcd6d2b9",
+      "records": 108,
+      "description": "HCV positional variants with IRES/CDI TE and fold difference from wild type."
+    },
+    {
+      "name": "media-3.xlsx",
+      "sha256": "86f6e560f9b3c283c72c0ff668395a734df316f95882167edc43eea5b13e84b5",
+      "records": 227,
+      "description": "Type IV/VI candidate screen plus controls; 67 active, 157 inactive, 3 n/a labels; sequence, IRES/CDI TE and base-pair composition."
+    },
+    {
+      "name": "media-4.xlsx",
+      "sha256": "e393dc740738d0572a1c99826b12ecbb0644ec9aa01a6742e0a7137221f01388",
+      "records": 835,
+      "description": "Viral IRESbase, IAPV, Zika, Dengue and control measurements with sequence/provenance fields."
+    },
+    {
+      "name": "media-5.xlsx",
+      "sha256": "b64aab044253b94df2835631be318462e0254c5396ce1de1dbf55e88018cdb66",
+      "records": 903,
+      "description": "Cellular IRESbase/stress-responsive candidates and controls; only the three positive controls carry active labels."
+    },
+    {
+      "name": "media-6.xlsx",
+      "sha256": "c9eedad225f070c35d15e05da4a8e0faec02304fac4a6849d33e34d28fa14345",
+      "records": 309,
+      "description": "Previously reported circRNA candidates and controls with validation-status-qualified labels."
+    },
+    {
+      "name": "media-7.xlsx",
+      "sha256": "0357b8d911ac35b788b3c1213623937cda7d333237a6092fa55b3ed411e63dcc",
+      "records": 1727,
+      "description": "Matched control/stress IRES and CDI TE measurements with sequence and source group."
+    },
+    {
+      "name": "media-8.xlsx",
+      "sha256": "38e05124572720526d2fc9c1be8d64b5869887506246156171e8b29b2bf6848e",
+      "records": 49,
+      "description": "Construct fragments and primers; methods/provenance support rather than model-training labels."
+    },
+    {
+      "name": "media-9.xlsx",
+      "sha256": "eb21e6e65959b9eaca167027f3d7f7ca478799a66474f255e069163d074b740d",
+      "records": 113,
+      "description": "Individual luciferase validation summaries with cap, condition, replicate count, mean and confidence interval."
+    },
+    {
+      "name": "NIHPP2026.05.06.723280v1-supplement-10.pdf",
+      "sha256": "ee06174f74923e757178d7b3ba400089b52e37ea9171b7adf1032c1d8eae938a",
+      "records": null,
+      "description": "Supplementary figures."
+    }
+  ]
+}

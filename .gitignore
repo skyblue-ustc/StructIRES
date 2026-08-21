@@ -40,6 +40,8 @@ assets/*
 assets/manifests/*
 !assets/manifests/.gitkeep
 !assets/manifests/example_model_manifest.json
+!assets/manifests/literature_sources.json
+!assets/manifests/ires_trappr_supplement.json
 
 # Run outputs
 runs/*
@@ -56,4 +58,3 @@ papers/
 build/
 dist/
 site/
-

@@ -9,7 +9,17 @@ from typing import Any
 from .baselines import DEFAULT_REGISTRY, registry_by_id
 
 
-VALID_VARIANTS = {"raw", "function_only", "mfe", "structure", "full"}
+VALID_VARIANTS = {
+    "raw",
+    "function_only",
+    "score_only",
+    "mfe",
+    "structure",
+    "ensemble",
+    "context",
+    "full",
+    "robust_full",
+}
 
 
 def load_and_validate_experiment(
@@ -60,4 +70,3 @@ def load_and_validate_experiment(
     if errors:
         raise ValueError("Invalid experiment config:\n- " + "\n- ".join(errors))
     return payload
-

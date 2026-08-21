@@ -17,7 +17,9 @@ External DNA-like A/C/G/T outputs are normalized to RNA by replacing T with U. O
 
 ## Data split
 
-The main MPRA dataset must use similarity-cluster splitting rather than row-random splitting. The intended contract is 70/15/15 train/validation/test with source and activity-floor stratification. The test assignment is locked before generation.
+Every sequence record carries `assay_context`, `source_study`, `construct_context`, `cell_type`, `length`, `family/type`, and evidence level where available. DNA/lentiviral and direct-RNA measurements are never pooled into an unlabeled target.
+
+Each source uses similarity-cluster splitting rather than row-random splitting. The default contract is 70/15/15 train/validation/test with source, family/type and activity-floor stratification. A family-held-out view is mandatory for full-length viral IRESes. Test assignments are locked before generation.
 
 No test label or test-fitted feature is allowed in:
 
@@ -28,35 +30,44 @@ No test label or test-fitted feature is allowed in:
 
 ## Nested variants
 
-1. `raw`: unoptimized model samples or official released outputs.
-2. `function_only`: maximize the frozen optimization-side function scorer.
-3. `mfe`: add distance to the high-IRES MFE-per-nt distribution.
-4. `structure`: add ensemble and base-pairing distribution objectives.
-5. `full`: add uncertainty/applicability, novelty, and batch diversity.
+1. `raw`: unoptimized samples, mutation pool or official released outputs.
+2. `score_only`: maximize the frozen optimization-side function scorer.
+3. `mfe`: add only an MFE/paired-fraction rule, matching the simplest published structure baseline.
+4. `ensemble`: add base-pair-probability/ensemble preservation relative to the seed or consensus.
+5. `context`: add IRES–cargo crosstalk and context-specific structure consistency.
+6. `robust_full`: add conservative multi-scorer aggregation, applicability/uncertainty, novelty and batch diversity.
 
 The variants are nested. Changing the decoder, initial population, or budget between variants invalidates the paired ablation.
 
 ## Structural interpretation
 
-De novo IRES design does not have a single universal target fold. Therefore Task A uses distributional structure objectives calibrated on measured high-IRES references. Target-specific ensemble defect, Boltzmann probability, or base-pair distance is used only when Task B explicitly preserves a seed or consensus structure.
+The primary seeded task preserves a seed/consensus structural ensemble. Record MFE, partition-function, base-pair-probability and ensemble-defect metrics separately. MFE alone is never described as structural fidelity.
+
+For each frozen cargo, fold the IRES and context using a pinned convention and compute at least:
+
+- IRES bases paired to cargo divided by IRES-domain length (IRES Crosstalk Ratio);
+- IRES positions consistent with the reference/seed ensemble (Structure Consistency);
+- per-domain pairing-profile distance.
+
+The secondary 174-nt de novo task has no universal target fold. It uses only distributional structure diagnostics and cannot inherit the full-length seed-preservation claim.
 
 ## Metric hierarchy
 
-1. Independent function: locked MPRA above-floor probability, conditional active score/rank, and public IRES scorer agreement.
-2. Structural applicability: MFE-per-nt reference distance, ensemble diversity, base-pairing/profile distance, and pass rate.
-3. Validity and anti-shortcut: length, alphabet, GC, homopolymer, low complexity, k-mer drift, applicability survival, and scorer disagreement.
-4. Novelty/diversity: nearest-train identity, unique rate, pairwise distance, and cluster coverage.
-5. Efficiency: generator calls, oracle calls, wall time, and peak memory.
+1. Cross-assay function: direct-RNA held-out rank/calibration, old-reporter score and their disagreement, reported separately.
+2. Structural robustness: ensemble defect/probability, base-pairing-profile distance, domain preservation and Albatross audit.
+3. Cargo context: Crosstalk Ratio and Structure Consistency for every cargo plus worst-case/mean performance.
+4. Validity and anti-shortcut: length, alphabet, GC, homopolymer, low complexity, k-mer drift and applicability survival.
+5. Novelty/diversity: edit distance, nearest-train identity, unique rate, pairwise distance and cluster coverage.
+6. Efficiency: candidate calls, oracle calls, wall time and peak memory.
 
 ## Success criterion
 
-The project may claim improved candidate quality only if `full` versus `function_only`:
+The project may claim improved computational robustness only if `robust_full` versus `score_only`:
 
-- improves structural applicability on at least two public backbones;
-- does not degrade independent functional evaluation;
+- improves ensemble preservation and cargo-context robustness across the frozen seed/cargo panel;
+- does not degrade direct-RNA held-out evaluation beyond a predeclared non-inferiority margin;
 - preserves candidate diversity;
-- shows directionally consistent results across seeds 42, 43, and 44;
+- shows directionally consistent paired effects across random seeds 42, 43 and 44 and across biological IRES seeds;
 - reports all raw and surviving counts.
 
-If MFE alone matches the full method, remove the unsupported complexity. If structure metrics improve but every independent function scorer declines, report the trade-off rather than claiming higher IRES quality.
-
+If MFE alone matches `robust_full`, remove the unsupported complexity. If structural/context metrics improve but direct-RNA evaluation declines, report the trade-off rather than claiming higher IRES quality. No computational result is an experimental activity claim.

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ires-design"
 version = "0.1.0"
-description = "Baseline-first, structure- and energy-constrained IRES sequence design"
+description = "Baseline-first, assay- and context-aware IRES sequence design"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "Apache-2.0" }
@@ -63,4 +63,3 @@ target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP"]
-

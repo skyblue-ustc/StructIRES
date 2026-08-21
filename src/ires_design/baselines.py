@@ -12,6 +12,7 @@ from typing import Any
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_REGISTRY = REPOSITORY_ROOT / "configs" / "baselines.json"
 VALID_ROLES = {
+    "proposal_backbone",
     "paired_backbone",
     "strict_task_baseline",
     "external_reference",
@@ -82,4 +83,3 @@ def load_registry(path: Path = DEFAULT_REGISTRY) -> list[BaselineSpec]:
 
 def registry_by_id(path: Path = DEFAULT_REGISTRY) -> dict[str, BaselineSpec]:
     return {spec.id: spec for spec in load_registry(path)}
-

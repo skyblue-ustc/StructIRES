@@ -15,7 +15,11 @@ assets/
   private/
     models/local_rfam_ar/
   manifests/
+  papers/
+    core/                 # ignored local PDF cache
+    supplementary/       # ignored local supplementary data cache
 ```
 
 Prefer environment variables described in `docs/BASELINES.md`. Never copy secrets, licensed raw data, model weights, or nested Git repositories into commits.
 
+`assets/manifests/literature_sources.json` records URLs and hashes for reviewed papers without committing the PDFs themselves.
