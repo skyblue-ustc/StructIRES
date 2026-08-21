@@ -1,0 +1,10 @@
+IRES Design
+Copyright 2026 skyblue-ustc
+
+This repository interoperates with, but does not vendor, RFamLlama, GenerRNA,
+IRES_Prediction_Design, DeepIRES, ViennaRNA, or their model weights and data.
+Each external asset remains subject to its original authorship and license.
+
+RFamLlama was introduced by Jinyuan Sun, Han Li, and Yifan Deng (2024).
+See THIRD_PARTY.md for source links and role boundaries.
+

@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "experiment_id": "de_novo_174nt_v1",
+  "task": "de_novo",
+  "expected_length": 174,
+  "baseline_ids": ["official_rfamllama", "generna", "ires_dm", "natural_iresbase"],
+  "controlled_baseline_ids": ["official_rfamllama", "generna"],
+  "variants": ["raw", "function_only", "mfe", "structure", "full"],
+  "seeds": [42, 43, 44],
+  "protocol": {
+    "candidate_pool_size": 10000,
+    "evaluation_size": 1000,
+    "top_k": 100,
+    "oracle_query_budget": 10000,
+    "paired_initialization": true,
+    "save_raw_candidates": true,
+    "report_survival": true
+  },
+  "evaluation": {
+    "primary": ["locked_mpra_above_floor", "locked_mpra_active_rank"],
+    "external": ["deepires", "public_ires_ai"],
+    "structure": ["mfe_per_nt_reference_distance", "ensemble_diversity", "pairing_profile_distance"],
+    "validity": ["length_valid", "alphabet_valid", "gc", "max_homopolymer", "low_complexity"],
+    "novelty": ["nearest_train_identity", "unique_rate", "pairwise_identity"],
+    "efficiency": ["generator_calls", "oracle_calls", "wall_seconds", "peak_memory_mb"]
+  },
+  "output_root": "runs/de_novo_174nt_v1"
+}
+

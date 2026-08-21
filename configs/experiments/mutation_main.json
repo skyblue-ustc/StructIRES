@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "experiment_id": "mutation_design_v1",
+  "task": "mutation",
+  "expected_length": 174,
+  "baseline_ids": ["random_mutation", "lm_likelihood_mutation", "ires_ea", "nsga2"],
+  "controlled_baseline_ids": ["nsga2", "ires_ea"],
+  "variants": ["function_only", "mfe", "structure", "full"],
+  "seeds": [42, 43, 44],
+  "protocol": {
+    "seed_set_manifest": "assets/manifests/mutation_seed_set.json",
+    "minimum_seed_sequences": 10,
+    "required_named_seeds": ["VCIP", "EMCV", "CVB3"],
+    "max_edit_distance": 10,
+    "population_size": 50,
+    "generations": 40,
+    "oracle_query_budget_per_seed": 2000,
+    "save_mutation_lineage": true,
+    "report_survival": true
+  },
+  "output_root": "runs/mutation_design_v1"
+}
+

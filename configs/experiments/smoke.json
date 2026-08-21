@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "experiment_id": "smoke_v1",
+  "task": "de_novo",
+  "expected_length": 174,
+  "baseline_ids": ["official_rfamllama", "generna", "ires_dm", "natural_iresbase"],
+  "controlled_baseline_ids": ["official_rfamllama", "generna"],
+  "variants": ["raw"],
+  "seeds": [42],
+  "protocol": {
+    "candidate_pool_size": 200,
+    "evaluation_size": 200,
+    "top_k": 20,
+    "oracle_query_budget": 200,
+    "save_raw_candidates": true,
+    "report_survival": true
+  },
+  "output_root": "runs/smoke_v1"
+}
+
