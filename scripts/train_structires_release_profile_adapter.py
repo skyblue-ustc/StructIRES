@@ -51,6 +51,14 @@ def arguments() -> argparse.Namespace:
     parser.add_argument("--truncate-num", type=int, default=1024)
     parser.add_argument("--lr", type=float, default=5e-4)
     parser.add_argument("--dropout", type=float, default=.10)
+    parser.add_argument("--rnafm-adaptation", choices=("frozen", "last_layer", "full"), default="frozen",
+                        help="Keep RNA-FM frozen, adapt only layer 12, or adapt the full RNA-FM backbone.")
+    parser.add_argument("--train-mask-prob", type=float, default=0.,
+                        help="Mask probability for training inputs; validation and test always remain unmasked.")
+    parser.add_argument("--mlm-loss-weight", type=float, default=0.,
+                        help="Weight on author-style masked-nucleotide reconstruction loss. Requires RNA-FM adaptation.")
+    parser.add_argument("--classification-loss-weight", type=float, default=1.,
+                        help="Multiplier on the class-weighted IRES cross-entropy loss.")
     parser.add_argument("--device", default="cuda")
     return parser.parse_args()
 
@@ -110,11 +118,20 @@ class ReleasedRNAFM(nn.Module):
         super().__init__(); self.rnafm = rnafm
         self.fc = nn.Linear(640, 40); self.dropout3 = nn.Dropout(dropout); self.relu = nn.ReLU(); self.output = nn.Linear(40, 2)
 
+    def hidden_with_lm(self, tokens: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        outputs = self.rnafm(tokens, [12])
+        return self.relu(self.fc(outputs["representations"][12][:, 0])), outputs["logits"]
+
     def hidden(self, tokens: torch.Tensor) -> torch.Tensor:
-        return self.relu(self.fc(self.rnafm(tokens, [12])["representations"][12][:, 0]))
+        hidden, _ = self.hidden_with_lm(tokens)
+        return hidden
 
     def forward(self, tokens: torch.Tensor) -> torch.Tensor:
         return self.output(self.dropout3(self.hidden(tokens)))
+
+    def forward_with_lm(self, tokens: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        hidden, lm_logits = self.hidden_with_lm(tokens)
+        return self.output(self.dropout3(hidden)), lm_logits
 
 
 class PositionProfileResidualAdapter(nn.Module):
@@ -152,9 +169,15 @@ class PositionProfileResidualAdapter(nn.Module):
         # dropout is identity, preserving the zero-initialization invariant.
         return self.base.output(self.base.dropout3(sequence + gate * structural))
 
+    def forward_with_lm(self, tokens: torch.Tensor, profile: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        sequence, lm_logits = self.base.hidden_with_lm(tokens)
+        structural = self.structure_hidden(profile)
+        gate = self.gate(torch.cat((sequence, structural), dim=1))
+        return self.base.output(self.base.dropout3(sequence + gate * structural)), lm_logits
 
-def make_loader(data_module, alphabet, indices: np.ndarray, sequences: list[str], tokens_per_batch: int):
-    dataset = data_module.FastaBatchedDataset(indices.tolist(), [sequences[int(index)] for index in indices], mask_prob=0)
+
+def make_loader(data_module, alphabet, indices: np.ndarray, sequences: list[str], tokens_per_batch: int, *, mask_prob: float = 0.):
+    dataset = data_module.FastaBatchedDataset(indices.tolist(), [sequences[int(index)] for index in indices], mask_prob=mask_prob)
     batches = dataset.get_batch_indices(toks_per_batch=tokens_per_batch, extra_toks_per_seq=2)
     return torch.utils.data.DataLoader(dataset, collate_fn=alphabet.get_batch_converter(), batch_sampler=batches)
 
@@ -202,6 +225,12 @@ def freeze_backbone_keep_release_head(base: ReleasedRNAFM) -> None:
     for parameter in base.output.parameters(): parameter.requires_grad = True
 
 
+def configure_rnafm_adaptation(base: ReleasedRNAFM, mode: str) -> None:
+    """Set the RNA-FM trainability for a paired sequence/fusion experiment."""
+    for name, parameter in base.rnafm.named_parameters():
+        parameter.requires_grad = mode == "full" or (mode == "last_layer" and name.startswith("layers.11."))
+
+
 def main() -> int:
     args = arguments()
     if args.output_dir.exists(): raise FileExistsError(f"refusing to overwrite {args.output_dir}")
@@ -247,7 +276,12 @@ def main() -> int:
     incompatible = base.load_state_dict(release_state, strict=True)
     assert not incompatible.missing_keys and not incompatible.unexpected_keys
     device = torch.device(args.device); base = base.to(device).eval()
-    train_loader = make_loader(data_module, alphabet, train, sequences, args.tokens_per_batch)
+    if args.mlm_loss_weight and args.rnafm_adaptation == "frozen":
+        raise ValueError("--mlm-loss-weight requires --rnafm-adaptation last_layer or full")
+    if not 0. <= args.train_mask_prob < 1.:
+        raise ValueError("--train-mask-prob must lie in [0, 1)")
+    train_loader = make_loader(data_module, alphabet, train, sequences, args.tokens_per_batch,
+                               mask_prob=args.train_mask_prob)
     validation_loader = make_loader(data_module, alphabet, validation, sequences, args.tokens_per_batch)
     test_loader = make_loader(data_module, alphabet, test, sequences, args.tokens_per_batch)
     val_index, val_probability = probabilities(base, validation_loader, normalized_profiles, device, adapter=False, truncate_num=args.truncate_num)
@@ -265,6 +299,9 @@ def main() -> int:
             base, args.dropout, train_release_head=args.variant == "profile_fusion_head"
         ).to(device)
         trained_model_name = "adapter_validation_selected" if args.variant == "profile_fusion_frozen" else "profile_fusion_head_validation_selected"
+    if args.variant == "profile_fusion_frozen" and args.rnafm_adaptation != "frozen":
+        raise ValueError("profile_fusion_frozen is incompatible with RNA-FM adaptation")
+    configure_rnafm_adaptation(base, args.rnafm_adaptation)
     initial_index, initial_probability = probabilities(model, test_loader, normalized_profiles, device, adapter=uses_profile, truncate_num=args.truncate_num)
     if not np.array_equal(test_index, initial_index) or not np.allclose(baseline_test_probability, initial_probability, rtol=0., atol=1e-7):
         raise RuntimeError("initial matched model does not reproduce the released checkpoint")
@@ -272,18 +309,37 @@ def main() -> int:
     optimizer = torch.optim.AdamW([item for item in model.parameters() if item.requires_grad], lr=args.lr, weight_decay=1e-4)
     positive_weight = float(train.size / labels[train].sum() - 1.)
     criterion = nn.CrossEntropyLoss(weight=torch.tensor([1., positive_weight], device=device))
+    mask_token_id = int(alphabet.tok_to_idx["<mask>"])
     best, best_state, best_threshold, curve, stale = -np.inf, None, .5, [], 0
     for epoch in range(1, args.epochs + 1):
         model.train()
-        # RNA-FM remains a fixed feature extractor in every matched variant;
-        # only the released classifier head and/or structural pathway differ.
-        (model.base.rnafm if uses_profile else model.rnafm).eval()
-        for indices, _, _, tokens, _, _ in train_loader:
+        # Keep a frozen RNA-FM deterministic, while allowing the author-style
+        # last-layer/full adaptation settings to train normally.
+        rnafm = model.base.rnafm if uses_profile else model.rnafm
+        if args.rnafm_adaptation == "frozen": rnafm.eval()
+        for indices, _, _, tokens, masked_tokens, _ in train_loader:
             index = np.asarray(indices, dtype=np.int64)
             token_batch = tokens[:, :args.truncate_num].to(device)
-            logits = model(token_batch, torch.from_numpy(normalized_profiles[index]).to(device)) if uses_profile else model(token_batch)
+            masked_token_batch = masked_tokens[:, :args.truncate_num].to(device)
+            classification_input = masked_token_batch if args.train_mask_prob else token_batch
+            if uses_profile:
+                profile_batch = torch.from_numpy(normalized_profiles[index]).to(device)
+                logits, lm_logits = model.forward_with_lm(classification_input, profile_batch)
+            else:
+                logits, lm_logits = model.forward_with_lm(classification_input)
             target = torch.as_tensor(labels[index], dtype=torch.long, device=device)
-            loss = criterion(logits, target); optimizer.zero_grad(set_to_none=True); loss.backward(); optimizer.step()
+            class_loss = args.classification_loss_weight * criterion(logits, target)
+            if args.mlm_loss_weight:
+                mlm_target = torch.full_like(token_batch, -1)
+                masked_position = masked_token_batch == mask_token_id
+                mlm_target[masked_position] = token_batch[masked_position]
+                mlm_loss = torch.nn.functional.cross_entropy(
+                    lm_logits.transpose(1, 2), mlm_target, ignore_index=-1, reduction="mean"
+                )
+            else:
+                mlm_loss = torch.zeros((), device=device)
+            loss = class_loss + args.mlm_loss_weight * mlm_loss
+            optimizer.zero_grad(set_to_none=True); loss.backward(); optimizer.step()
         val_index, val_probability = probabilities(model, validation_loader, normalized_profiles, device, adapter=uses_profile, truncate_num=args.truncate_num)
         threshold = best_f1_threshold(labels[val_index], val_probability); report = metrics(labels[val_index], val_probability, threshold)
         curve.append({"epoch": epoch, **report}); print(json.dumps({"epoch": epoch, "validation": report}), flush=True)
@@ -308,8 +364,8 @@ def main() -> int:
         for index, label, base_probability, adapter_probability in zip(test_index, labels[test_index], baseline_test_probability, test_probability):
             writer.writerow({"sample_index": int(index), "label": int(label), "baseline_probability": float(base_probability), "adapter_probability": float(adapter_probability)})
     torch.save({"model": best_state, "fold": args.fold, "best_validation_aupr": best}, args.output_dir / "best_adapter.pt")
-    architecture = {"profile_fusion_frozen": "frozen released RNA-FM checkpoint plus masked-CNN position profile residual gate", "sequence_head": "frozen RNA-FM backbone plus trainable released classifier head", "profile_fusion_head": "frozen RNA-FM backbone plus trainable released classifier head and masked-CNN position-profile residual gate"}[args.variant]
-    manifest = {"schema_version": 1, "experiment": "structires_release_position_profile_adapter", "variant": args.variant, "fold": args.fold, "dataset_sha256": sha256(args.dataset), "profile_manifest_sha256": sha256(args.profile_dir / "manifest.json"), "checkpoint_sha256": sha256(args.checkpoint), "rnafm_base_sha256": sha256(args.rnafm_base), "validation_fraction": args.validation_fraction, "model_selection": "validation AUPR", "test_labels_used_for_selection": False, "architecture": architecture}
+    architecture = {"profile_fusion_frozen": "frozen released RNA-FM checkpoint plus masked-CNN position profile residual gate", "sequence_head": "released classifier head with configurable RNA-FM adaptation", "profile_fusion_head": "released classifier head plus masked-CNN position-profile residual gate with configurable RNA-FM adaptation"}[args.variant]
+    manifest = {"schema_version": 1, "experiment": "structires_release_position_profile_adapter", "variant": args.variant, "fold": args.fold, "dataset_sha256": sha256(args.dataset), "profile_manifest_sha256": sha256(args.profile_dir / "manifest.json"), "checkpoint_sha256": sha256(args.checkpoint), "rnafm_base_sha256": sha256(args.rnafm_base), "validation_fraction": args.validation_fraction, "model_selection": "validation AUPR", "test_labels_used_for_selection": False, "architecture": architecture, "rnafm_adaptation": args.rnafm_adaptation, "train_mask_prob": args.train_mask_prob, "mlm_loss_weight": args.mlm_loss_weight, "classification_loss_weight": args.classification_loss_weight}
     (args.output_dir / "run_manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return 0
 

@@ -443,12 +443,22 @@ model is trained from a documented architecture.
   preserved as a negative/exploratory result, not promoted to the paper table or expanded to
   ten folds.  The next classifier iteration requires a matched trainable sequence-head control
   and a trainable structure-fusion head under the same validation-only protocol.
-- [ ] Running: matched fold-4 controls using frozen RNA-FM plus a trainable released classifier
-  head: `sequence_head_v1` and dropout-aligned `profile_fusion_head_v2`.  The first fusion-head
-  launch was stopped before metrics after detecting that it bypassed the released head's training
-  dropout, while the sequence-only control retained that dropout.  Its directory and log are
-  preserved; commit `281c46a` restores the same dropout for the immutable v2 fusion run.  This
-  correction prevents a regularization mismatch from being credited to structure.
+- [x] Completed matched fold-4 controls with frozen RNA-FM and the same trainable released
+  classifier head: `structires_release_matched_sequence_head_fold4_v1_20260823` and
+  dropout-aligned `structires_release_matched_profile_fusion_head_fold4_v2_20260823`.  The first
+  fusion-head launch remains preserved without metrics because it bypassed the released head's
+  training dropout; commit `281c46a` corrects that regularization mismatch in the immutable v2
+  run.  The v2 prediction ledger contains 4,678 official-test records, and an independent
+  recomputation exactly reproduces its AUROC, AUPR, F1, accuracy and MCC (maximum absolute
+  discrepancy 0).  Released checkpoint / matched sequence-head / matched structure-fusion are,
+  respectively: AUROC 0.78530 / 0.78285 / 0.78118; AUPR 0.62797 / 0.62220 / 0.61986; F1
+  0.54961 / 0.54844 / 0.54672; MCC 0.44299 / 0.45068 / 0.44631; and ECE 0.24239 / 0.19630 /
+  0.18103.  Thus the current position-profile fusion improves calibration relative to the
+  released checkpoint but fails the predeclared discrimination criterion against both controls.
+  It is a completed negative pilot, not a main-table gain and is not expanded to ten folds.
+  The next iteration must first reproduce the author's last-layer/full fine-tuning and masked-LM
+  auxiliary-training regime as a matched sequence-only baseline before assessing a structural
+  fusion under that stronger sequence adaptation.
 - [ ] Running: released checkpoint fold 0 plus zero-initialized structural adapter,
   `structires_release_adapter_fold0_v1_20260823`, on node 56 GPU 1. Epoch 1 validation AUPR is
   0.7019. This is a validation-only trajectory, not a held-out result and not a paper claim.
