@@ -443,6 +443,12 @@ model is trained from a documented architecture.
   preserved as a negative/exploratory result, not promoted to the paper table or expanded to
   ten folds.  The next classifier iteration requires a matched trainable sequence-head control
   and a trainable structure-fusion head under the same validation-only protocol.
+- [ ] Running: matched fold-4 controls using frozen RNA-FM plus a trainable released classifier
+  head: `sequence_head_v1` and dropout-aligned `profile_fusion_head_v2`.  The first fusion-head
+  launch was stopped before metrics after detecting that it bypassed the released head's training
+  dropout, while the sequence-only control retained that dropout.  Its directory and log are
+  preserved; commit `281c46a` restores the same dropout for the immutable v2 fusion run.  This
+  correction prevents a regularization mismatch from being credited to structure.
 - [ ] Running: released checkpoint fold 0 plus zero-initialized structural adapter,
   `structires_release_adapter_fold0_v1_20260823`, on node 56 GPU 1. Epoch 1 validation AUPR is
   0.7019. This is a validation-only trajectory, not a held-out result and not a paper claim.
