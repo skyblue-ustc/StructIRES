@@ -35,6 +35,9 @@ def arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", type=Path, required=True)
     parser.add_argument("--profile-dir", type=Path, required=True)
+    parser.add_argument("--variant", choices=("profile_fusion_frozen", "sequence_head", "profile_fusion_head"),
+                        default="profile_fusion_frozen",
+                        help="Frozen residual reference, or a matched trainable released-head control/fusion pair.")
     parser.add_argument("--checkpoint", type=Path, required=True)
     parser.add_argument("--rnafm-base", type=Path, required=True)
     parser.add_argument("--upstream-fm-dir", type=Path, required=True)
@@ -116,9 +119,12 @@ class ReleasedRNAFM(nn.Module):
 
 class PositionProfileResidualAdapter(nn.Module):
     """Masked local structure encoder plus a zero-initialized residual gate."""
-    def __init__(self, base: ReleasedRNAFM, dropout: float):
+    def __init__(self, base: ReleasedRNAFM, dropout: float, *, train_release_head: bool = False):
         super().__init__(); self.base = base
-        for parameter in self.base.parameters(): parameter.requires_grad = False
+        for parameter in self.base.rnafm.parameters(): parameter.requires_grad = False
+        if not train_release_head:
+            for parameter in self.base.fc.parameters(): parameter.requires_grad = False
+            for parameter in self.base.output.parameters(): parameter.requires_grad = False
         self.profile = nn.Sequential(
             nn.Conv1d(4, 32, kernel_size=7, padding=3), nn.GELU(),
             nn.Conv1d(32, 40, kernel_size=5, padding=2), nn.GELU(),
@@ -186,6 +192,13 @@ def probabilities(model, loader, profiles, device, *, adapter: bool, truncate_nu
     return np.asarray(labels, dtype=np.int64), np.asarray(scores, dtype=np.float64)
 
 
+def freeze_backbone_keep_release_head(base: ReleasedRNAFM) -> None:
+    """Train the published classifier head while keeping RNA-FM fixed."""
+    for parameter in base.rnafm.parameters(): parameter.requires_grad = False
+    for parameter in base.fc.parameters(): parameter.requires_grad = True
+    for parameter in base.output.parameters(): parameter.requires_grad = True
+
+
 def main() -> int:
     args = arguments()
     if args.output_dir.exists(): raise FileExistsError(f"refusing to overwrite {args.output_dir}")
@@ -239,23 +252,36 @@ def main() -> int:
     baseline_threshold = best_f1_threshold(labels[val_index], val_probability)
     baseline = metrics(labels[test_index], baseline_test_probability, baseline_threshold)
     print(json.dumps({"stage": "baseline_evaluated", "fold": args.fold, "baseline": baseline}), flush=True)
-    model = PositionProfileResidualAdapter(base, args.dropout).to(device)
-    initial_index, initial_probability = probabilities(model, test_loader, normalized_profiles, device, adapter=True, truncate_num=args.truncate_num)
+    uses_profile = args.variant != "sequence_head"
+    if args.variant == "sequence_head":
+        freeze_backbone_keep_release_head(base)
+        model = base
+        trained_model_name = "sequence_head_validation_selected"
+    else:
+        model = PositionProfileResidualAdapter(
+            base, args.dropout, train_release_head=args.variant == "profile_fusion_head"
+        ).to(device)
+        trained_model_name = "adapter_validation_selected" if args.variant == "profile_fusion_frozen" else "profile_fusion_head_validation_selected"
+    initial_index, initial_probability = probabilities(model, test_loader, normalized_profiles, device, adapter=uses_profile, truncate_num=args.truncate_num)
     if not np.array_equal(test_index, initial_index) or not np.allclose(baseline_test_probability, initial_probability, rtol=0., atol=1e-7):
-        raise RuntimeError("zero-initialized profile adapter does not reproduce the released checkpoint")
+        raise RuntimeError("initial matched model does not reproduce the released checkpoint")
     print(json.dumps({"stage": "zero_initialization_equivalence_passed", "fold": args.fold}), flush=True)
     optimizer = torch.optim.AdamW([item for item in model.parameters() if item.requires_grad], lr=args.lr, weight_decay=1e-4)
     positive_weight = float(train.size / labels[train].sum() - 1.)
     criterion = nn.CrossEntropyLoss(weight=torch.tensor([1., positive_weight], device=device))
     best, best_state, best_threshold, curve, stale = -np.inf, None, .5, [], 0
     for epoch in range(1, args.epochs + 1):
-        model.train(); model.base.eval()
+        model.train()
+        # RNA-FM remains a fixed feature extractor in every matched variant;
+        # only the released classifier head and/or structural pathway differ.
+        (model.base.rnafm if uses_profile else model.rnafm).eval()
         for indices, _, _, tokens, _, _ in train_loader:
             index = np.asarray(indices, dtype=np.int64)
-            logits = model(tokens[:, :args.truncate_num].to(device), torch.from_numpy(normalized_profiles[index]).to(device))
+            token_batch = tokens[:, :args.truncate_num].to(device)
+            logits = model(token_batch, torch.from_numpy(normalized_profiles[index]).to(device)) if uses_profile else model(token_batch)
             target = torch.as_tensor(labels[index], dtype=torch.long, device=device)
             loss = criterion(logits, target); optimizer.zero_grad(set_to_none=True); loss.backward(); optimizer.step()
-        val_index, val_probability = probabilities(model, validation_loader, normalized_profiles, device, adapter=True, truncate_num=args.truncate_num)
+        val_index, val_probability = probabilities(model, validation_loader, normalized_profiles, device, adapter=uses_profile, truncate_num=args.truncate_num)
         threshold = best_f1_threshold(labels[val_index], val_probability); report = metrics(labels[val_index], val_probability, threshold)
         curve.append({"epoch": epoch, **report}); print(json.dumps({"epoch": epoch, "validation": report}), flush=True)
         if report["aupr"] > best:
@@ -267,19 +293,20 @@ def main() -> int:
                 print(json.dumps({"early_stopping": True, "epoch": epoch, "best_validation_aupr": best}), flush=True)
                 break
     assert best_state is not None; model.load_state_dict(best_state)
-    test_index, test_probability = probabilities(model, test_loader, normalized_profiles, device, adapter=True, truncate_num=args.truncate_num)
+    test_index, test_probability = probabilities(model, test_loader, normalized_profiles, device, adapter=uses_profile, truncate_num=args.truncate_num)
     adapter = metrics(labels[test_index], test_probability, best_threshold)
     args.output_dir.mkdir(parents=True)
     with (args.output_dir / "metrics.json").open("w", encoding="utf-8") as handle:
-        json.dump({"adapter_validation_selected": adapter, "baseline_released_checkpoint": baseline, "best_validation_aupr": best, "epochs_completed": len(curve), "fold": args.fold, "validation_curve": curve}, handle, indent=2, sort_keys=True); handle.write("\n")
+        json.dump({trained_model_name: adapter, "baseline_released_checkpoint": baseline, "best_validation_aupr": best, "epochs_completed": len(curve), "fold": args.fold, "variant": args.variant, "validation_curve": curve}, handle, indent=2, sort_keys=True); handle.write("\n")
     with (args.output_dir / "metrics.csv").open("w", encoding="utf-8", newline="") as handle:
-        fields = ["model", *adapter.keys()]; writer = csv.DictWriter(handle, fieldnames=fields); writer.writeheader(); writer.writerow({"model": "baseline_released_checkpoint", **baseline}); writer.writerow({"model": "adapter_validation_selected", **adapter})
+        fields = ["model", *adapter.keys()]; writer = csv.DictWriter(handle, fieldnames=fields); writer.writeheader(); writer.writerow({"model": "baseline_released_checkpoint", **baseline}); writer.writerow({"model": trained_model_name, **adapter})
     with gzip.open(args.output_dir / "test_predictions.csv.gz", "wt", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=["sample_index", "label", "baseline_probability", "adapter_probability"]); writer.writeheader()
         for index, label, base_probability, adapter_probability in zip(test_index, labels[test_index], baseline_test_probability, test_probability):
             writer.writerow({"sample_index": int(index), "label": int(label), "baseline_probability": float(base_probability), "adapter_probability": float(adapter_probability)})
     torch.save({"model": best_state, "fold": args.fold, "best_validation_aupr": best}, args.output_dir / "best_adapter.pt")
-    manifest = {"schema_version": 1, "experiment": "structires_release_position_profile_adapter", "fold": args.fold, "dataset_sha256": sha256(args.dataset), "profile_manifest_sha256": sha256(args.profile_dir / "manifest.json"), "checkpoint_sha256": sha256(args.checkpoint), "rnafm_base_sha256": sha256(args.rnafm_base), "validation_fraction": args.validation_fraction, "model_selection": "validation AUPR", "test_labels_used_for_selection": False, "architecture": "frozen released RNA-FM checkpoint plus masked-CNN position profile residual gate"}
+    architecture = {"profile_fusion_frozen": "frozen released RNA-FM checkpoint plus masked-CNN position profile residual gate", "sequence_head": "frozen RNA-FM backbone plus trainable released classifier head", "profile_fusion_head": "frozen RNA-FM backbone plus trainable released classifier head and masked-CNN position-profile residual gate"}[args.variant]
+    manifest = {"schema_version": 1, "experiment": "structires_release_position_profile_adapter", "variant": args.variant, "fold": args.fold, "dataset_sha256": sha256(args.dataset), "profile_manifest_sha256": sha256(args.profile_dir / "manifest.json"), "checkpoint_sha256": sha256(args.checkpoint), "rnafm_base_sha256": sha256(args.rnafm_base), "validation_fraction": args.validation_fraction, "model_selection": "validation AUPR", "test_labels_used_for_selection": False, "architecture": architecture}
     (args.output_dir / "run_manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return 0
 
