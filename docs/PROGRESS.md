@@ -19,6 +19,9 @@ DeepCIP official inference remains a time-boxed environment blocker rather than 
 - [x] Identified Delli-Ponti structure/MFE mutation as a mandatory baseline rather than a novelty claim.
 - [x] Added IRES–cargo crosstalk as an evidence-backed context constraint.
 - [x] Reclassified RFamLlama and GenerRNA as optional proposal backbones.
+- [x] Completed an independent S3-held-out direct-RNA computational proxy evaluation of the first
+  matched design selections: 222 held-out records, AUC 0.592 and AUPR 0.497; robust-full minus
+  score-only was +0.0110 (95\% bootstrap CI 0.0051--0.0176) across 30 parent-by-run units.
 - [x] Froze direct baselines and the three-track task hierarchy in documentation/configuration.
 - [x] Retrieved, field-audited and hashed all nine IRES-TrAPPr XLSX supplements plus the supplementary PDF.
 - [x] Audited the released IRES-AI split: ten repeated 90/10 holdouts, not a mutually exclusive
@@ -228,6 +231,9 @@ uses the official `cuhkaih/rnafm` Hugging Face release and requires SHA-256 veri
 - [x] Repair ViennaRNA through isolated PyPI wheel environment and fold all 15,360 candidates with ViennaRNA 2.7.2 ensemble metrics.
 - [x] Run matched selectors and write the first primary design table from immutable run manifests.
 - [ ] Add direct-RNA calibrated evaluation and cargo-context stress testing as independent follow-on evidence.
+- [ ] Resolve IRES-EA adapter asset gap: the public predictor imports require the absent
+  `RNA-FM_pretrained.pth` backbone; do not claim public `RNAFM_Predictor.py` is equivalent to the
+  unreleased `vMay7_RNAFM_Predictor.py` until strict checkpoint and fixed-sequence comparisons pass.
 
 ## Active risks
 
