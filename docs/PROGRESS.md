@@ -500,6 +500,26 @@ model is trained from a documented architecture.
   0.78497/0.54708/0.43977.  All three prediction columns independently recompute exactly.  Thus
   the apparent validation gain does not generalize and this transparent fusion is retained as a
   negative diagnostic, not a manuscript gain.
+- [x] Completed the contact-aware fold-4 pilot,
+  `structires_release_mfe_contact_fusion_fold4_v1_20260823`, using the label-free sparse MFE
+  contact cache (46,774 sequences; 2,425,739 base-pair edges) rather than global or per-position
+  summaries.  It froze the released RNA-FM/IRES head, pooled contextual residue pairs along MFE
+  contact edges, and injected a zero-initialized gated residual.  Its pretraining-equivalence check
+  passed and validation selected epoch 5 (AUPR 0.73549), without using test labels.  Independent
+  recomputation from `test_predictions.csv.gz` exactly matches the stored test values.  However,
+  released checkpoint versus contact fusion is AUROC 0.78530 versus 0.78027, AUPR 0.62797 versus
+  0.62204, F1 0.54961 versus 0.54472, and MCC 0.44299 versus 0.44165; only ECE improves from
+  0.24239 to 0.10803.  It is therefore a completed negative discrimination pilot, not expanded
+  and not reported as a main-table gain.
+- [ ] Running matched author-style native retraining on fold 4 from the public RNA-FM base checkpoint:
+  `structires_native_sequence_authorstyle_fold4_v1_20260823` and
+  `structires_native_contact_authorstyle_fold4_v1_20260823`.  Both use the public t12 checkpoint,
+  full RNA-FM fine-tuning, BOS 640$\rightarrow$40$\rightarrow$2 classification topology,
+  classification loss weight 2, 15\% masked-LM auxiliary loss weight 1, the same source fold,
+  seed, internal validation split, 10-epoch budget, and untouched native test set.  They differ
+  only by the sparse MFE-contact encoder and gated residual.  This is the first direct StructIRES
+  sequence-only versus structure-fusion comparison that does not initialize from a released,
+  upstream-test-selected IRES classifier checkpoint; no result is available yet.
 - [ ] Running: released checkpoint fold 0 plus zero-initialized structural adapter,
   `structires_release_adapter_fold0_v1_20260823`, on node 56 GPU 1. Epoch 1 validation AUPR is
   0.7019. This is a validation-only trajectory, not a held-out result and not a paper claim.
