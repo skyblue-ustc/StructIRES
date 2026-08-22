@@ -11,10 +11,14 @@ comes from a 174-nt DNA/lentiviral reporter library. RNA-based IRES-TrAPPr measu
 IRES--cargo studies motivate an explicit audit of whether this legacy signal transfers to direct-RNA
 and full-length contexts.
 
-We therefore ask a narrower and more defensible question: can conservative, assay-aware
-optimization improve the computational robustness of bona fide full-length viral IRES variants
-without sacrificing their structural ensemble or creating adverse cargo interactions? Our
-contributions are: (i) an assay-labelled cross-assay audit; (ii) a locked identification benchmark
-with random, similarity-cluster, and source-held-out views; (iii) a generator-agnostic constrained
-optimization layer evaluated against IRES-specific and matched-budget search baselines; and (iv) a
-reproducible reporting package that separates optimization scorers from independent evaluators.
+We therefore formulate IRES design as a constrained optimization problem rather than a pure
+classifier-maximization task: can a candidate be made more sequence-plausible without losing the
+energy and ensemble-structural features of an experimentally supported full-length parent? Our
+contributions are: (i) an assay-aware, generator-agnostic optimization layer that jointly ranks
+sequence plausibility, parent-relative energy preservation, and ensemble-structure preservation;
+(ii) a controlled full-length design matrix in which local and released score-only baselines,
+structure-only selection, and our robust-full selector operate on exactly the same candidates and
+budget; (iii) an independent direct-RNA held-out proxy that tests whether constraint-guided
+selection improves computational candidate enrichment beyond score-only optimization; and (iv) a
+cross-assay benchmark audit that explains why legacy IRES classifiers are useful baselines but
+insufficient standalone design objectives.

@@ -1,23 +1,25 @@
 \begin{abstract}
-\textbf{Motivation:} IRES engineering is confounded by structural ensembles, assay provenance, and
-downstream cargo context. Existing learning-based designs are dominated by a short DNA/lentiviral
-reporter library whose transfer to direct-RNA measurements and full-length IRESes is uncertain.
-\textbf{Results:} We develop an assay-labelled benchmark and generator-agnostic multi-objective
-framework for conservative mutation of experimentally supported IRESes. It combines independent
-function scorers, ensemble-structure preservation, cargo-crosstalk control, applicability, and
-diversity under matched query budgets. In a reconstructed-fold shortcut audit, hashed 3--6-mer
-features reached AUC 0.723 and AUPR 0.452, but fell to AUC 0.578 and AUPR 0.250 on an exact
-90\%-identity cluster-disjoint 174-nt split. Zero-shot transfer to 2,179 labelled direct-RNA
-sequences further fell to AUC 0.368 and AUPR 0.037. A composition control transferred at AUC 0.579
-and AUPR 0.058. A full ten-checkpoint RNA-FM rerun reproduced its native benchmark
-(AUC $0.778\pm0.009$, AUPR $0.614\pm0.014$), yet its predeclared direct-RNA ensemble reached
-only AUC 0.600 and AUPR 0.058, with specificity 0.001 and ECE 0.906 at the released threshold.
-Individual transfer AUCs ranged from 0.251 to 0.821 despite similar native performance. In a
-matched first-pass design experiment over ten full-length IRES seeds and three random pools,
-structure-constrained selection reduced absolute seed MFE deviation from 3.236 to 0.567 kcal/mol
-and ensemble pairing-profile distance from 0.147 to 0.048 relative to score-only selection, at a
-small RNA-LM plausibility trade-off. These are computational robustness results; candidates are not
-claimed as experimentally improved.
+\textbf{Motivation:} Learning-based IRES design commonly optimizes a sequence score alone. For
+full-length IRESes, this can select mutations that increase a model score while disrupting the
+parent energy landscape and structural ensemble, and reporter-trained scores may not transfer to
+direct-RNA settings. We address this objective-misalignment problem with constraint-guided IRES
+optimization rather than treating a legacy classifier as a complete design oracle.
+\textbf{Results:} We introduce an assay-aware, generator-agnostic framework that ranks candidates
+by sequence plausibility while explicitly preserving parent-relative minimum free energy and
+ensemble pairing profiles. The framework is evaluated on three frozen 512-candidate mutation pools
+for each of ten experimentally supported full-length IRES seeds, so random, local score-only,
+released RNA-FM/UTR-LM score-only, structure-only, and robust-full selection receive identical
+candidate sets and query budgets. Relative to local score-only selection, robust-full reduced
+absolute MFE deviation from 3.236 to 0.567 kcal/mol (82.5\%) and pairing-profile deviation from
+0.147 to 0.048 (67.2\%), while retaining a small sequence-plausibility trade-off. On a completely
+held-out S3 direct-RNA computational proxy, robust-full increased the mean candidate score by
+0.0110 over local score-only and by 0.0142 over the exactly reproduced released RNA-FM fold-0
+score-only baseline; both paired 95\% bootstrap intervals excluded zero. In contrast, released
+RNA-FM score-only selection was indistinguishable from random mutation on this independent proxy
+and showed substantial structural drift. Reproduced legacy predictor results and cross-assay tests
+therefore serve as a design stress test: strong in-assay classification alone is insufficient for
+robust full-length optimization. Our results establish computational candidate enrichment and
+structural preservation, not experimentally verified translation improvement.
 \textbf{Availability and implementation:} Code and frozen manifests will be released after
 patent/disclosure review. \textbf{Contact:} To be completed. \textbf{Supplementary information:}
 Available with the submitted manuscript.
