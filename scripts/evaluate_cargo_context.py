@@ -144,7 +144,7 @@ def main() -> int:
         summary.append({"method":method,"n_parent_run_units":len(subset),
                         **{metric:mean([float(row[metric]) for row in subset]) for metric in ("mean_crosstalk_ratio","worst_crosstalk_ratio","mean_context_consistency","worst_context_consistency")}})
     comparisons=[]
-    for right in ("score_only","utrlm_score_only","random_mutation"):
+    for right in ("score_only","rnafm_fold0_score_only","utrlm_score_only","random_mutation"):
         if "robust_full" in methods and right in methods:
             comparisons.extend(bootstrap_paired(group_rows,"robust_full",right))
     args.output_dir.mkdir(parents=True,exist_ok=False)
