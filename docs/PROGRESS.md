@@ -434,6 +434,15 @@ model is trained from a documented architecture.
   of a batch-index normalization-shape bug; it produced no metrics and remains preserved as a
   failure log.  The corrected immutable `fold4_v2` run is active.  The repair has an explicit
   scalar-and-batch normalization smoke test; all repository unit tests remain green (32/32).
+- [x] Completed the corrected position-aware `fold4_v2` run and independently recomputed its
+  saved 4,678 official-test predictions.  With validation-only epoch/threshold selection, the
+  frozen released baseline is AUC/AUPR/F1/MCC/ECE = 0.78530/0.62797/0.54961/0.44299/0.24239;
+  the masked-CNN structural residual is 0.78565/0.62834/0.54445/0.43518/0.19330.  The nonzero
+  maximum probability change (0.09236) confirms that the structural path was active, but the
+  AUC/AUPR gains (+0.00035/+0.00037) are too small and F1/MCC decrease.  This single fold is
+  preserved as a negative/exploratory result, not promoted to the paper table or expanded to
+  ten folds.  The next classifier iteration requires a matched trainable sequence-head control
+  and a trainable structure-fusion head under the same validation-only protocol.
 - [ ] Running: released checkpoint fold 0 plus zero-initialized structural adapter,
   `structires_release_adapter_fold0_v1_20260823`, on node 56 GPU 1. Epoch 1 validation AUPR is
   0.7019. This is a validation-only trajectory, not a held-out result and not a paper claim.
