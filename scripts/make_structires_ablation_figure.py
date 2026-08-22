@@ -8,11 +8,11 @@ from pathlib import Path
 
 
 LABELS = {
-    "ireslm_score_only": "IRES-LM\nscore only",
-    "ireslm_plus_energy": "+ energy",
-    "ireslm_plus_ensemble": "+ ensemble",
-    "ireslm_plus_anchor": "+ anchor",
-    "structires": "StructIRES-Rank",
+    "ireslm_score_only": "Score",
+    "ireslm_plus_energy": "+E",
+    "ireslm_plus_ensemble": "+Ens",
+    "ireslm_plus_anchor": "+Anc",
+    "structires": "StructIRES",
 }
 ORDER = list(LABELS)
 
