@@ -87,20 +87,24 @@ def load_fold(path: Path, replicates: int, seed: int) -> tuple[list[dict[str, ob
     if {"id", "label", "baseline_probability", "adapter_probability"}.difference(frame):
         raise ValueError(f"prediction columns missing: {prediction_path}")
     labels = frame.label.to_numpy(dtype=np.int64)
-    threshold = float(report["baseline_released_checkpoint"]["threshold"])
+    baseline_threshold = float(report["baseline_released_checkpoint"]["threshold"])
+    adapter_threshold = float(report["adapter_validation_selected"]["threshold"])
     fold = int(manifest["fold"])
     common = {
         "fold": fold, "n": int(len(frame)), "n_positive": int(labels.sum()),
-        "threshold": threshold, "source_run_dir": str(path.resolve()),
+        "source_run_dir": str(path.resolve()),
         "manifest_sha256": sha256(manifest_path), "metrics_sha256": sha256(metrics_path),
         "predictions_sha256": sha256(prediction_path), "checkpoint_sha256": manifest["checkpoint_sha256"],
     }
     rows: list[dict[str, object]] = []
-    for model, column in (("IRES-RNAFM released checkpoint", "baseline_probability"), ("StructIRES release adapter", "adapter_probability")):
+    for model, column, threshold in (
+        ("IRES-RNAFM released checkpoint", "baseline_probability", baseline_threshold),
+        ("StructIRES release adapter", "adapter_probability", adapter_threshold),
+    ):
         probability = frame[column].to_numpy(dtype=float)
         if not np.isfinite(probability).all() or not ((probability >= 0.) & (probability <= 1.)).all():
             raise ValueError(f"invalid probabilities for {model} fold {fold}")
-        rows.append({"model": model, **common, **metric_values(labels, probability, threshold), **bootstrap(labels, probability, threshold, replicates, seed + 1000 * fold + len(rows))})
+        rows.append({"model": model, "threshold": threshold, **common, **metric_values(labels, probability, threshold), **bootstrap(labels, probability, threshold, replicates, seed + 1000 * fold + len(rows))})
     audit = {"fold": fold, "run_dir": str(path.resolve()), "manifest_sha256": common["manifest_sha256"], "metrics_sha256": common["metrics_sha256"], "predictions_sha256": common["predictions_sha256"]}
     return rows, audit
 

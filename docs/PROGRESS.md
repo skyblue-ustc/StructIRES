@@ -423,3 +423,9 @@ model is trained from a documented architecture.
 - [ ] Running: released checkpoint fold 0 plus zero-initialized structural adapter,
   `structires_release_adapter_fold0_v1_20260823`, on node 56 GPU 1. Epoch 1 validation AUPR is
   0.7019. This is a validation-only trajectory, not a held-out result and not a paper claim.
+- [x] Completed and independently re-summarized release fold 2 with 1,000 stratified bootstrap
+  replicates in `structires_release_adapter_partial_summary_fold2_v1_20260823`. Under thresholds
+  selected solely on the fold-train validation subset, the released checkpoint has AUROC 0.7889,
+  AUPR 0.6361 and F1 0.5626; the structure adapter has 0.7923, 0.6392 and 0.5644, respectively.
+  Its ECE improves from 0.2267 to 0.1959. This is an audited *single-fold signal*, not a ten-fold
+  conclusion or a manuscript headline. The JSON metrics exactly match a prediction-file recompute.
