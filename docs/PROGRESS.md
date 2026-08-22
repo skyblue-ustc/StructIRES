@@ -464,6 +464,15 @@ model is trained from a documented architecture.
   0.5481; mean MCC is 0.4568 and 0.4637. Mean ECE decreases from 0.2302 to 0.1855. This mixed,
   incomplete result supports a calibration/specificity signal but does **not** justify a claim of
   material recognition improvement until the complete ten-fold audit is available.
+- [x] Completed and independently checked the complete global-feature ten-fold audit in
+  `structires_release_adapter_10fold_summary_v1_20260823`.  It contains exactly folds 0--9 once
+  each; its aggregate means reproduce from the hashed prediction-ledger rows.  The frozen
+  checkpoint versus the 21-feature global structure residual is AUROC 0.77899 versus 0.77734,
+  AUPR 0.61455 versus 0.61351, F1 0.54343 versus 0.54182, MCC 0.45135 versus 0.45176, and ECE
+  0.22855 versus 0.17764 (mean $\pm$ sample standard deviations are in the aggregate CSV).
+  Therefore the global feature adapter has a reproducible calibration improvement but no
+  discrimination improvement; it is retained as a negative/calibration ablation and is excluded
+  from the primary recognition claim and manuscript main table.
 - [x] Clarified a provenance-sensitive output name in the legacy global-adapter runner.  Its
   `adapter_validation_selected` JSON field contains **official-test** metrics; “validation” means
   that the epoch and F1 threshold were selected using only the upstream-train validation subset.
