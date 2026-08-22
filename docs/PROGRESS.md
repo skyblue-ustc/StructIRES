@@ -511,9 +511,14 @@ model is trained from a documented architecture.
   0.62204, F1 0.54961 versus 0.54472, and MCC 0.44299 versus 0.44165; only ECE improves from
   0.24239 to 0.10803.  It is therefore a completed negative discrimination pilot, not expanded
   and not reported as a main-table gain.
-- [ ] Running matched author-style native retraining on fold 4 from the public RNA-FM base checkpoint:
-  `structires_native_sequence_authorstyle_fold4_v1_20260823` and
-  `structires_native_contact_authorstyle_fold4_v1_20260823`.  Both use the public t12 checkpoint,
+- [ ] Running matched author-style native retraining on fold 4 from the public RNA-FM base checkpoint.
+  The initial diagnostic pair, `structires_native_sequence_authorstyle_fold4_v1_20260823` and
+  `structires_native_contact_authorstyle_fold4_v1_20260823`, omitted the upstream implementation's
+  per-epoch shuffle of length-aware batches and its `LinearLR` schedule. It remains preserved as a
+  non-final diagnostic. The primary pair is
+  `structires_native_sequence_authorstyle_batchshuffle_fold4_v2_20260823` and
+  `structires_native_contact_authorstyle_batchshuffle_fold4_v2_20260823`, which additionally
+  reproduces those training details. Both pairs use the public t12 checkpoint,
   full RNA-FM fine-tuning, BOS 640$\rightarrow$40$\rightarrow$2 classification topology,
   classification loss weight 2, 15\% masked-LM auxiliary loss weight 1, the same source fold,
   seed, internal validation split, 10-epoch budget, and untouched native test set.  They differ
