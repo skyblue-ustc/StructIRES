@@ -241,6 +241,25 @@ structure preservation, not improved IRES activity.
 
 \input{tables/design_ablation}
 
+Figure~\ref{fig:structires-case} gives a deterministic case illustration rather than a
+representative-performance claim: it compares the rank-1 IAPV candidate from the frozen seed-42
+pool under each selection rule. The score-only candidate has a slightly higher IRES-LM probability
+(0.976 versus 0.963), but loses substantial parent-anchor probability (retention 0.682) and has
+$|\Delta\mathrm{MFE}|=3.70$ kcal/mol. The \textsc{StructIRES-Rank} candidate has 0.000 MFE
+deviation and 1.000 anchor retention. This visualizes the mechanism already measured across all
+30 paired units; it does not imply that either candidate has experimentally verified activity.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.98\textwidth]{figures/fig7_iapv_case_v2.pdf}
+  \caption{Provenance-locked illustrative IAPV structural case. We plot the rank-1 candidate from
+  the frozen seed-42 mutation pool under IRES-LM score-only and \textsc{StructIRES-Rank} selection.
+  Colored squares show ViennaRNA ensemble base-pair probabilities; green circles and orange crosses
+  denote retained and reduced parent-derived $P\geq0.5$ anchors, respectively; pink lines are edited
+  positions. This is a computational structure illustration, not a measurement of candidate activity.}
+  \label{fig:structires-case}
+\end{figure*}
+
 \subsection{Legacy 174-nt de novo benchmark}
 IRES-DM released outputs are an external reference. A strict superiority claim requires retraining
 under the shared data and budget protocol.

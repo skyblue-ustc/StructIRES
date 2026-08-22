@@ -360,3 +360,12 @@ model is trained from a documented architecture.
   $0.641\pm0.069$ to $0.887\pm0.131$ kcal/mol. It is therefore a supplementary, transparent
   single-seed functional constraint rather than a claimed all-seed activity gain. It does not
   validate activity of generated candidates.
+
+## Representative structural case (2026-08-22)
+
+- [x] Added a provenance-locked illustrative IAPV case figure. It compares the rank-1 score-only
+  and \textsc{StructIRES-Rank} candidates from the frozen seed-42 pool against the parent ensemble.
+  Score-only has IRES-LM 0.976, $|\Delta\mathrm{MFE}|=3.70$ and anchor retention 0.682;
+  \textsc{StructIRES-Rank} has IRES-LM 0.963, $|\Delta\mathrm{MFE}|=0.00$ and retention 1.000.
+  This deterministic visual is explanatory only, never a candidate-activity claim. Manifest:
+  `structires_iapv_case_v2_20260822`.
