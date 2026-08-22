@@ -3,18 +3,51 @@
 `main.tex` is a venue-neutral scientific draft. Its section files are the source of truth; a future
 IEEE or OUP wrapper should import them instead of duplicating text.
 
-Current figure/table contract:
+Current reviewed figure/table contract:
 
 1. `fig1_overview`: assay provenance and technical route.
 2. `fig2_prediction_pilot`: dataset shortcut audit and reconstructed-fold lightweight baseline.
 3. `fig3_assay_shift`: cross-assay transfer, calibration, and failure analysis.
 4. `fig4_checkpoint_stability`: final ten-checkpoint native/transfer heterogeneity audit.
-5. `fig5_pareto`: function, ensemble preservation, and cargo-crosstalk Pareto front.
-6. `fig6_ablation`: paired score-only/MFE/ensemble/context/robust-full effects.
-7. `fig7_validity`: applicability, diversity, efficiency, and representative structures.
+5. `fig6_structires_ireslm_ablation`: matched five-arm IRES-LM, energy, ensemble, anchor and
+   combined-constraint ablation.
+6. `fig7_iapv_case_v2`: provenance-locked IAPV parent / score-only / StructIRES ensemble case.
+7. `iapv_mpra_guardrail`: IAPV-only public direct-RNA mutational-scan guardrail table.
 
 Tables must identify the assay, split, tuning data, and whether a method is reproduced or copied as
 a published reference. Placeholder cells use `--`; they are not results.
+
+## Build the reviewed draft
+
+The current server has a working `ires-tex` environment. From this directory:
+
+```bash
+mkdir -p build
+conda run -n ires-tex tectonic -X compile main.tex \
+  --outdir build --keep-logs --keep-intermediates
+```
+
+The expected artifact is `build/main.pdf`. It is a venue-neutral internal-review draft; author,
+contact, disclosure and final venue-wrapper fields intentionally remain pending.
+
+## Main StructIRES evidence chain
+
+The primary manuscript claim is computational only and is backed by immutable external run outputs:
+
+1. `ireslm_ensemble_shared_pool_scores_v1_20260822`: all 10 RNA-FM and 10 UTR-LM released
+   classifiers score the same 15,360 frozen candidates.
+2. `parent_ensemble_anchor_metrics_v1_20260822`: ViennaRNA 2.7.2 parent-derived $P\geq0.5$
+   ensemble-anchor retention for every candidate.
+3. `structires_ireslm_anchor_selection_v1_20260822`: matched five-arm top-50 selection from every
+   512-candidate parent-by-run pool.
+4. `structires_ireslm_anchor_direct_rna_s3_v2_20260822`: independent S3-held-out direct-RNA
+   computational proxy evaluation; it is not a candidate activity assay.
+5. `iapv_mpra_mutational_risk_v1_20260822` and
+   `structires_ireslm_iapv_mpra_guardrail_v2_20260822`: IAPV-only public direct-RNA mutational-scan
+   edit-risk guardrail and its same-budget ablation.
+
+Every run directory contains a manifest with paths, hashes and claim scope. These external assets
+are intentionally not committed to Git.
 
 Summarize all released RNA-FM native folds without pooling overlapping test memberships:
 
@@ -76,9 +109,6 @@ python scripts/run_source_holdout_benchmark.py \
   --models composition,kmer \
   --seed 42
 ```
-
-The host currently has no `pdflatex`, `latexmk`, or `tectonic`; compilation must be checked in a
-TeX-enabled environment before any venue wrapper is frozen.
 
 Audit cross-fold heterogeneity after a multi-checkpoint direct-RNA transfer run:
 
