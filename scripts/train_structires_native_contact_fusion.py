@@ -153,6 +153,15 @@ def probability(model: nn.Module, loader, labels: np.ndarray, *, variant: str, o
     return np.asarray(index_all, dtype=np.int64), np.asarray(score, dtype=np.float64)
 
 
+def shuffled_train_loader(utility, data_module, alphabet, indices: np.ndarray, sequences: list[str],
+                          tokens_per_batch: int, mask_prob: float, seed: int):
+    """Match upstream DistributedSampler behaviour over length-aware batches."""
+    source = utility.make_loader(data_module, alphabet, indices, sequences, tokens_per_batch, mask_prob=mask_prob)
+    batch_order = list(source.batch_sampler)
+    random.Random(seed).shuffle(batch_order)
+    return torch.utils.data.DataLoader(source.dataset, collate_fn=alphabet.get_batch_converter(), batch_sampler=batch_order)
+
+
 def main() -> int:
     args = arguments()
     if args.output_dir.exists():
@@ -186,16 +195,20 @@ def main() -> int:
     model = (AuthorStyleRNAFM(backbone, args.dropout) if args.variant == "sequence" else
              ContactStructIRES(backbone, args.dropout))
     device = torch.device(args.device); model = model.to(device)
-    train_loader = utility.make_loader(data_module, alphabet, train, sequences, args.tokens_per_batch, mask_prob=args.mask_prob)
     validation_loader = utility.make_loader(data_module, alphabet, validation, sequences, args.tokens_per_batch)
     test_loader = utility.make_loader(data_module, alphabet, test, sequences, args.tokens_per_batch)
-    positive_weight = float(train.size / labels[train].sum() - 1.)
-    criterion = nn.CrossEntropyLoss(weight=torch.tensor([1., positive_weight], device=device))
+    counts = np.bincount(labels[train], minlength=2).astype(np.float32)
+    # Numerically identical class ratio to the upstream implementation, while
+    # retaining its explicit n/(2*n_class) definition for provenance.
+    criterion = nn.CrossEntropyLoss(weight=torch.tensor(train.size / (2. * counts), device=device))
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+    scheduler = torch.optim.lr_scheduler.LinearLR(optimizer, start_factor=1., end_factor=.5, total_iters=30)
     mask_token_id = int(alphabet.tok_to_idx["<mask>"])
     best, best_state, best_threshold, curve, stale = -np.inf, None, .5, [], 0
     for epoch in range(1, args.epochs + 1):
         model.train()
+        train_loader = shuffled_train_loader(utility, data_module, alphabet, train, sequences,
+                                             args.tokens_per_batch, args.mask_prob, args.seed + epoch)
         for index, _, _, clean_tokens, masked_tokens, _ in train_loader:
             index = np.asarray(index, dtype=np.int64)
             clean = clean_tokens[:, :args.truncate_num].to(device)
@@ -209,6 +222,7 @@ def main() -> int:
             loss = (args.classification_loss_weight * criterion(logits, target) +
                     args.mlm_loss_weight * nn.functional.cross_entropy(lm_logits.transpose(1, 2), masked_target, ignore_index=-1))
             optimizer.zero_grad(set_to_none=True); loss.backward(); optimizer.step()
+        scheduler.step()
         val_index, val_score = probability(model, validation_loader, labels, variant=args.variant, offsets=offsets, pairs=pairs, device=device, truncate_num=args.truncate_num)
         threshold = utility.best_f1_threshold(labels[val_index], val_score)
         report = utility.metrics(labels[val_index], val_score, threshold)
@@ -242,7 +256,8 @@ def main() -> int:
                 "architecture": "author-style RNA-FM t12 BOS 640->40->2" if args.variant == "sequence" else
                 "author-style RNA-FM t12 BOS 640->40->2 plus sparse MFE contact encoder and gated residual",
                 "training_objective": "classification CE*2 plus masked-LM CE*1", "mask_probability": args.mask_prob,
-                "epochs_requested": args.epochs, "tokens_per_batch": args.tokens_per_batch}
+                "epochs_requested": args.epochs, "tokens_per_batch": args.tokens_per_batch,
+                "batch_order": "length-aware batches reshuffled per epoch", "lr_schedule": "LinearLR 1.0->0.5 over 30 epochs"}
     (args.output_dir / "run_manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return 0
 
