@@ -3,3 +3,4 @@ random_mutation,1500,0.4191445224,0.4568438610,30,robust_full_minus_random_mutat
 score_only,1500,0.4223477546,0.4611524589,30,robust_full_minus_score_only,0.0109909560,0.0051495506,0.0175869518,/9950backfile/lant/data/ires-design-external-runs/seeded_design_direct_rna_s3_holdout_v2_20260822
 structure_only,1500,0.4341398484,0.4663416800,30,structure_only_minus_score_only,0.0117920939,0.0050894517,0.0193975088,/9950backfile/lant/data/ires-design-external-runs/seeded_design_direct_rna_s3_holdout_v2_20260822
 robust_full,1500,0.4333387105,0.4662162759,30,robust_full_minus_score_only,0.0109909560,0.0051495506,0.0175869518,/9950backfile/lant/data/ires-design-external-runs/seeded_design_direct_rna_s3_holdout_v2_20260822
+utrlm_score_only,1500,0.4223353186,0.4559557081,30,robust_full_minus_utrlm_score_only,0.0110033919,0.0023743438,0.0208096111,/9950backfile/lant/data/ires-design-external-runs/seeded_design_direct_rna_s3_holdout_v4_with_utrlm_20260822

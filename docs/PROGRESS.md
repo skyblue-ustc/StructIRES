@@ -22,6 +22,10 @@ DeepCIP official inference remains a time-boxed environment blocker rather than 
 - [x] Completed an independent S3-held-out direct-RNA computational proxy evaluation of the first
   matched design selections: 222 held-out records, AUC 0.592 and AUPR 0.497; robust-full minus
   score-only was +0.0110 (95\% bootstrap CI 0.0051--0.0176) across 30 parent-by-run units.
+- [x] Ran the released ten-checkpoint UTR-LM ensemble over all 15,360 frozen candidates and added
+  a budget-matched external score-only arm. Its direct-RNA proxy score was 0.4223, statistically
+  indistinguishable from local RNA-LM score-only; robust-full minus UTR-LM was +0.0110 (95\% CI
+  0.0024--0.0208) across the same 30 paired units.
 - [x] Froze direct baselines and the three-track task hierarchy in documentation/configuration.
 - [x] Retrieved, field-audited and hashed all nine IRES-TrAPPr XLSX supplements plus the supplementary PDF.
 - [x] Audited the released IRES-AI split: ten repeated 90/10 holdouts, not a mutually exclusive

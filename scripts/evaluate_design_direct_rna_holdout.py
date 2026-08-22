@@ -83,11 +83,13 @@ def main() -> int:
         summary.append({'method':method,'n':len(values),'mean_direct_rna_s3_heldout_proxy':float(np.mean(values)),'std_direct_rna_s3_heldout_proxy':float(np.std(values,ddof=1))})
     with (a.output_dir/'summary.csv').open('w',newline='') as h:
         w=csv.DictWriter(h,fieldnames=list(summary[0]));w.writeheader();w.writerows(summary)
-    comparisons=[paired_bootstrap(rows, 'robust_full', 'score_only'),
-                 paired_bootstrap(rows, 'robust_full', 'random_mutation'),
-                 paired_bootstrap(rows, 'structure_only', 'score_only')]
-    with (a.output_dir/'paired_method_comparisons.csv').open('w',newline='') as h:
-        w=csv.DictWriter(h,fieldnames=list(comparisons[0]));w.writeheader();w.writerows(comparisons)
+    available={str(row['method']) for row in rows}
+    requested=[('robust_full','score_only'),('robust_full','random_mutation'),('structure_only','score_only'),
+               ('robust_full','utrlm_score_only'),('utrlm_score_only','score_only')]
+    comparisons=[paired_bootstrap(rows,left,right) for left,right in requested if {left,right} <= available]
+    if comparisons:
+        with (a.output_dir/'paired_method_comparisons.csv').open('w',newline='') as h:
+            w=csv.DictWriter(h,fieldnames=list(comparisons[0]));w.writeheader();w.writerows(comparisons)
     (a.output_dir/'metrics.json').write_text(json.dumps(metrics,indent=2,sort_keys=True)+'\n')
     (a.output_dir/'run_manifest.json').write_text(json.dumps({'schema_version':1,'data':str(a.data),'data_sha256':sha(a.data),'selected':[{'path':str(p),'sha256':sha(p)} for p in a.selected],'scope':'independent S3-held-out direct-RNA computational proxy; not experimental activity','metrics':metrics},indent=2,sort_keys=True)+'\n')
     print(json.dumps({'metrics':metrics,'summary':summary,'comparisons':comparisons},indent=2))

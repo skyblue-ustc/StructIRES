@@ -193,6 +193,12 @@ and structure-state identity higher by 0.1168 (0.1006 to 0.1325). Structure-only
 strongest preservation but had lower RNA-LM plausibility than robust-full, locating robust-full on
 the intended trade-off rather than presenting MFE preservation as a new method.
 
+We additionally evaluated a score-only arm based on the released ten-checkpoint UTR-LM ensemble,
+the predictor backbone used by the public IRES-EA release. This arm selected from the identical
+mutation pools but showed the largest structural drift ($|\Delta\mathrm{MFE}|=4.083\pm1.330$
+kcal/mol; pairing-profile $L_1=0.166\pm0.028$). It was therefore retained as a direct external
+score-only baseline rather than silently omitted.
+
 As a deliberately independent check, we fitted a low-capacity three-seed hashed 3--6-mer proxy
 after excluding every S3-provenance record, then evaluated it once on the 222 held-out S3 direct-RNA
 records (AUC 0.592; AUPR 0.497). This proxy was not used during mutation-pool generation or selection.
@@ -200,6 +206,9 @@ On the 30 matched parent-by-run units, robust-full exceeded score-only by 0.0110
 proxy score (95\% bootstrap CI 0.0051--0.0176; Table~\ref{tab:design}). The same proxy slightly
 favoured structure-only over robust-full, so this result supports non-degradation under an
 independent computational evaluator rather than a unique robust-full optimum.
+Against the released UTR-LM score-only arm, robust-full had the same-sized paired advantage of
+0.0110 (95\% CI 0.0024--0.0208), whereas UTR-LM and local RNA-LM score-only were indistinguishable
+on this proxy ($-0.00001$, 95\% CI $-0.0084$ to 0.0085).
 
 These are computational structural, language-model and proxy metrics only. They do not establish
 improved IRES activity; cargo-context stress testing and prospective experimental validation remain
