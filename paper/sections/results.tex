@@ -207,6 +207,21 @@ ablations were 0.0086 (0.0035--0.0147), 0.0046 (0.0018--0.0080), and 0.0045
 global ensemble, and parent-anchor constraints rather than an advantage attributable to an
 increased query budget.
 
+The public direct-RNA IAPV mutational scan provides a complementary, experimentally grounded
+guardrail rather than another sequence predictor. Across 208 overlapping A-substitution tiles, 169
+of 213 IAPV positions had direct measurement coverage. We converted the observed loss of IRES
+translation at each position into a conservative edit-risk map, imputing the median measured risk
+for unobserved positions. Adding this guardrail to the matched IAPV selection reduced mean MPRA
+edit risk from $2.438\pm0.174$ to $1.782\pm0.087$ across the three frozen pools (paired difference
+$-0.656$, bootstrap interval $-0.933$ to $-0.480$; Table~\ref{tab:iapv-mpra-guardrail}). This
+reduction necessarily trades against a small amount of thermodynamic preservation
+($|\Delta\mathrm{MFE}|$ rises from $0.641$ to $0.887$ kcal/mol), which is precisely why the
+functional guardrail is reported as a separate, transparent ablation rather than folded into the
+ten-seed headline result. It demonstrates that the framework can encode direct assay-derived
+mutational knowledge, but does not establish activity for new sequences.
+
+\input{tables/iapv_mpra_guardrail}
+
 A reporter-only cargo-context stress test using NanoLuc, Firefly and mCherry contexts further
 showed that constraint-guided designs had the lowest mean crosstalk ratio (0.163) and highest
 mean context consistency (0.841) among the local and released score-only comparators. This is a

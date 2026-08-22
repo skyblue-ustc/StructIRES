@@ -44,20 +44,35 @@ per-checkpoint direct-RNA metrics are reported only as a frozen post hoc stabili
 \subsection{Seeded full-length optimization}
 Starting from ten experimentally supported full-length viral IRESes, we deterministically generated
 three shared pools (seeds 42, 43 and 44), each containing 512 unique substitution mutants per parent.
-Each mutant retained length and made at most 3\% substitutions. Random, score-only, structure-only
-and first-pass robust-full selection all retained 50 candidates from the identical parent-specific
-pool. Score-only ranked frozen local RNA-LM teacher-forcing likelihood. Structure-only equally ranked
-absolute MFE deviation and ensemble pairing-profile distance from the parent. First-pass robust-full
-equally ranked RNA-LM likelihood, MFE preservation and ensemble preservation. Thus the first-pass
-robust-full result tests a controlled structure--plausibility trade-off; cargo context, direct-RNA
-calibration, applicability and diversity enter only in the next prespecified extension.
+Each mutant retained length and made at most 3\% substitutions. The primary sequence score is the
+arithmetic mean of all ten released RNA-FM and all ten released UTR-LM IRES-classifier probabilities
+(IRES-LM). Every selection arm retained 50 candidates from the identical parent-specific pool.
+Energy preservation ranks lower absolute MFE deviation. Global ensemble preservation ranks lower
+base-pairing-probability-profile $L_1$ distance. Parent-anchor preservation ranks lower loss of the
+parent's base pairs with ViennaRNA ensemble probability $P\geq0.5$, weighted by the parent
+probability. \textsc{StructIRES-Rank} equally ranks these three structural quantities and IRES-LM;
+the one-term and two-term alternatives are explicit matched ablations. These are thermodynamic
+secondary-structure constraints, not experimentally mapped IRES motifs.
+
+\subsection{IAPV direct-RNA MPRA mutational-scan guardrail}
+To test a genuinely assay-derived functional guardrail without treating a generic proxy as ground
+truth, we used the public IRES-TrAPPr S1 IAPV A-substitution tiles. For each parent position, the
+risk is the median non-negative reduction in measured IRES translation among overlapping observed
+tiles relative to IAPV-WT. There are 208 tiles covering 169 of 213 positions. Uncovered positions
+receive the median observed risk, preventing an optimizer from exploiting missing assay coverage.
+For IAPV only, an additional matched arm equally ranks IRES-LM, the three \textsc{StructIRES-Rank}
+structural terms, and lower direct-RNA MPRA edit risk. This is a conservation guardrail derived from
+measured parent mutations; it does not measure the activity of any newly generated candidate.
 
 \subsection{Evaluation and statistics}
-Optimization scorers are not used as sole final evaluators. For the first pass, we report the
-parent-by-run means over 30 paired units and bootstrap confidence intervals for robust-full minus
-score-only effects. As an independent post-selection proxy, a three-seed hashed character 3--6-mer
+Optimization scorers are not used as sole final evaluators. For the primary ablation, we report the
+parent-by-run means over 30 paired units and bootstrap confidence intervals for \textsc{StructIRES-Rank}
+minus IRES-LM score-only effects. The IAPV MPRA guardrail is reported separately over three frozen
+pools because only IAPV has the appropriate direct-RNA mutational-scan coverage. As an independent
+post-selection proxy for the primary, non-MPRA-selection ablation, a three-seed hashed character 3--6-mer
 logistic ensemble is fitted after removing every record with S3 provenance from the normalized
 direct-RNA table, and is evaluated once on the remaining 222 S3 records. This proxy is never used
-for pool generation, selection, thresholding or hyperparameter choice. RNA-LM likelihood and the
-proxy score are explicitly computational quantities; the resulting effects are interpreted as
-computational robustness rather than activity unless prospectively validated in an appropriate assay.
+for pool generation, selection, thresholding or hyperparameter choice. It is not reused as an
+evaluator of the IAPV MPRA-guardrail arm. RNA-LM likelihood and the proxy score are explicitly
+computational quantities; the resulting effects are interpreted as computational robustness rather
+than activity unless prospectively validated in an appropriate assay.

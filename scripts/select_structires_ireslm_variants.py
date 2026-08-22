@@ -19,6 +19,7 @@ def main() -> int:
     parser.add_argument("--scores", type=Path, required=True)
     parser.add_argument("--structure", type=Path, nargs="+", required=True)
     parser.add_argument("--anchors", type=Path, required=True)
+    parser.add_argument("--functional-risk", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--top-k", type=int, default=50)
     args = parser.parse_args()
@@ -26,6 +27,10 @@ def main() -> int:
         raise FileExistsError(f"refusing to overwrite existing output: {args.output}")
     scores = {row["candidate_id"]: row for row in csv.DictReader(args.scores.open(encoding="utf-8", newline=""))}
     anchors = {row["candidate_id"]: row for row in csv.DictReader(args.anchors.open(encoding="utf-8", newline=""))}
+    functional_risk = (
+        {row["candidate_id"]: row for row in csv.DictReader(args.functional_risk.open(encoding="utf-8", newline=""))}
+        if args.functional_risk else {}
+    )
     rows: list[dict[str, str]] = []
     for path in args.structure:
         # Keep provenance of the frozen pool.  The selected CSV intentionally
@@ -40,6 +45,8 @@ def main() -> int:
     for row in rows:
         row.update(scores[row["candidate_id"]])
         row.update(anchors[row["candidate_id"]])
+        if row["candidate_id"] in functional_risk:
+            row.update(functional_risk[row["candidate_id"]])
     grouped: dict[tuple[str, str], list[dict[str, str]]] = defaultdict(list)
     for row in rows:
         grouped[(row["run_seed"], row["parent_id"])].append(row)
@@ -63,12 +70,22 @@ def main() -> int:
                 + anchors_rank[row["candidate_id"]]
             ) / 4.0,
         }
+        if group[0]["parent_id"] == "IAPV" and functional_risk:
+            mpra = percentile_rank(group, "iapv_mpra_mutational_risk", higher=False)
+            objectives["structires_plus_iapv_mpra_guardrail"] = lambda row: (
+                function[row["candidate_id"]] + energy[row["candidate_id"]]
+                + ensemble[row["candidate_id"]] + anchors_rank[row["candidate_id"]]
+                + mpra[row["candidate_id"]]
+            ) / 5.0
         for method, objective in objectives.items():
             for rank, row in enumerate(sorted(group, key=objective)[: args.top_k], start=1):
                 selected.append({"method": method, "selection_rank": rank, **row})
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(selected[0]))
+        # The IAPV-only MPRA guardrail introduces additional provenance columns.
+        # Use the union so ordinary parents remain represented with blank fields.
+        fieldnames = list(selected[0]) + sorted(set().union(*(row.keys() for row in selected)) - set(selected[0]))
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(selected)
     print({"n_selected": len(selected), "methods": len(objectives), "top_k": args.top_k})

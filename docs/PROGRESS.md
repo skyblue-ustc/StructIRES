@@ -342,5 +342,21 @@ model is trained from a documented architecture.
   (95\% bootstrap CI 0.00789--0.02421). Run:
   `structires_ireslm_anchor_direct_rna_s3_v2_20260822`.
 - [x] Updated the primary manuscript table, result section and figure to use the complete IRES-LM
-  ablation. Local unit tests pass (32 tests); the PDF compiles. **Remaining paper blocker:** the
-  current BibTeX output is empty and must be repaired before submission.
+  ablation. Local unit tests pass (32 tests); the PDF compiles with resolved in-text citations and
+  a non-empty bibliography.
+
+## IAPV direct-RNA MPRA guardrail (2026-08-22)
+
+- [x] Converted the public IRES-TrAPPr S1 IAPV A-substitution mutational scan into a conservative
+  parent-position edit-risk ledger. It contains 208 observed tiles, directly covers 169/213 IAPV
+  positions, and imputes the median observed risk for the remaining positions so optimization cannot
+  exploit missing coverage. Immutable run: `iapv_mpra_mutational_risk_v1_20260822`.
+- [x] Added an IAPV-only same-pool guardrail ablation. It combines IRES-LM, energy, global ensemble,
+  parent-anchor and lower measured-mutational-risk ranks; all arms still take 50 candidates from each
+  of the same three 512-candidate pools. MPRA edit risk is $2.438\pm0.174$ for \textsc{StructIRES-Rank}
+  and $1.782\pm0.087$ with the guardrail (paired difference $-0.656$, bootstrap interval
+  $-0.933$ to $-0.480$). The run is `structires_ireslm_iapv_mpra_guardrail_v2_20260822`.
+- [x] The guardrail carries an explicit trade-off: mean $|\Delta\mathrm{MFE}|$ increases from
+  $0.641\pm0.069$ to $0.887\pm0.131$ kcal/mol. It is therefore a supplementary, transparent
+  single-seed functional constraint rather than a claimed all-seed activity gain. It does not
+  validate activity of generated candidates.
