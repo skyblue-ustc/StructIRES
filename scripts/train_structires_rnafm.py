@@ -51,6 +51,8 @@ def arguments() -> argparse.Namespace:
                         help="training-only RNA masked-LM probability, matching upstream default")
     parser.add_argument("--mlm-loss-weight", type=float, default=1.0)
     parser.add_argument("--cls-loss-weight", type=float, default=2.0)
+    parser.add_argument("--skip-test", action="store_true",
+                        help="development mode: choose on validation only and do not evaluate the test split")
     parser.add_argument("--device", default="cuda")
     return parser.parse_args()
 
@@ -259,8 +261,11 @@ def main() -> int:
         criterion = nn.CrossEntropyLoss(weight=weight)
         train_loader = batches(data_module, alphabet, np.flatnonzero(train), sequences, labels, args.tokens_per_batch, args.mask_prob if args.variant != "structure_profile_only" else 0.0)
         val_loader = batches(data_module, alphabet, np.flatnonzero(validation), sequences, labels, args.tokens_per_batch, 0.0)
-        test_loader = batches(data_module, alphabet, np.flatnonzero(test), sequences, labels, args.tokens_per_batch, 0.0)
-        best, best_state, best_threshold = -np.inf, None, .5
+        test_loader = None if args.skip_test else batches(
+            data_module, alphabet, np.flatnonzero(test), sequences, labels,
+            args.tokens_per_batch, 0.0,
+        )
+        best, best_state, best_threshold, best_validation = -np.inf, None, .5, None
         for epoch in range(1, args.epochs + 1):
             run_epoch(model, train_loader, labels, structure, device, criterion, optimizer, mask_token_id=alphabet.tok_to_idx["<mask>"], mlm_loss_weight=args.mlm_loss_weight, cls_loss_weight=args.cls_loss_weight)
             y_val, p_val = run_epoch(model, val_loader, labels, structure, device, criterion, mask_token_id=alphabet.tok_to_idx["<mask>"], mlm_loss_weight=0.0, cls_loss_weight=args.cls_loss_weight)
@@ -269,16 +274,23 @@ def main() -> int:
             if values["aupr"] > best:
                 best, best_threshold = values["aupr"], threshold
                 best_state = {key: value.detach().cpu().clone() for key, value in model.state_dict().items()}
-        assert best_state is not None; model.load_state_dict(best_state)
-        y_test, p_test = run_epoch(model, test_loader, labels, structure, device, criterion, mask_token_id=alphabet.tok_to_idx["<mask>"], mlm_loss_weight=0.0, cls_loss_weight=args.cls_loss_weight)
-        result = {"seed": seed, "best_validation_aupr": best, **metric_row(y_test, p_test, best_threshold), **stratified_bootstrap(y_test, p_test, seed=seed)}; all_rows.append(result)
-        for record, probability in zip(np.asarray(records, dtype=object)[test], p_test): all_predictions.append({"seed": seed, "sequence_id": record.sequence_id, "label": record.label, "probability": float(probability)})
+                best_validation = values
+        assert best_state is not None and best_validation is not None; model.load_state_dict(best_state)
+        if args.skip_test:
+            all_rows.append({"seed": seed, "best_validation_aupr": best, **best_validation})
+        else:
+            assert test_loader is not None
+            y_test, p_test = run_epoch(model, test_loader, labels, structure, device, criterion, mask_token_id=alphabet.tok_to_idx["<mask>"], mlm_loss_weight=0.0, cls_loss_weight=args.cls_loss_weight)
+            result = {"seed": seed, "best_validation_aupr": best, **metric_row(y_test, p_test, best_threshold), **stratified_bootstrap(y_test, p_test, seed=seed)}; all_rows.append(result)
+            for record, probability in zip(np.asarray(records, dtype=object)[test], p_test): all_predictions.append({"seed": seed, "sequence_id": record.sequence_id, "label": record.label, "probability": float(probability)})
         args.output_dir.mkdir(parents=True, exist_ok=True); torch.save({"model": best_state, "seed": seed, "variant": args.variant, "best_validation_aupr": best}, args.output_dir / f"best_seed{seed}.pt")
         del model, backbone; torch.cuda.empty_cache()
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    with (args.output_dir / "test_metrics.csv").open("w", encoding="utf-8", newline="") as handle: writer = csv.DictWriter(handle, fieldnames=list(all_rows[0])); writer.writeheader(); writer.writerows(all_rows)
-    with gzip.open(args.output_dir / "test_predictions.csv.gz", "wt", encoding="utf-8", newline="") as handle: writer = csv.DictWriter(handle, fieldnames=list(all_predictions[0])); writer.writeheader(); writer.writerows(all_predictions)
-    manifest = {"schema_version": 1, "experiment": "structires_rnafm_validation_clean", "variant": args.variant, "pooling": args.pooling, "mask_prob_training_only": args.mask_prob, "mlm_loss_weight": args.mlm_loss_weight, "cls_loss_weight": args.cls_loss_weight, "dataset_sha256": sha256(args.dataset), "assignments_sha256": sha256(args.assignments), "rnafm_base_sha256": sha256(args.rnafm_base), "structure_profile_cache_sha256": sha256(args.structure_profile_cache) if args.structure_profile_cache else None, "seeds": seeds, "epochs": args.epochs, "unfreeze_last_layers": args.unfreeze_last_layers, "model_selection": "validation AUPR", "test_labels_used_for_training_threshold_selection_or_epoch_selection": False}
+    output_name = "validation_metrics.csv" if args.skip_test else "test_metrics.csv"
+    with (args.output_dir / output_name).open("w", encoding="utf-8", newline="") as handle: writer = csv.DictWriter(handle, fieldnames=list(all_rows[0])); writer.writeheader(); writer.writerows(all_rows)
+    if not args.skip_test:
+        with gzip.open(args.output_dir / "test_predictions.csv.gz", "wt", encoding="utf-8", newline="") as handle: writer = csv.DictWriter(handle, fieldnames=list(all_predictions[0])); writer.writeheader(); writer.writerows(all_predictions)
+    manifest = {"schema_version": 1, "experiment": "structires_rnafm_validation_clean", "variant": args.variant, "pooling": args.pooling, "mask_prob_training_only": args.mask_prob, "mlm_loss_weight": args.mlm_loss_weight, "cls_loss_weight": args.cls_loss_weight, "dataset_sha256": sha256(args.dataset), "assignments_sha256": sha256(args.assignments), "rnafm_base_sha256": sha256(args.rnafm_base), "structure_profile_cache_sha256": sha256(args.structure_profile_cache) if args.structure_profile_cache else None, "seeds": seeds, "epochs": args.epochs, "unfreeze_last_layers": args.unfreeze_last_layers, "model_selection": "validation AUPR", "test_evaluation_skipped": args.skip_test, "test_labels_used_for_training_threshold_selection_or_epoch_selection": False}
     (args.output_dir / "run_manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return 0
 
