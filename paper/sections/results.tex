@@ -176,8 +176,38 @@ threshold on direct-RNA labels.
 \input{tables/assay_shift}
 
 \subsection{Constrained full-length optimization}
-\textbf{Pending baseline gate.} The primary claim requires paired robust-full versus score-only
-effects under identical candidate and oracle-query budgets.
+We completed a first fully matched structural-design pass over ten experimentally supported
+full-length IRES seeds. For each of three deterministic random pools, every parent contributed 512
+unique length-preserving substitution mutants with at most 3\% edited positions. Each selection arm
+retained 50 candidates per parent from exactly the same pool, yielding 30 parent-by-run comparison
+units and 6,000 selected candidate records overall.
+
+Score-only selection modestly improved RNA-LM proposal likelihood over random mutation
+($-1.774$ versus $-1.805$ per token), but did not preserve seed structure: its absolute MFE shift
+was $3.236\pm0.968$ kcal/mol and its ensemble pairing-profile distance was $0.147\pm0.042$
+(Table~\ref{tab:design}). The first-pass robust-full selector traded a small likelihood decrease
+relative to score-only ($-0.00864$, 95\% bootstrap CI $-0.01058$ to $-0.00699$) for substantially
+greater structural preservation. Its paired absolute-MFE shift was lower by 2.669 kcal/mol
+(95\% CI $-2.972$ to $-2.360$), pairing-profile distance lower by 0.0985 ($-0.1102$ to $-0.0860$),
+and structure-state identity higher by 0.1168 (0.1006 to 0.1325). Structure-only achieved the
+strongest preservation but had lower RNA-LM plausibility than robust-full, locating robust-full on
+the intended trade-off rather than presenting MFE preservation as a new method.
+
+These are computational structural and language-model metrics only. They do not establish improved
+IRES activity, because neither a direct-RNA functional evaluator nor cargo-context stress test was
+used to select or independently validate this first-pass shortlist. Those evaluations are therefore
+the next required stage before any functional claim.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.92\textwidth]{figures/fig5_seeded_design.pdf}
+  \caption{Matched first-pass seeded design. All arms select from the same 512-candidate pool for
+  every parent and random seed. Score-only gains RNA-LM plausibility but has random-like structural
+  drift; robust-full retains substantially stronger energy and ensemble preservation while avoiding
+  the full plausibility loss of structure-only selection. Error bars are sample SD across 30
+  parent-by-run units. RNA-LM likelihood is not an activity measurement.}
+  \label{fig:seeded-design}
+\end{figure*}
 
 \input{tables/design_ablation}
 

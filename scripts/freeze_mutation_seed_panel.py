@@ -79,10 +79,20 @@ def select_seed_panel(rows: list[dict[str, str]]) -> list[dict[str, object]]:
     if len(selected) != 10:
         raise ValueError(f"expected 10 frozen seeds, selected {len(selected)}")
     records: list[dict[str, object]] = []
+    used_names: set[str] = set()
     for canonical_name, row, rationale in selected:
+        # Some supplementary-table records use a shared short construct label
+        # (notably ``F0``).  A run-level parent identifier must be unique: it
+        # anchors candidate lineage and paired statistics.  Preserve the
+        # human-readable name where possible and use the immutable sequence ID
+        # only as a deterministic disambiguator.
+        seed_id = canonical_name
+        if seed_id in used_names:
+            seed_id = f"{canonical_name}__{row['sequence_id'].removeprefix('trappr_seq_')}"
+        used_names.add(seed_id)
         records.append(
             {
-                "seed_id": canonical_name,
+                "seed_id": seed_id,
                 "sequence_id": row["sequence_id"],
                 "sequence": row["sequence"],
                 "sequence_sha256": row["sequence_sha256"],

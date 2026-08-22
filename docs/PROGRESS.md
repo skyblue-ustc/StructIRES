@@ -130,9 +130,10 @@ The completed benchmark changes the next-stage emphasis without changing the pro
    composition/IRESfinder controls on AUPR and calibration, freeze the paper as a benchmark and
    assay-transfer study rather than presenting unsupported generated-sequence quality claims.
 
-The immediate experimental priority is therefore R4 (validation-clean RNA-FM/UTR-LM or frozen
-embedding heads on the exact component split), followed by a group-aware direct-RNA calibration
-pilot. Generation and structure/energy optimization resume only after this scorer gate.
+The primary experimental priority is the matched seeded-design matrix.  R4 (a validation-clean
+direct-RNA scorer) remains an independent functional-evaluation track, not a reason to delay
+structure/energy optimization.  During the first design pass, local RNA-LM likelihood is a
+proposal-plausibility objective only and is never reported as measured IRES activity.
 
 ## Readiness matrix
 
@@ -151,7 +152,7 @@ pilot. Generation and structure/energy optimization resume only after this score
 | IRES-EA | Upstream available | Adapter and lineage parser pass smoke test. |
 | IRES-DM released parser | Planned | Released candidates normalized with provenance. |
 | IRES-DM retraining | Deferred until data gate | Native metric reproduction before formal run. |
-| ViennaRNA ensemble/context metrics | Planned | Version-pinned unit tests and reference examples. |
+| ViennaRNA ensemble metrics | Implemented; environment ABI repair pending | Shared-pool folding script writes MFE and pairing-profile preservation. |
 | Local RNA-AR frozen probe | Blocked by version audit | Restore the custom HoPE loader without ignored `bias_raw` weights. |
 | Albatross audit | Data/source identified | Frozen subset executable with revision manifest. |
 
@@ -218,11 +219,15 @@ uses the official `cuhkaih/rnafm` Hugging Face release and requires SHA-256 veri
 - [ ] Produce the assay-shift gate report with calibration, rank correlation and top-k overlap.
 - [ ] Freeze the full-length seed panel and cargo panel only after the report.
 
-### After the data gate
+### Primary design pass (2026-08-22)
 
-- [ ] Implement and smoke-test random, score-only GA, structure-only and IRES-EA baselines first.
-- [ ] Implement ViennaRNA ensemble and cargo-context metrics.
-- [ ] Add the proposed `robust_full` objective only after all required baselines run.
+- [x] Repair the frozen seed panel's duplicate `F0` identifiers using sequence-ID suffixes.
+- [x] Freeze three byte-identical shared mutation pools: 10 parents x 512 candidates x seeds 42/43/44 (15,360 candidates total).
+- [x] Score all pools with the local frozen RNA-LM; outputs are explicitly proposal plausibility, not activity.
+- [x] Implement matched random, score-only, structure-only and `robust_full` selectors over the same candidate pool.
+- [x] Repair ViennaRNA through isolated PyPI wheel environment and fold all 15,360 candidates with ViennaRNA 2.7.2 ensemble metrics.
+- [x] Run matched selectors and write the first primary design table from immutable run manifests.
+- [ ] Add direct-RNA calibrated evaluation and cargo-context stress testing as independent follow-on evidence.
 
 ## Active risks
 
@@ -244,6 +249,8 @@ uses the official `cuhkaih/rnafm` Hugging Face release and requires SHA-256 veri
 | 2026-08-21 | Do not treat the released random split as ordinary ten-fold CV. | Test membership repeats 0–6 times per unique sequence. |
 | 2026-08-21 | Reject the first local RNA-AR probe. | Standard loader ignored custom HoPE `bias_raw` weights. |
 | 2026-08-22 | Freeze the ten-checkpoint RNA-FM reproduction and transfer audit. | Native AUC is stable near 0.778, but direct-RNA per-fold AUC spans 0.251--0.821 and the final ensemble ECE is 0.906. |
+| 2026-08-22 | Begin the primary matched seeded-design matrix without waiting for a legacy-classifier gate. | The design claim is computational robustness under identical mutation pools; LM likelihood is scoped to proposal plausibility and structural/energy metrics are the main first-pass endpoints. |
+| 2026-08-22 | Complete first matched structure--energy design pass. | Across 30 parent-by-run units, robust-full versus score-only lowered $|\Delta$MFE by 2.669 kcal/mol and pairing-profile distance by 0.0985, while lowering RNA-LM plausibility by 0.00864 per token. Results are computational only. |
 | 2026-08-22 | Prioritize an assay-aware, checkpoint-robust scorer before sequence optimization. | A single native-performing checkpoint is not a reliable cross-assay oracle; conservative aggregation must be validated before use in design. |
 
 ## Update rule

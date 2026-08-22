@@ -42,6 +42,7 @@ assets/manifests/*
 !assets/manifests/example_model_manifest.json
 !assets/manifests/literature_sources.json
 !assets/manifests/ires_trappr_supplement.json
+!assets/manifests/mutation_seed_set.json
 
 # Run outputs
 runs/*
