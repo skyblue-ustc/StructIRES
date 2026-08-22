@@ -214,13 +214,16 @@ def main() -> int:
     train, validation, test = upstream_train_indices[train_local], upstream_train_indices[validation_local], np.flatnonzero(source_test)
     # Standardize structural channels using train records and valid positions only;
     # preserve the fifth mask channel exactly.
+    print(json.dumps({"stage": "profile_train_statistics", "fold": args.fold, "n_train": int(train.size)}), flush=True)
     mean, std = profile_train_statistics(profiles, train)
+    print(json.dumps({"stage": "profile_train_statistics_complete", "fold": args.fold}), flush=True)
 
     class NormalizedProfiles:
         def __getitem__(self, index):
             return normalize_profile_view(profiles[index], mean, std)
     normalized_profiles = NormalizedProfiles()
     data_module, pretrained = load_fm(args.upstream_fm_dir)
+    print(json.dumps({"stage": "loading_released_checkpoint", "fold": args.fold}), flush=True)
     backbone, alphabet = pretrained.rna_fm_t12(str(args.rnafm_base))
     base = ReleasedRNAFM(backbone)
     release_state = torch.load(args.checkpoint, map_location="cpu", weights_only=False)
@@ -235,10 +238,12 @@ def main() -> int:
     test_index, baseline_test_probability = probabilities(base, test_loader, normalized_profiles, device, adapter=False, truncate_num=args.truncate_num)
     baseline_threshold = best_f1_threshold(labels[val_index], val_probability)
     baseline = metrics(labels[test_index], baseline_test_probability, baseline_threshold)
+    print(json.dumps({"stage": "baseline_evaluated", "fold": args.fold, "baseline": baseline}), flush=True)
     model = PositionProfileResidualAdapter(base, args.dropout).to(device)
     initial_index, initial_probability = probabilities(model, test_loader, normalized_profiles, device, adapter=True, truncate_num=args.truncate_num)
     if not np.array_equal(test_index, initial_index) or not np.allclose(baseline_test_probability, initial_probability, rtol=0., atol=1e-7):
         raise RuntimeError("zero-initialized profile adapter does not reproduce the released checkpoint")
+    print(json.dumps({"stage": "zero_initialization_equivalence_passed", "fold": args.fold}), flush=True)
     optimizer = torch.optim.AdamW([item for item in model.parameters() if item.requires_grad], lr=args.lr, weight_decay=1e-4)
     positive_weight = float(train.size / labels[train].sum() - 1.)
     criterion = nn.CrossEntropyLoss(weight=torch.tensor([1., positive_weight], device=device))
