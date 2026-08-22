@@ -165,6 +165,16 @@ def profile_train_statistics(profiles, train: np.ndarray) -> tuple[np.ndarray, n
     return mean.astype(np.float32), std.astype(np.float32)
 
 
+def normalize_profile_view(raw: np.ndarray, mean: np.ndarray, std: np.ndarray) -> np.ndarray:
+    """Normalize structural channels for either scalar or batched cache reads."""
+    value = np.asarray(raw, dtype=np.float32).copy()
+    if value.shape[-1] != 5:
+        raise ValueError(f"expected five profile channels, received {value.shape}")
+    value[..., :4] = (value[..., :4] - mean) / std
+    value[..., :4] *= value[..., 4:5]
+    return value
+
+
 def probabilities(model, loader, profiles, device, *, adapter: bool, truncate_num: int) -> tuple[np.ndarray, np.ndarray]:
     model.eval(); labels, scores = [], []
     with torch.no_grad():
@@ -208,10 +218,7 @@ def main() -> int:
 
     class NormalizedProfiles:
         def __getitem__(self, index):
-            raw = np.asarray(profiles[index], dtype=np.float32).copy()
-            raw[:, :4] = (raw[:, :4] - mean[None, :]) / std[None, :]
-            raw[:, :4] *= raw[:, 4:5]
-            return raw
+            return normalize_profile_view(profiles[index], mean, std)
     normalized_profiles = NormalizedProfiles()
     data_module, pretrained = load_fm(args.upstream_fm_dir)
     backbone, alphabet = pretrained.rna_fm_t12(str(args.rnafm_base))
