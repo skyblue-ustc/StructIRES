@@ -532,15 +532,27 @@ model is trained from a documented architecture.
   +0.00235 AUPR, +0.01334 F1 and +0.01732 MCC, but +0.03866 ECE.  This is a small,
   single-fold positive discrimination signal with worse calibration, not a paper-level claim.
   Immutable paired verifier output: `structires_native_authorstyle_batchshuffle_pair_fold4_v2_20260823`.
-- [ ] Running the predeclared fold-0 replication pair and an additional fold-2 matched pair,
+- [x] Completed the predeclared fold-0 replication pair,
   `structires_native_sequence_authorstyle_batchshuffle_fold0_v2_20260823` and
   `structires_native_contact_authorstyle_batchshuffle_fold0_v2_20260823`, plus
   `structires_native_sequence_authorstyle_batchshuffle_fold2_v2_20260823` and
   `structires_native_contact_authorstyle_batchshuffle_fold2_v2_20260823`, with the exact v2
   protocol.  The fold-0 contact architecture was selected from the fold-4 *validation*
-  trajectory only; no fold-4 test result was consulted before launching fold 0.  Fold 2 was
+  trajectory only; no fold-4 test result was consulted before launching fold 0.  Fold 0:
+  sequence-only is AUROC/AUPR/F1/MCC/ECE = 0.76369/0.58002/0.50284/0.41214/0.20021 and
+  contact fusion = 0.76789/0.57687/0.50714/0.38796/0.23282.  Thus contact changes AUROC by
+  +0.00421 and F1 by +0.00429, but AUPR by -0.00315, MCC by -0.02418 and ECE by +0.03261.
+  The mixed fold-0 result does not replicate the fold-4 discrimination pattern; the two-fold
+  evidence is not eligible for a positive main-table claim.  The first fold-0 monitor noticed
+  `metrics.json` before the script had finished writing its prediction ledger and manifest, and
+  therefore exited without an output; a provenance-complete monitor subsequently ran the same
+  immutable verifier after both files existed.  Verified pair output:
+  `structires_native_authorstyle_batchshuffle_pair_fold0_v2_20260823`.
+- [ ] Running the additional fold-2 matched pair under the unchanged v2 protocol.  Fold 2 was
   scheduled only after the fold-4 test pair had completed and is explicitly an independent
-  replication, not an adaptive replacement of the architecture.
+  replication, not an adaptive replacement of the architecture.  Runs:
+  `structires_native_sequence_authorstyle_batchshuffle_fold2_v2_20260823` and
+  `structires_native_contact_authorstyle_batchshuffle_fold2_v2_20260823`.
 - [ ] Running: released checkpoint fold 0 plus zero-initialized structural adapter,
   `structires_release_adapter_fold0_v1_20260823`, on node 56 GPU 1. Epoch 1 validation AUPR is
   0.7019. This is a validation-only trajectory, not a held-out result and not a paper claim.
