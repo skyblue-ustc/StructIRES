@@ -511,8 +511,8 @@ model is trained from a documented architecture.
   0.62204, F1 0.54961 versus 0.54472, and MCC 0.44299 versus 0.44165; only ECE improves from
   0.24239 to 0.10803.  It is therefore a completed negative discrimination pilot, not expanded
   and not reported as a main-table gain.
-- [ ] Running matched author-style native retraining on fold 4 from the public RNA-FM base checkpoint.
-  The initial diagnostic pair, `structires_native_sequence_authorstyle_fold4_v1_20260823` and
+- [x] Completed matched author-style native retraining on fold 4 from the public RNA-FM base
+  checkpoint.  The initial diagnostic pair, `structires_native_sequence_authorstyle_fold4_v1_20260823` and
   `structires_native_contact_authorstyle_fold4_v1_20260823`, omitted the upstream implementation's
   per-epoch shuffle of length-aware batches and its `LinearLR` schedule. It was stopped after
   sequence epoch 3 / contact epoch 2, before any test evaluation, to free its two GPUs; logs are
@@ -525,12 +525,22 @@ model is trained from a documented architecture.
   seed, internal validation split, 10-epoch budget, and untouched native test set.  They differ
   only by the sparse MFE-contact encoder and gated residual.  This is the first direct StructIRES
   sequence-only versus structure-fusion comparison that does not initialize from a released,
-  upstream-test-selected IRES classifier checkpoint; no result is available yet.
-- [ ] Running the predeclared fold-0 replication pair,
+  upstream-test-selected IRES classifier checkpoint.  Validation selected epoch 4 in both arms;
+  the independent 4,678-record native-test recomputation gives sequence-only
+  AUROC/AUPR/F1/MCC/ECE = 0.77076/0.60441/0.52664/0.43319/0.18145 and contact fusion
+  = 0.77191/0.60676/0.53998/0.45051/0.22011.  The paired deltas are +0.00115 AUROC,
+  +0.00235 AUPR, +0.01334 F1 and +0.01732 MCC, but +0.03866 ECE.  This is a small,
+  single-fold positive discrimination signal with worse calibration, not a paper-level claim.
+  Immutable paired verifier output: `structires_native_authorstyle_batchshuffle_pair_fold4_v2_20260823`.
+- [ ] Running the predeclared fold-0 replication pair and an additional fold-2 matched pair,
   `structires_native_sequence_authorstyle_batchshuffle_fold0_v2_20260823` and
-  `structires_native_contact_authorstyle_batchshuffle_fold0_v2_20260823`, with the exact v2
-  protocol.  The contact architecture was selected from fold-4 *validation* trajectory only;
-  no fold-4 test result was consulted before launching fold 0.
+  `structires_native_contact_authorstyle_batchshuffle_fold0_v2_20260823`, plus
+  `structires_native_sequence_authorstyle_batchshuffle_fold2_v2_20260823` and
+  `structires_native_contact_authorstyle_batchshuffle_fold2_v2_20260823`, with the exact v2
+  protocol.  The fold-0 contact architecture was selected from the fold-4 *validation*
+  trajectory only; no fold-4 test result was consulted before launching fold 0.  Fold 2 was
+  scheduled only after the fold-4 test pair had completed and is explicitly an independent
+  replication, not an adaptive replacement of the architecture.
 - [ ] Running: released checkpoint fold 0 plus zero-initialized structural adapter,
   `structires_release_adapter_fold0_v1_20260823`, on node 56 GPU 1. Epoch 1 validation AUPR is
   0.7019. This is a validation-only trajectory, not a held-out result and not a paper claim.
