@@ -402,7 +402,24 @@ model is trained from a documented architecture.
   had strict-test AUPR 0.1896 and is retained only as a failed pipeline smoke, not a result.
   A last-two-layer CLS pilot was deliberately terminated after the same audit; its log remains
   preserved at `logs/structires_rnafm_last2_pilot_v1_20260823.log`.
-- [ ] Running: upstream-aligned RNA-FM mean-pooling, last-two-layer sequence-only pilot
-  (`structires_rnafm_mean_last2_pilot_v1_20260823`) and three-seed position-profile-only control
-  (`structires_profile_only_hamming90_v1_20260823`).  Neither is reportable until the full run
-  manifests and held-out predictions are written.
+- [x] The generic strict-split pilots were stopped after the released classifier audit established
+  that they answer a different question: they initialize from the public RNA-FM prior but do not
+  begin from the author's IRES-supervised classifier. Their logs remain preserved as development
+  evidence; they are not reportable classifier results.
+
+## Checkpoint-native StructIRES adapter (started 2026-08-23)
+
+- [x] Recovered the exact released IRES-RNAFM topology from the upstream source: public RNA-FM
+  t12, BOS representation, $640\rightarrow40\rightarrow2$ classification head. The original
+  command fully fine-tunes this architecture with a masked-LM auxiliary loss and truncates inputs
+  at 1,024 tokens.
+- [x] Added `scripts/train_structires_release_adapter.py`: it loads each released fold checkpoint,
+  freezes its RNA-FM and IRES classifier parameters, and adds a 21-feature label-free ViennaRNA
+  MFE/ensemble structural residual with a learned gate. The residual projection is initialized to
+  zero, and an explicit numerical check requires its pre-training predictions to equal the released
+  sequence-only checkpoint before training can proceed.
+- [x] Corrected the first launch after it exposed a missing 1,024-token truncation. This was an
+  input-preprocessing error, not an asset failure; no score from that failed launch is retained.
+- [ ] Running: released checkpoint fold 0 plus zero-initialized structural adapter,
+  `structires_release_adapter_fold0_v1_20260823`, on node 56 GPU 1. Epoch 1 validation AUPR is
+  0.7019. This is a validation-only trajectory, not a held-out result and not a paper claim.

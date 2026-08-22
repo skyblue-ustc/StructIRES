@@ -8,6 +8,31 @@ IRES recognition over a matched RNA-FM sequence-only model.  The design
 optimizer is downstream of this classifier; it will not be presented as an
 independent activity predictor.
 
+## Protocol amendment: checkpoint-native primary comparison (2026-08-23)
+
+The strict 90%-identity protocol below remains the generalization development
+track.  The primary near-term comparison instead starts from the *released
+IRES-supervised RNA-FM fold checkpoint*, not a newly initialized classifier
+head. This directly answers whether structural information improves an
+established IRES recognizer.
+
+- **S-release:** frozen released RNA-FM + released $640\rightarrow40\rightarrow2$
+  IRES head, evaluated on its corresponding official fold test once.
+- **StructIRES-release:** S-release plus a trainable, zero-initialized
+  structural residual. The residual consumes a precomputed 21-dimensional,
+  label-free ViennaRNA MFE/ensemble feature vector and is modulated by a
+  learned gate.
+- **Selection discipline:** a deterministic stratified validation subset is
+  cut only from the fold's upstream training records. Epoch and threshold are
+  selected there; the official fold test is not used for selection.
+- **Invariant:** before training, StructIRES-release must reproduce S-release
+  probabilities numerically. Failure aborts the run.
+
+This is the fastest credible route to an apples-to-apples baseline improvement.
+The position-profile CNN variants below are retained as a stricter,
+identity-aware follow-up rather than being conflated with the released-split
+result.
+
 ## Fixed data protocol
 
 - **Development protocol:** the existing length-174, 90% sequence-identity
@@ -87,4 +112,3 @@ fusion head while ViennaRNA itself remains a fixed, label-free feature source.
 4. Structure figure: an IAPV-like exemplar only as an explanatory secondary
    structure visualization, plus aggregate BPP-preservation statistics for
    scored candidates.  It is not evidence of wet-lab function.
-
