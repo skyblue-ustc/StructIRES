@@ -235,6 +235,9 @@ uses the official `cuhkaih/rnafm` Hugging Face release and requires SHA-256 veri
 - [x] Repair ViennaRNA through isolated PyPI wheel environment and fold all 15,360 candidates with ViennaRNA 2.7.2 ensemble metrics.
 - [x] Run matched selectors and write the first primary design table from immutable run manifests.
 - [ ] Add direct-RNA calibrated evaluation and cargo-context stress testing as independent follow-on evidence.
+- [ ] Retrieve the public cargo-sequence source for the stress test: Chen et al. Table S1 is absent
+  locally. Download target: `assets/papers/supplement/chen_2026_table_s1.xlsx`; official URL is
+  `https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41422-026-01233-9/MediaObjects/41422_2026_1233_MOESM2_ESM.xlsx`.
 - [ ] Resolve IRES-EA adapter asset gap: the public predictor imports require the absent
   `RNA-FM_pretrained.pth` backbone; do not claim public `RNAFM_Predictor.py` is equivalent to the
   unreleased `vMay7_RNAFM_Predictor.py` until strict checkpoint and fixed-sequence comparisons pass.
