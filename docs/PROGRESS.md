@@ -526,6 +526,11 @@ model is trained from a documented architecture.
   only by the sparse MFE-contact encoder and gated residual.  This is the first direct StructIRES
   sequence-only versus structure-fusion comparison that does not initialize from a released,
   upstream-test-selected IRES classifier checkpoint; no result is available yet.
+- [ ] Running the predeclared fold-0 replication pair,
+  `structires_native_sequence_authorstyle_batchshuffle_fold0_v2_20260823` and
+  `structires_native_contact_authorstyle_batchshuffle_fold0_v2_20260823`, with the exact v2
+  protocol.  The contact architecture was selected from fold-4 *validation* trajectory only;
+  no fold-4 test result was consulted before launching fold 0.
 - [ ] Running: released checkpoint fold 0 plus zero-initialized structural adapter,
   `structires_release_adapter_fold0_v1_20260823`, on node 56 GPU 1. Epoch 1 validation AUPR is
   0.7019. This is a validation-only trajectory, not a held-out result and not a paper claim.
