@@ -459,14 +459,47 @@ model is trained from a documented architecture.
   The next iteration must first reproduce the author's last-layer/full fine-tuning and masked-LM
   auxiliary-training regime as a matched sequence-only baseline before assessing a structural
   fusion under that stronger sequence adaptation.
-- [ ] Running: the next matched pair starts from the same released fold-4 checkpoint, then uses
-  full RNA-FM adaptation, 15\% masked-token inputs, the author's auxiliary masked-LM loss
+- [x] Completed the matched full-adaptation pair starting from the same released fold-4 checkpoint,
+  with full RNA-FM adaptation, 15\% masked-token inputs, the author's auxiliary masked-LM loss
   (weight 1), and class-loss multiplier 2.  The immutable sequence-only run is
   `structires_release_fullmlm_sequence_head_fold4_v1_20260823` (node 56 GPU 1); the matching
   structural fusion run is `structires_release_fullmlm_profile_fusion_head_fold4_v2_20260823`
   (node 47 GPU 4).  An initial v1 fusion launch on node 56 GPU 0 failed with a documented CUDA
   OOM because an unrelated process already occupied 44.7 GB; its log is retained and the v2
-  restart uses an otherwise idle GPU without changing the experiment configuration.
+  restart used an otherwise idle GPU without changing the experiment configuration.  The v2
+  fusion run early-stopped after epoch 4 (selected epoch 1); its 4,678 official-test predictions
+  also independently recompute exactly.  Relative to full-MLM sequence-only, fusion has AUROC
+  0.76966 versus 0.76949 but lower AUPR (0.60596 versus 0.60810), F1 (0.52632 versus 0.53291),
+  MCC (0.44526 versus 0.45201), and ECE (0.06948 versus 0.09390).  Relative to the released
+  checkpoint, both have substantially lower AUROC/AUPR/F1.  This full-adaptation fusion is
+  therefore a completed negative pilot: it does not pass the discriminative-improvement gate and
+  will not be expanded or included as a main-table gain.
+- [x] The full-adaptation sequence-only arm completed after validation-AUPR early stopping at
+  epoch 5 (selected epoch 2).  Its 4,678-record official-test prediction ledger was independently
+  recomputed exactly: released checkpoint versus full-MLM sequence-only is AUROC 0.78530 versus
+  0.76949, AUPR 0.62797 versus 0.60810, F1 0.54961 versus 0.53291, MCC 0.44299 versus 0.45201,
+  and ECE 0.24239 versus 0.09390.  Thus this stronger adaptation improves calibration and slightly
+  improves threshold-dependent MCC, but degrades ranking and F1; it is a completed negative
+  sequence-only control, not a primary recognition result.  The paired full-MLM fusion result is
+  recorded immediately above and also fails the primary discrimination criterion.
+- [x] Completed a structure-only diagnostic in
+  `structires_release_structure_only_logistic_fold4_v2_20260823`.  A validation-selected,
+  class-balanced logistic model receives only the 21 label-free ViennaRNA MFE/ensemble features;
+  its 4,678-record prediction ledger independently recomputes exactly to AUROC 0.56508, AUPR
+  0.23960, F1 0.33451 and MCC 0.05938.  This demonstrates weak independent structural signal but
+  rules out treating the current global features as an adequate replacement for RNA-FM.  The
+  earlier v1 is retained as a format-failure audit only: it wrote a plain CSV with a `.gz` suffix
+  and is not used for any result.
+- [x] Completed the validation-clean fixed-score diagnostic in
+  `structires_release_score_structure_logistic_fold4_v2_20260823`.  It performs one released
+  checkpoint inference pass for all fold records, then trains score-only and score-plus-structure
+  logistic heads solely on the same training subset and chooses regularization by validation AUPR.
+  Score-only preserves the released ranking exactly.  Although adding structure improves validation
+  AUPR from 0.71585 to 0.71875, its independent test AUPR declines from 0.62797 to 0.62487;
+  AUROC/F1/MCC likewise change from 0.78530/0.54961/0.44299 to
+  0.78497/0.54708/0.43977.  All three prediction columns independently recompute exactly.  Thus
+  the apparent validation gain does not generalize and this transparent fusion is retained as a
+  negative diagnostic, not a manuscript gain.
 - [ ] Running: released checkpoint fold 0 plus zero-initialized structural adapter,
   `structires_release_adapter_fold0_v1_20260823`, on node 56 GPU 1. Epoch 1 validation AUPR is
   0.7019. This is a validation-only trajectory, not a held-out result and not a paper claim.
