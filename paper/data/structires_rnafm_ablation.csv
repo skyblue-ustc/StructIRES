@@ -1,0 +1,5 @@
+method,n_parent_run_units,mfe_abs_delta_kcal_mol_mean,pairing_profile_l1_mean,mfe_structure_state_identity_mean,mfe_abs_delta_kcal_mol_std,pairing_profile_l1_std,mfe_structure_state_identity_std,mean_direct_rna_s3_heldout_proxy,source_run
+rnafm_score_only,30,3.8986664302,0.1605875225,0.8018733307,1.0996110543,0.0262220736,0.0434533626,0.4191796690,/9950backfile/lant/data/ires-design-external-runs/structires_rnafm_ablation_direct_rna_s3_v1_20260822
+rnafm_plus_energy,30,0.6461332169,0.1146452167,0.8593137869,0.2017487753,0.0209927232,0.0341321483,0.4277581315,/9950backfile/lant/data/ires-design-external-runs/structires_rnafm_ablation_direct_rna_s3_v1_20260822
+rnafm_plus_ensemble,30,2.0045999044,0.0557228283,0.9297506457,0.4890160913,0.0125684692,0.0469702132,0.4281255305,/9950backfile/lant/data/ires-design-external-runs/structires_rnafm_ablation_direct_rna_s3_v1_20260822
+structires,30,0.5753332977,0.0504873014,0.9365827205,0.1770192382,0.0097111572,0.0394594254,0.4334740042,/9950backfile/lant/data/ires-design-external-runs/structires_rnafm_ablation_direct_rna_s3_v1_20260822

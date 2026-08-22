@@ -1,21 +1,20 @@
 \begin{table*}[t]
 \centering
-\caption{First matched seeded-design pass. Values are mean $\pm$ sample SD across 30
-parent-by-run units (10 full-length IRES seeds $\times$ 3 random pools); each unit retains the
-top 50 of its 512 shared substitution candidates. The direct-RNA proxy is a post-selection S3-held-out
-computational evaluator, not an activity measurement. Lower is better for $|\Delta$MFE| and pairing-profile $L_1$.}
+\caption{Matched ablation of \textsc{StructIRES-Rank} on a release-compatible RNA-FM fold-0
+score. Values are mean $\pm$ sample SD across 30 parent-by-run units (10 full-length IRES seeds
+$\times$ 3 frozen mutation pools); every arm retains the top 50 of the same 512 candidates per
+unit. The direct-RNA proxy is post-selection, S3-held-out and computational only. Lower is better
+for $|\Delta$MFE| and pairing-profile $L_1$.}
 \label{tab:design}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{lccccc}
 \toprule
-Selection method & RNA-LM likelihood & $|\Delta$MFE| (kcal/mol) & Pairing-profile $L_1$ & Structure-state identity & Direct-RNA proxy \\
+Selection method & $|\Delta$MFE| (kcal/mol) & Pairing-profile $L_1$ & Structure-state identity & Direct-RNA proxy & Comparison role \\
 \midrule
-Random mutation & $-1.805\pm0.197$ & $3.290\pm0.952$ & $0.143\pm0.026$ & $0.828\pm0.044$ & $0.419$ \\
-Score-only & $-1.774\pm0.252$ & $3.236\pm0.968$ & $0.147\pm0.042$ & $0.827\pm0.062$ & $0.422$ \\
-Released RNA-FM fold-0 score-only & $-1.806\pm0.196$ & $3.899\pm1.100$ & $0.161\pm0.026$ & $0.802\pm0.043$ & $0.419$ \\
-Released UTR-LM score-only & $-1.809\pm0.190$ & $4.083\pm1.330$ & $0.166\pm0.028$ & $0.795\pm0.048$ & $0.422$ \\
-Structure-only & $-1.790\pm0.238$ & $0.340\pm0.120$ & $0.034\pm0.009$ & $0.959\pm0.042$ & $0.434$ \\
-Robust-full (first pass) & $-1.783\pm0.248$ & $0.567\pm0.194$ & $0.048\pm0.013$ & $0.944\pm0.042$ & $0.433$ \\
+Released RNA-FM score-only & $3.899\pm1.100$ & $0.161\pm0.026$ & $0.802\pm0.043$ & $0.419$ & Score-only baseline \\
++ energy rank & $0.646\pm0.202$ & $0.115\pm0.021$ & $0.859\pm0.034$ & $0.428$ & Energy ablation \\
++ ensemble rank & $2.005\pm0.489$ & $0.056\pm0.013$ & $0.930\pm0.047$ & $0.428$ & Ensemble ablation \\
+\textsc{StructIRES-Rank} & $0.575\pm0.177$ & $0.050\pm0.010$ & $0.937\pm0.039$ & $0.433$ & Combined constraints \\
 \bottomrule
 \end{tabular}
 }

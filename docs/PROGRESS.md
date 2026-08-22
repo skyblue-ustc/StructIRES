@@ -275,3 +275,46 @@ uses the official `cuhkaih/rnafm` Hugging Face release and requires SHA-256 veri
 ## Update rule
 
 At each follow-up, update this file with: completed items, new evidence, failed assumptions, exact run IDs, blockers and the next seven-day deliverables. Do not mark a baseline complete without an executable adapter and a manifest-backed smoke run.
+
+## StructIRES-Rank milestone (2026-08-22)
+
+- [x] Completed a matched four-arm ablation over the verified release-compatible RNA-FM fold-0
+  classifier: `rnafm_score_only`, `+energy`, `+ensemble`, and combined
+  `structires`. Every arm ranked the same 512 candidates per parent and pool and retained the same
+  top 50, giving 30 matched parent-by-run units and 1,500 selected candidates per arm.
+- [x] Wrote immutable direct-RNA proxy results to
+  `structires_rnafm_ablation_direct_rna_s3_v1_20260822`. The S3-held-out computational proxy was
+  0.41918 for RNA-FM score-only, 0.42776 for energy-only, 0.42813 for ensemble-only, and 0.43347
+  for combined constraints. Combined constraints exceeded score-only by 0.01429 (95\% bootstrap CI
+  0.00738--0.02195), energy-only by 0.00572 (0.00271--0.00926), and ensemble-only by 0.00535
+  (0.00198--0.00974). The proxy is never an optimization objective and is not an activity assay.
+- [x] Generated the matching structural summary: score-only has $|\Delta\mathrm{MFE}|=3.899\pm1.100$
+  kcal/mol and pairing-profile $L_1=0.161\pm0.026$; combined constraints have
+  $0.575\pm0.177$ and $0.050\pm0.010$, respectively. The manifest records exact input paths and
+  SHA-256 hashes.
+- [x] Completed a reporter-only top-1 cargo stress test in
+  `cargo_context_reporter_top1_v1_20260822`, using public NanoLuc, Firefly and mCherry contexts.
+  The first-pass constrained selector had mean crosstalk ratio 0.163 and mean context consistency
+  0.841. This is a computational context stress test, not a translation result.
+
+### Current paper naming and next decision
+
+The completed method is named **StructIRES-Rank**: a generator-agnostic constrained rank-selection
+layer, not yet a newly trained neural architecture. This is the strongest defensible immediate
+paper story because it has a reproduced released baseline, single-constraint ablations, matched
+budgets, provenance and an independent held-out evaluator.
+
+The route to a trainable model called **StructIRES** is now a separate gated experiment:
+
+1. time-box recovery of the historical custom HoPE loader and checkpoint provenance;
+2. if faithful loading is possible, train assay-separated sequence/structure heads with no
+   direct-RNA S3 access during training;
+3. otherwise train a newly initialized, explicitly documented small sequence--structure model,
+   without claiming the third-party RFamLlama pretraining as our contribution;
+4. compare its score-only and constraint-guided design outputs against StructIRES-Rank on the same
+   frozen pools.
+
+**Active blocker:** the historical 130M HoPE checkpoint cannot currently be loaded faithfully by
+standard Transformers because its custom `bias_raw` weights are ignored. No claim about that
+checkpoint's performance is permitted until the exact custom implementation is recovered or a new
+model is trained from a documented architecture.

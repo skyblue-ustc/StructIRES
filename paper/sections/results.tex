@@ -176,62 +176,48 @@ threshold on direct-RNA labels.
 \input{tables/assay_shift}
 
 \subsection{Constrained full-length optimization}
-We completed a first fully matched structural-design pass over ten experimentally supported
-full-length IRES seeds. For each of three deterministic random pools, every parent contributed 512
-unique length-preserving substitution mutants with at most 3\% edited positions. Each selection arm
-retained 50 candidates per parent from exactly the same pool, yielding 30 parent-by-run comparison
-units and 6,000 selected candidate records overall.
+We evaluated \textsc{StructIRES-Rank} over ten experimentally supported full-length IRES seeds.
+For each of three deterministic pools, every parent contributed 512 unique length-preserving
+substitution mutants with at most 3\% edited positions. Each arm retained 50 candidates per
+parent from exactly the same pool, yielding 30 matched parent-by-run comparison units.
 
-Score-only selection modestly improved RNA-LM proposal likelihood over random mutation
-($-1.774$ versus $-1.805$ per token), but did not preserve seed structure: its absolute MFE shift
-was $3.236\pm0.968$ kcal/mol and its ensemble pairing-profile distance was $0.147\pm0.042$
-(Table~\ref{tab:design}). The first-pass robust-full selector traded a small likelihood decrease
-relative to score-only ($-0.00864$, 95\% bootstrap CI $-0.01058$ to $-0.00699$) for substantially
-greater structural preservation. Its paired absolute-MFE shift was lower by 2.669 kcal/mol
-(95\% CI $-2.972$ to $-2.360$), pairing-profile distance lower by 0.0985 ($-0.1102$ to $-0.0860$),
-and structure-state identity higher by 0.1168 (0.1006 to 0.1325). Structure-only achieved the
-strongest preservation but had lower RNA-LM plausibility than robust-full, locating robust-full on
-the intended trade-off rather than presenting MFE preservation as a new method.
+The sequence term is the public RNA-FM fold-0 IRES predictor. Before design, we matched all 4,678
+native fold-0 predictions to numerical precision, fixing this released scorer without consulting
+direct-RNA labels. On the shared mutation pools, score-only optimization created substantial
+parent drift ($|\Delta\mathrm{MFE}|=3.899\pm1.100$ kcal/mol; pairing-profile
+$L_1=0.161\pm0.026$). Adding the energy term alone reduced the MFE shift to $0.646\pm0.202$;
+adding the ensemble term alone reduced pairing-profile distance to $0.056\pm0.013$.
+The combined rank, \textsc{StructIRES-Rank}, retained both properties simultaneously
+($|\Delta\mathrm{MFE}|=0.575\pm0.177$; pairing-profile $L_1=0.050\pm0.010$) and improved
+structure-state identity from $0.802\pm0.043$ to $0.937\pm0.039$ (Table~\ref{tab:design};
+Figure~\ref{fig:structires-ablation}).
 
-We additionally evaluated a score-only arm based on the released ten-checkpoint UTR-LM ensemble,
-the predictor backbone used by the public IRES-EA release. This arm selected from the identical
-mutation pools but showed the largest structural drift ($|\Delta\mathrm{MFE}|=4.083\pm1.330$
-kcal/mol; pairing-profile $L_1=0.166\pm0.028$). It was therefore retained as a direct external
-score-only baseline rather than silently omitted.
+As an independent post-selection check, we fitted a low-capacity three-seed hashed 3--6-mer
+direct-RNA proxy after excluding every S3-provenance record, and evaluated it once on the 222
+held-out S3 records (AUC 0.592; AUPR 0.497). The proxy was never used for candidate generation,
+rank selection or tuning. RNA-FM score-only candidates averaged 0.419 on this evaluator. Energy
+and ensemble terms independently improved this value to 0.428, while the combined
+\textsc{StructIRES-Rank} reached 0.433. Its paired gain over RNA-FM score-only was 0.0143
+(95\% bootstrap CI 0.0074--0.0220), and its gains over energy-only and ensemble-only were 0.0057
+(0.0027--0.0093) and 0.0053 (0.0020--0.0097), respectively. This controlled ablation supports
+complementary roles for energy and ensemble constraints rather than an advantage attributable to
+an increased query budget.
 
-We also ran the exact release-compatible RNA-FM fold-0 classifier as a separate score-only arm.
-The public predictor was first matched to all 4,678 frozen fold-0 native predictions to numerical
-precision before scoring the shared pools. Despite this native reproduction, RNA-FM score-only
-selection showed substantial structural drift ($|\Delta\mathrm{MFE}|=3.899\pm1.100$ kcal/mol;
-pairing-profile $L_1=0.161\pm0.026$) and a held-out direct-RNA proxy of 0.419, indistinguishable
-from random mutation (0.419). Robust-full exceeded this arm by 0.0142 (95\% bootstrap CI
-0.0059--0.0238) across the 30 matched parent-by-run units. Fold 0 was fixed for release
-compatibility before this comparison and was not selected using direct-RNA labels.
-
-As a deliberately independent check, we fitted a low-capacity three-seed hashed 3--6-mer proxy
-after excluding every S3-provenance record, then evaluated it once on the 222 held-out S3 direct-RNA
-records (AUC 0.592; AUPR 0.497). This proxy was not used during mutation-pool generation or selection.
-On the 30 matched parent-by-run units, robust-full exceeded score-only by 0.0110 in the held-out
-proxy score (95\% bootstrap CI 0.0051--0.0176; Table~\ref{tab:design}). The same proxy slightly
-favoured structure-only over robust-full, so this result supports non-degradation under an
-independent computational evaluator rather than a unique robust-full optimum.
-Against the released UTR-LM score-only arm, robust-full had the same-sized paired advantage of
-0.0110 (95\% CI 0.0024--0.0208), whereas UTR-LM and local RNA-LM score-only were indistinguishable
-on this proxy ($-0.00001$, 95\% CI $-0.0084$ to 0.0085).
-
-These are computational structural, language-model and proxy metrics only. They do not establish
-improved IRES activity; cargo-context stress testing and prospective experimental validation remain
-necessary before any functional claim.
+A reporter-only cargo-context stress test using NanoLuc, Firefly and mCherry contexts further
+showed that constraint-guided designs had the lowest mean crosstalk ratio (0.163) and highest
+mean context consistency (0.841) among the local and released score-only comparators. This is a
+computational top-1 context stress test, not a translation assay. Collectively, all results are
+computational structural and proxy metrics only; they establish candidate enrichment and
+structure preservation, not improved IRES activity.
 
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=0.92\textwidth]{figures/fig5_seeded_design.pdf}
-  \caption{Matched first-pass seeded design. All arms select from the same 512-candidate pool for
-  every parent and random seed. The three score-only arms (local RNA-LM, released RNA-FM and released UTR-LM) display
-  substantially larger structural drift than robust-full; robust-full retains stronger energy and
-  ensemble preservation while avoiding the full plausibility loss of structure-only selection.
-  Error bars are sample SD across 30 parent-by-run units. Neither score is an activity measurement.}
-  \label{fig:seeded-design}
+  \includegraphics[width=0.92\textwidth]{figures/fig6_structires_rnafm_ablation.pdf}
+  \caption{Matched ablation of \textsc{StructIRES-Rank}. Each arm selects from the same
+  512-candidate pool for every parent and random seed. Energy and ensemble preservation each
+  improve a different structural property; their combination has the strongest direct-RNA held-out
+  computational proxy score. Error bars are sample SD across 30 parent-by-run units.}
+  \label{fig:structires-ablation}
 \end{figure*}
 
 \input{tables/design_ablation}

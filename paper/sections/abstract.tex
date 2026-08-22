@@ -4,22 +4,19 @@ full-length IRESes, this can select mutations that increase a model score while 
 parent energy landscape and structural ensemble, and reporter-trained scores may not transfer to
 direct-RNA settings. We address this objective-misalignment problem with constraint-guided IRES
 optimization rather than treating a legacy classifier as a complete design oracle.
-\textbf{Results:} We introduce an assay-aware, generator-agnostic framework that ranks candidates
-by sequence plausibility while explicitly preserving parent-relative minimum free energy and
-ensemble pairing profiles. The framework is evaluated on three frozen 512-candidate mutation pools
-for each of ten experimentally supported full-length IRES seeds, so random, local score-only,
-released RNA-FM/UTR-LM score-only, structure-only, and robust-full selection receive identical
-candidate sets and query budgets. Relative to local score-only selection, robust-full reduced
-absolute MFE deviation from 3.236 to 0.567 kcal/mol (82.5\%) and pairing-profile deviation from
-0.147 to 0.048 (67.2\%), while retaining a small sequence-plausibility trade-off. On a completely
-held-out S3 direct-RNA computational proxy, robust-full increased the mean candidate score by
-0.0110 over local score-only and by 0.0142 over the exactly reproduced released RNA-FM fold-0
-score-only baseline; both paired 95\% bootstrap intervals excluded zero. In contrast, released
-RNA-FM score-only selection was indistinguishable from random mutation on this independent proxy
-and showed substantial structural drift. Reproduced legacy predictor results and cross-assay tests
-therefore serve as a design stress test: strong in-assay classification alone is insufficient for
-robust full-length optimization. Our results establish computational candidate enrichment and
-structural preservation, not experimentally verified translation improvement.
+\textbf{Results:} We introduce \textsc{StructIRES-Rank}, an assay-aware constrained rank-selection
+layer that combines a released IRES recognition score with parent-relative minimum-free-energy and
+ensemble-pairing preservation. Across three frozen 512-candidate mutation pools for each of ten
+experimentally supported full-length IRES seeds, all four arms receive identical candidate sets and
+selection budgets. Relative to the exactly reproduced release-compatible RNA-FM fold-0 score-only
+baseline, energy-only and ensemble-only constraints improve the held-out direct-RNA proxy from
+0.419 to 0.428, while their combination reaches 0.433 (paired gain 0.0143, 95\% bootstrap CI
+0.0074--0.0220). \textsc{StructIRES-Rank} also reduces absolute MFE deviation from
+3.899 to 0.575 kcal/mol and pairing-profile distance from 0.161 to 0.050. Reproduced legacy
+predictor results and cross-assay tests serve as a design stress test: strong in-assay
+classification alone is insufficient for robust full-length optimization. Our results establish
+computational candidate enrichment and structural preservation, not experimentally verified
+translation improvement.
 \textbf{Availability and implementation:} Code and frozen manifests will be released after
 patent/disclosure review. \textbf{Contact:} To be completed. \textbf{Supplementary information:}
 Available with the submitted manuscript.

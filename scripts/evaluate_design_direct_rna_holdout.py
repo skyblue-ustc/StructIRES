@@ -87,7 +87,9 @@ def main() -> int:
     requested=[('robust_full','score_only'),('robust_full','random_mutation'),('structure_only','score_only'),
                ('robust_full','utrlm_score_only'),('utrlm_score_only','score_only'),
                ('robust_full','rnafm_fold0_score_only'),('rnafm_fold0_score_only','score_only'),
-               ('rnafm_fold0_score_only','random_mutation')]
+               ('rnafm_fold0_score_only','random_mutation'),
+               ('structires','rnafm_score_only'),('structires','rnafm_plus_energy'),
+               ('structires','rnafm_plus_ensemble')]
     comparisons=[paired_bootstrap(rows,left,right) for left,right in requested if {left,right} <= available]
     if comparisons:
         with (a.output_dir/'paired_method_comparisons.csv').open('w',newline='') as h:

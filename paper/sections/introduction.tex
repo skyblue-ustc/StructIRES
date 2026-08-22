@@ -12,13 +12,13 @@ IRES--cargo studies motivate an explicit audit of whether this legacy signal tra
 and full-length contexts.
 
 We therefore formulate IRES design as a constrained optimization problem rather than a pure
-classifier-maximization task: can a candidate be made more sequence-plausible without losing the
-energy and ensemble-structural features of an experimentally supported full-length parent? Our
-contributions are: (i) an assay-aware, generator-agnostic optimization layer that jointly ranks
-sequence plausibility, parent-relative energy preservation, and ensemble-structure preservation;
-(ii) a controlled full-length design matrix in which local and released score-only baselines,
-structure-only selection, and our robust-full selector operate on exactly the same candidates and
-budget; (iii) an independent direct-RNA held-out proxy that tests whether constraint-guided
-selection improves computational candidate enrichment beyond score-only optimization; and (iv) a
-cross-assay benchmark audit that explains why legacy IRES classifiers are useful baselines but
-insufficient standalone design objectives.
+classifier-maximization task: can a candidate retain the energy and ensemble-structural features
+of an experimentally supported full-length parent while improving a released IRES-recognition
+score? Our contributions are: (i) \textsc{StructIRES-Rank}, an assay-aware, generator-agnostic
+rank-selection layer that combines a sequence score, parent-relative energy preservation and
+ensemble-structure preservation; (ii) a controlled full-length design matrix in which released
+RNA-FM score-only, energy-only, ensemble-only and combined selection operate on exactly the same
+candidates and budget; (iii) an independent direct-RNA held-out proxy that tests whether the
+combined constraints improve computational candidate enrichment beyond each score-only or
+single-constraint alternative; and (iv) a cross-assay benchmark audit that explains why legacy
+IRES classifiers are useful baselines but insufficient standalone design objectives.
