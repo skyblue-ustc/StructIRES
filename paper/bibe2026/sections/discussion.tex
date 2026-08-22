@@ -1,0 +1,16 @@
+\section{Discussion}
+
+\textsc{StructIRES-Rank} turns an IRES-recognition score into one component of
+a controlled multi-objective selection procedure. Its main advantage is not a
+claim that a legacy score universally predicts translation; rather, under a
+fixed proposal budget it selects candidates that retain the parent energy and
+ensemble state more faithfully while improving a held-out direct-RNA
+computational proxy. The IAPV case further shows how direct-RNA mutational
+knowledge can be added transparently as a local edit-risk guardrail.
+
+The study has limitations. Secondary-structure predictions do not represent
+all cellular or circular RNA effects, and the direct-RNA proxy is not a
+functional assay. We therefore make no claim of experimentally verified IRES
+activity for selected variants. Future work should evaluate the frozen
+shortlists prospectively in matched direct-RNA settings and extend the
+assay-aware framework to cargo and cell-context robustness.

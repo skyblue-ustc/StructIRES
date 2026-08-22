@@ -2,6 +2,14 @@
 
 Third-party source code, weights, datasets, and papers are not copied into this repository. Baseline adapters consume user-supplied local installations and record their source revision in a run manifest.
 
+## IEEE conference typesetting assets
+
+`paper/bibe2026/IEEEtran.cls` and `paper/bibe2026/IEEEtran.bst` are unmodified
+files from the official IEEE conference LaTeX template and IEEEtran bibliography
+bundle (downloaded August 2026). They are included only to make the conference
+submission source self-contained. The original template archives are retained
+locally and are not committed.
+
 | Asset | Upstream | Intended role | Redistribution rule |
 |---|---|---|---|
 | RFamLlama | <https://github.com/JinyuanSun/RFamLlama> | optional RNA proposal/likelihood backbone | Cite Sun, Li, and Deng (2024); verify code and weight licenses separately. |

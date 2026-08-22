@@ -3,6 +3,25 @@
 `main.tex` is a venue-neutral scientific draft. Its section files are the source of truth; a future
 IEEE or OUP wrapper should import them instead of duplicating text.
 
+## BIBE 2026 IEEE submission draft
+
+`bibe2026/` is an independent IEEE-conference wrapper built from the official 2024 IEEE template.
+It intentionally does not overwrite the venue-neutral internal draft. Its first version is a
+four-page, double-column manuscript that foregrounds the matched full-length \textsc{StructIRES-Rank}
+ablation and keeps the IAPV structure case illustration as supplementary material.
+
+Build it from `paper/bibe2026/`:
+
+```bash
+conda run -n ires-tex tectonic -X compile main.tex \
+  --outdir build --keep-logs --keep-intermediates
+```
+
+The output is `paper/bibe2026/build/main.pdf`. Before submission, replace the anonymous author
+block only after confirming the BIBE review policy, author order, affiliation, funding, disclosure,
+and contact details. The wrapper uses the supplied `IEEEtran.cls` and `IEEEtran.bst`; the original
+download archives remain local, untracked source references.
+
 Current reviewed figure/table contract:
 
 1. `fig1_overview`: assay-qualified evidence, shared candidate pool, StructIRES-Rank objectives,

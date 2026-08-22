@@ -10,7 +10,6 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import torch
 from sklearn.metrics import (
     accuracy_score,
     average_precision_score,
@@ -21,15 +20,6 @@ from sklearn.metrics import (
     precision_score,
     recall_score,
     roc_auc_score,
-)
-
-from evaluate_released_rnafm_checkpoints import (
-    RNAFMClassifier,
-    clean_checkpoint,
-    infer_backbone_args,
-    load_fm,
-    predict,
-    sha256,
 )
 
 
@@ -50,6 +40,14 @@ def parse_args() -> argparse.Namespace:
 
 def canonicalize(sequence: str) -> str:
     return "".join(sequence.split()).upper().replace("T", "U")
+
+
+def sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def expected_calibration_error(labels: np.ndarray, probabilities: np.ndarray) -> float:
@@ -107,6 +105,17 @@ def bootstrap(
 
 
 def main() -> int:
+    # Keep summary/metric utilities importable in the CPU-only CI environment.
+    # The model stack is needed only for an actual released-checkpoint rerun.
+    import torch
+    from evaluate_released_rnafm_checkpoints import (
+        RNAFMClassifier,
+        clean_checkpoint,
+        infer_backbone_args,
+        load_fm,
+        predict,
+    )
+
     args = parse_args()
     args.output_dir.mkdir(parents=True, exist_ok=False)
     folds = [int(value) for value in args.folds.split(",") if value.strip()]
