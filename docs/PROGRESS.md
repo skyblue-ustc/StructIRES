@@ -238,9 +238,13 @@ uses the official `cuhkaih/rnafm` Hugging Face release and requires SHA-256 veri
 - [ ] Retrieve the public cargo-sequence source for the stress test: Chen et al. Table S1 is absent
   locally. Download target: `assets/papers/supplement/chen_2026_table_s1.xlsx`; official URL is
   `https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41422-026-01233-9/MediaObjects/41422_2026_1233_MOESM2_ESM.xlsx`.
-- [ ] Resolve IRES-EA adapter asset gap: the public predictor imports require the absent
-  `RNA-FM_pretrained.pth` backbone; do not claim public `RNAFM_Predictor.py` is equivalent to the
-  unreleased `vMay7_RNAFM_Predictor.py` until strict checkpoint and fixed-sequence comparisons pass.
+- [x] Resolve the public RNA-FM predictor backbone dependency and run a released-checkpoint
+  compatibility audit. `RNA-FM_pretrained.pth` was retrieved from the official `cuhkaih/rnafm`
+  Hugging Face release; public `RNAFM_Predictor.py`, with `token_dropout=true`, `batch_toks=4096`,
+  and hash-based restoration of length-batched rows, exactly matches all 4,678 frozen fold-0
+  predictions (max absolute difference $1.11\times10^{-16}$). This validates a compatibility
+  implementation for the released classifier, not the unreleased versioned `vMay7_RNAFM_Predictor.py`
+  or the original EA trajectory.
 
 ## Active risks
 
@@ -265,6 +269,7 @@ uses the official `cuhkaih/rnafm` Hugging Face release and requires SHA-256 veri
 | 2026-08-22 | Begin the primary matched seeded-design matrix without waiting for a legacy-classifier gate. | The design claim is computational robustness under identical mutation pools; LM likelihood is scoped to proposal plausibility and structural/energy metrics are the main first-pass endpoints. |
 | 2026-08-22 | Complete first matched structure--energy design pass. | Across 30 parent-by-run units, robust-full versus score-only lowered $|\Delta$MFE by 2.669 kcal/mol and pairing-profile distance by 0.0985, while lowering RNA-LM plausibility by 0.00864 per token. Results are computational only. |
 | 2026-08-22 | Prioritize an assay-aware, checkpoint-robust scorer before sequence optimization. | A single native-performing checkpoint is not a reliable cross-assay oracle; conservative aggregation must be validated before use in design. |
+| 2026-08-22 | Accept public `RNAFM_Predictor.py` as a released-classifier compatibility implementation under an explicit runtime configuration. | With the official RNA-FM backbone, `token_dropout=true`, `batch_toks=4096`, and hash-based restoration after length batching, all 4,678 fold-0 frozen predictions match the established rerun (max absolute difference $1.11\times10^{-16}$). This does not establish identity to the unreleased `vMay7_RNAFM_Predictor.py` or exact IRES-EA reproduction. |
 
 ## Update rule
 
