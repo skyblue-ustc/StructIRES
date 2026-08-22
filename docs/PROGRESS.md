@@ -459,6 +459,14 @@ model is trained from a documented architecture.
   The next iteration must first reproduce the author's last-layer/full fine-tuning and masked-LM
   auxiliary-training regime as a matched sequence-only baseline before assessing a structural
   fusion under that stronger sequence adaptation.
+- [ ] Running: the next matched pair starts from the same released fold-4 checkpoint, then uses
+  full RNA-FM adaptation, 15\% masked-token inputs, the author's auxiliary masked-LM loss
+  (weight 1), and class-loss multiplier 2.  The immutable sequence-only run is
+  `structires_release_fullmlm_sequence_head_fold4_v1_20260823` (node 56 GPU 1); the matching
+  structural fusion run is `structires_release_fullmlm_profile_fusion_head_fold4_v2_20260823`
+  (node 47 GPU 4).  An initial v1 fusion launch on node 56 GPU 0 failed with a documented CUDA
+  OOM because an unrelated process already occupied 44.7 GB; its log is retained and the v2
+  restart uses an otherwise idle GPU without changing the experiment configuration.
 - [ ] Running: released checkpoint fold 0 plus zero-initialized structural adapter,
   `structires_release_adapter_fold0_v1_20260823`, on node 56 GPU 1. Epoch 1 validation AUPR is
   0.7019. This is a validation-only trajectory, not a held-out result and not a paper claim.
