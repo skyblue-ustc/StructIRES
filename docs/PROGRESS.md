@@ -570,14 +570,20 @@ model is trained from a documented architecture.
   `structires_rnafm_gated_profile_hamming90_full3seed_v1_20260823` each showed near-prevalence
   validation AUPR in their early seed-42 epochs, consistent with the earlier frozen smoke underfit.
   They have no test predictions or reportable metrics and remain only as preserved development logs.
-- [ ] Running the replacement strict development pair with the last two RNA-FM blocks trainable,
-  seed 42, validation-only selection and no test evaluation:
-  `structires_rnafm_sequence_only_hamming90_last2_dev_s42_v1_20260823` is the matched sequence
-  control; `structires_rnafm_gated_profile_hamming90_last2_dev_s42_v1_20260823` adds the existing
+- [x] Stopped the replacement last-two-block strict development pair after its first two
+  sequence-only validation epochs and first fusion epoch remained at AUPR 0.1842, 0.1761 and
+  0.1761, respectively, against a 0.1658 validation positive fraction.  The jobs
+  `structires_rnafm_sequence_only_hamming90_last2_dev_s42_v1_20260823` and
+  `structires_rnafm_gated_profile_hamming90_last2_dev_s42_v1_20260823` have no test evaluation.
+  This is evidence of insufficient adaptation capacity, not evidence against structural features.
+- [ ] Running the next strict development pair with the entire public RNA-FM t12 model trainable,
+  seed 42, three epochs, validation-only selection and no test evaluation:
+  `structires_rnafm_sequence_only_hamming90_full_dev_s42_v1_20260823` is the matched sequence
+  control; `structires_rnafm_gated_profile_hamming90_full_dev_s42_v1_20260823` adds the existing
   label-free ViennaRNA ensemble-pairing/MFE-state/position profile cache and gated profile encoder.
-  The frozen `70/15/15` identity-aware assignment is unchanged.  The selected configuration will
-  be rerun across seeds and tested once only after this validation comparison is locked; it will not
-  overwrite or be pooled with the native-fold result.
+  The frozen `70/15/15` identity-aware assignment is unchanged.  If this adaptation finds a viable
+  validation signal, the selected configuration will be rerun across seeds and tested once only;
+  it will not overwrite or be pooled with the native-fold result.
 - [ ] Running: released checkpoint fold 0 plus zero-initialized structural adapter,
   `structires_release_adapter_fold0_v1_20260823`, on node 56 GPU 1. Epoch 1 validation AUPR is
   0.7019. This is a validation-only trajectory, not a held-out result and not a paper claim.
