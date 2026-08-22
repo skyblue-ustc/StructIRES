@@ -2,9 +2,9 @@
 
 \subsection{Dataset composition reveals a strong assay and length imbalance}
 The assembled IRES-AI identification set contains 46,774 unique sequences, of which 9,172 are
-positive and 37,602 are negative. Of these, 44,641 sequences are exactly 174 nt. Figure~\ref{fig:overview}
-places this legacy benchmark alongside the direct-RNA and structure/context evidence used by the
-primary task.
+positive and 37,602 are negative. Of these, 44,641 sequences are exactly 174 nt.
+Figure~\ref{fig:structires-classifier} shows the validation-clean classifier protocol used for
+the controlled structure-fusion comparison.
 
 The released long-form split is not a mutually exclusive ten-fold partition: 16,176 sequences
 never occur in a test set and 12,294 occur in two or more test sets. We therefore separate external
@@ -13,12 +13,13 @@ evaluation for the locked benchmark.
 
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=0.98\textwidth]{figures/fig1_overview.pdf}
-  \caption{Assay-aware project route for \textsc{StructIRES-Rank}. Frozen public evidence defines
-  a shared full-length mutation pool and matched selection budget. The legacy IRES-LM score is a
-  proposal term; structural preservation, a held-out direct-RNA computational proxy, and the
-  IAPV-only MPRA edit-risk map remain assay-qualified evaluation layers.}
-  \label{fig:overview}
+  \includegraphics[width=0.98\textwidth]{figures/fig1_structires_classifier.pdf}
+  \caption{Validation-clean \textsc{StructIRES} classifier. Public RNA-FM t12 initialization is
+  jointly fine-tuned with the author-style IRES objective. The structure arm pools contextual
+  residue-pair features over label-free ViennaRNA MFE base-pair contacts and contributes through a
+  zero-initialized gated residual. Epoch and threshold selection use only a source-training
+  validation subset; the native test fold is evaluated once.}
+  \label{fig:structires-classifier}
 \end{figure*}
 
 \input{tables/data_sources}
@@ -46,6 +47,17 @@ further showed that both
 released training scripts evaluate the test set after every epoch and select the saved checkpoint
 using test AUPR. We therefore label these values as released-protocol references rather than
 independent blind-test estimates; corrected reruns reserve validation data for model selection.
+
+We next trained the author-style RNA-FM topology directly from the public t12 prior, reserving a
+stratified subset of each source-training fold for epoch and threshold selection.  Under this
+validation-clean protocol, 	extsc{StructIRES} adds only a sparse ViennaRNA MFE base-pair encoder
+and a gated residual to an otherwise matched full RNA-FM fine-tune.  Across three independently
+run native folds (0, 2 and 4), the sequence-only re-train reached AUC/AUPR/F1/MCC of
+$0.770\pm0.005$/$0.600\pm0.018$/$0.521\pm0.016$/$0.426\pm0.012$, whereas the contact-fusion
+model reached $0.774\pm0.007$/$0.601\pm0.022$/$0.533\pm0.024$/$0.439\pm0.047$.
+The foldwise mean changes are therefore +0.004 AUC, +0.002 AUPR, +0.013 F1 and +0.013 MCC; ECE
+increased by 0.043.  These overlapping native holdouts provide a controlled recognition ablation,
+not a claim of independent biological validation or calibration improvement.
 
 We also ran the released IRESfinder classifier over all 46,774 unique sequences using its original
 Perl framed-k-mer extractor, released training data and feature indices, with only the Python 2.7

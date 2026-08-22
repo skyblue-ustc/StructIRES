@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 from pathlib import Path
 
@@ -41,6 +42,14 @@ def load_pair(path: Path) -> dict:
 def mean_std(values: list[float]) -> dict[str, float]:
     array = np.asarray(values, dtype=np.float64)
     return {"mean": float(array.mean()), "std": float(array.std(ddof=1)) if len(array) > 1 else 0.0}
+
+
+def sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
 
 
 def main() -> int:
@@ -87,6 +96,26 @@ def main() -> int:
     }
     (args.output_dir / "summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n",
                                                     encoding="utf-8")
+    aggregate_fields = ("model", "n_folds", *(f"{metric}_{suffix}" for metric in METRICS
+                                                for suffix in ("mean", "std")))
+    with (args.output_dir / "aggregate_metrics.csv").open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=aggregate_fields); writer.writeheader()
+        for model, key in (("author_style_sequence_only", "sequence_only"),
+                           ("structires_mfe_contact_fusion", "contact_fusion")):
+            writer.writerow({"model": model, "n_folds": len(reports),
+                             **{f"{metric}_{suffix}": summary[key][metric][suffix]
+                                for metric in METRICS for suffix in ("mean", "std")}})
+    manifest = {
+        "schema_version": 1,
+        "experiment": "native_rnafm_structires_retraining_multifold_summary",
+        "folds": summary["folds"],
+        "n_folds": len(reports),
+        "input_paired_summary_sha256": [sha256(path / "paired_summary.json") for path in args.pair_dirs],
+        "shared_protocol": summary["shared_protocol"],
+        "test_metrics_independently_recomputed": True,
+    }
+    (args.output_dir / "run_manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+                                                         encoding="utf-8")
     print(json.dumps(summary, indent=2, sort_keys=True))
     return 0
 

@@ -120,6 +120,38 @@
       }
     },
     {
+      "result_id": "native_retrain_sequence_3fold",
+      "model": "Author-style RNA-FM re-train",
+      "result_status": "validation_clean_retrain",
+      "evaluation_regime": "three matched native folds",
+      "assay": "legacy reporter",
+      "note": "Public RNA-FM initialization; source-train validation selects epochs and thresholds; three overlapping official test folds.",
+      "source": {
+        "run_id": "structires_native_authorstyle_batchshuffle_multifold_0_2_4_v2_20260823",
+        "metric_file": "aggregate_metrics.csv",
+        "aggregation": "first",
+        "selector": {"model": "author_style_sequence_only"},
+        "metric_mapping": {"auc": "auc_mean", "aupr": "aupr_mean", "f1": "f1_mean", "accuracy": "accuracy_mean", "sensitivity": "sensitivity_mean", "specificity": "specificity_mean", "mcc": "mcc_mean", "ece10": "ece10_mean"},
+        "std_mapping": {"auc": "auc_std", "aupr": "aupr_std", "f1": "f1_std", "accuracy": "accuracy_std", "sensitivity": "sensitivity_std", "specificity": "specificity_std", "mcc": "mcc_std", "ece10": "ece10_std"}
+      }
+    },
+    {
+      "result_id": "native_retrain_structires_contact_3fold",
+      "model": "StructIRES MFE-contact fusion",
+      "result_status": "validation_clean_retrain",
+      "evaluation_regime": "three matched native folds",
+      "assay": "legacy reporter",
+      "note": "Same public RNA-FM initialization, source-train validation, and official test records as the author-style re-train; adds sparse MFE-contact encoder and gated residual.",
+      "source": {
+        "run_id": "structires_native_authorstyle_batchshuffle_multifold_0_2_4_v2_20260823",
+        "metric_file": "aggregate_metrics.csv",
+        "aggregation": "first",
+        "selector": {"model": "structires_mfe_contact_fusion"},
+        "metric_mapping": {"auc": "auc_mean", "aupr": "aupr_mean", "f1": "f1_mean", "accuracy": "accuracy_mean", "sensitivity": "sensitivity_mean", "specificity": "specificity_mean", "mcc": "mcc_mean", "ece10": "ece10_mean"},
+        "std_mapping": {"auc": "auc_std", "aupr": "aupr_std", "f1": "f1_std", "accuracy": "accuracy_std", "sensitivity": "sensitivity_std", "specificity": "specificity_std", "mcc": "mcc_std", "ece10": "ece10_std"}
+      }
+    },
+    {
       "result_id": "local_iresfinder_similarity",
       "model": "IRESfinder",
       "result_status": "released_model_rerun",

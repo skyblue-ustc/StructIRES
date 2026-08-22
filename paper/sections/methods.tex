@@ -27,6 +27,20 @@ report mean and sample standard deviation across holdouts but do not interpret t
 folds. The released RNA-FM and UTR-LM checkpoints were selected upstream on test AUPR, so these
 rows are protocol reproductions rather than independent blind-test estimates.
 
+\subsection{Validation-clean StructIRES classifier}
+For each selected native fold, we retain its author-provided test records untouched and make one
+stratified 15\% validation split inside the corresponding source-training records. Both matched
+arms start from the same public RNA-FM t12 checkpoint and fully fine-tune the author-style
+BOS $640\rightarrow40\rightarrow2$ classifier with class-weighted IRES cross entropy (weight 2)
+and a 15\% masked-LM auxiliary loss (weight 1). Length-aware batches are reshuffled per epoch and
+the learning rate follows the upstream linear schedule. The sequence-only arm is this topology
+unchanged. \textsc{StructIRES} additionally extracts the label-free ViennaRNA MFE base-pair edges;
+for each edge it concatenates the two contextual RNA-FM residue vectors, their product and their
+absolute difference, pools a learned edge encoding per sequence, and injects it through a
+zero-initialized gated residual. Validation AUPR selects the epoch and validation F1 selects the
+threshold. We compute all test metrics once from saved probabilities and independently recompute
+them before multi-fold aggregation.
+
 \subsection{Cross-assay audit}
 Models trained on the legacy reporter assay are evaluated without adaptation on normalized
 IRES-TrAPPr measurements. We report rank association, calibration where labels permit, top-$k$

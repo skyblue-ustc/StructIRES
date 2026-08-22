@@ -534,9 +534,7 @@ model is trained from a documented architecture.
   Immutable paired verifier output: `structires_native_authorstyle_batchshuffle_pair_fold4_v2_20260823`.
 - [x] Completed the predeclared fold-0 replication pair,
   `structires_native_sequence_authorstyle_batchshuffle_fold0_v2_20260823` and
-  `structires_native_contact_authorstyle_batchshuffle_fold0_v2_20260823`, plus
-  `structires_native_sequence_authorstyle_batchshuffle_fold2_v2_20260823` and
-  `structires_native_contact_authorstyle_batchshuffle_fold2_v2_20260823`, with the exact v2
+  `structires_native_contact_authorstyle_batchshuffle_fold0_v2_20260823`, with the exact v2
   protocol.  The fold-0 contact architecture was selected from the fold-4 *validation*
   trajectory only; no fold-4 test result was consulted before launching fold 0.  Fold 0:
   sequence-only is AUROC/AUPR/F1/MCC/ECE = 0.76369/0.58002/0.50284/0.41214/0.20021 and
@@ -548,11 +546,25 @@ model is trained from a documented architecture.
   therefore exited without an output; a provenance-complete monitor subsequently ran the same
   immutable verifier after both files existed.  Verified pair output:
   `structires_native_authorstyle_batchshuffle_pair_fold0_v2_20260823`.
-- [ ] Running the additional fold-2 matched pair under the unchanged v2 protocol.  Fold 2 was
-  scheduled only after the fold-4 test pair had completed and is explicitly an independent
-  replication, not an adaptive replacement of the architecture.  Runs:
+- [x] Completed the additional fold-2 matched pair under the unchanged v2 protocol:
   `structires_native_sequence_authorstyle_batchshuffle_fold2_v2_20260823` and
-  `structires_native_contact_authorstyle_batchshuffle_fold2_v2_20260823`.
+  `structires_native_contact_authorstyle_batchshuffle_fold2_v2_20260823`.  Fold 2 was scheduled
+  only after fold 4 had completed and is an independent replication, not an adaptive replacement
+  of the architecture.  Its validation-selected locked-test sequence-only metrics are
+  AUROC/AUPR/F1/MCC/ECE = 0.77406/0.61452/0.53254/0.43274/0.18961; contact fusion is
+  0.78203/0.62018/0.55319/0.47938/0.24637.  Contact therefore changes AUROC by +0.00796,
+  AUPR by +0.00566, F1 by +0.02065 and MCC by +0.04663, while worsening ECE by +0.05676.
+  Verified pair output: `structires_native_authorstyle_batchshuffle_pair_fold2_v2_20260823`.
+- [x] Aggregated the three independently verified matched native folds 0, 2 and 4 using
+  `scripts/summarize_native_structires_multifold.py`.  The sequence-only re-train is
+  AUROC/AUPR/F1/MCC/ECE = 0.76950$\pm$0.00530/0.59965$\pm$0.01774/
+  0.52068$\pm$0.01572/0.42602$\pm$0.01203/0.19043$\pm$0.00941; contact fusion is
+  0.77394$\pm$0.00728/0.60127$\pm$0.02217/0.53343$\pm$0.02371/
+  0.43928$\pm$0.04673/0.23310$\pm$0.01313.  Foldwise mean contact--sequence deltas are
+  +0.00444 AUROC, +0.00162 AUPR, +0.01276 F1 and +0.01326 MCC, with +0.04267 ECE.
+  The result is now added to the provenance-ledger table as a controlled, three-fold native
+  recognition ablation; folds overlap and it is not presented as independent assay validation.
+  Immutable aggregate: `structires_native_authorstyle_batchshuffle_multifold_0_2_4_v2_20260823`.
 - [ ] Running: released checkpoint fold 0 plus zero-initialized structural adapter,
   `structires_release_adapter_fold0_v1_20260823`, on node 56 GPU 1. Epoch 1 validation AUPR is
   0.7019. This is a validation-only trajectory, not a held-out result and not a paper claim.

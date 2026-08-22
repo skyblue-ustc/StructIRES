@@ -4,17 +4,20 @@ full-length IRESes, this can select mutations that increase a model score while 
 parent energy landscape and structural ensemble, and reporter-trained scores may not transfer to
 direct-RNA settings. We address this objective-misalignment problem with constraint-guided IRES
 optimization rather than treating a legacy classifier as a complete design oracle.
-\textbf{Results:} We introduce \textsc{StructIRES-Rank}, an assay-aware constrained rank-selection
-layer that combines the released IRES-LM ensemble with parent-relative energy, global ensemble
-pairing, and high-confidence parent-anchor preservation. Across three frozen 512-candidate mutation pools for each of ten
-experimentally supported full-length IRES seeds, all five arms receive identical candidate sets and
-selection budgets. Relative to IRES-LM score-only selection, the combined constraint set improves
-the held-out direct-RNA proxy from 0.419 to 0.435 (paired gain 0.0158, 95\% bootstrap CI
-0.0079--0.0242), reduces absolute MFE deviation from 4.021 to 0.666 kcal/mol, lowers
-pairing-profile distance from 0.164 to 0.037, and increases parent ensemble-anchor retention from
-0.646 to 0.955. Reproduced legacy
-predictor results and cross-assay tests serve as a design stress test: strong in-assay
-classification alone is insufficient for robust full-length optimization. Our results establish
+\textbf{Results:} We introduce \textsc{StructIRES}, a structure-aware IRES framework that couples
+validation-clean recognition with constrained full-length candidate ranking. Starting from public
+RNA-FM initialization, its recognition model pools contextual residue pairs over label-free
+ViennaRNA MFE contacts through a gated residual. Across three matched native folds, this contact
+fusion changes mean AUC/AUPR/F1 from 0.770/0.600/0.521 to 0.774/0.601/0.533 relative to an
+otherwise identical sequence-only re-train; calibration requires further improvement. For
+full-length ranking, \textsc{StructIRES-Rank} combines the released IRES-LM ensemble with
+parent-relative energy, global ensemble pairing, and high-confidence parent-anchor preservation.
+Across three frozen 512-candidate mutation pools for each of ten experimentally supported seeds,
+all five arms receive identical candidate sets and selection budgets. Relative to IRES-LM
+score-only selection, the combined constraint set improves the held-out direct-RNA computational
+proxy from 0.419 to 0.435 (paired gain 0.0158, 95\% bootstrap CI 0.0079--0.0242), reduces absolute
+MFE deviation from 4.021 to 0.666 kcal/mol, lowers pairing-profile distance from 0.164 to 0.037,
+and increases parent ensemble-anchor retention from 0.646 to 0.955. Our results establish
 computational candidate enrichment and structural preservation, not experimentally verified
 translation improvement.
 \textbf{Availability and implementation:} Code and frozen manifests will be released after

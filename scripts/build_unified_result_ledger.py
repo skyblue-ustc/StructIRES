@@ -163,7 +163,7 @@ def write_latex(path: Path, rows: list[dict[str, object]]) -> None:
         r"\caption{Unified IRES classification ledger. Published references, local native-split",
         r"reruns, similarity-aware evaluation, and direct-RNA transfer are intentionally distinct.",
         r"Parentheses are 95\% stratified-bootstrap intervals; $\pm$ is the sample standard",
-        r"deviation across released repeated holdouts, which are not independent.}",
+        r"deviation across the reported folds. Released and native folds can overlap and are not independent.}",
         r"\label{tab:unified-results}",
         r"\resizebox{\textwidth}{!}{%",
         r"\begin{tabular}{llllrrrrrrrr}",
