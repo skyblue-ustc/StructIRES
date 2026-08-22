@@ -5,13 +5,15 @@ IEEE or OUP wrapper should import them instead of duplicating text.
 
 Current reviewed figure/table contract:
 
-1. `fig1_overview`: assay provenance and technical route.
+1. `fig1_overview`: assay-qualified evidence, shared candidate pool, StructIRES-Rank objectives,
+   and evaluation route.
 2. `fig2_prediction_pilot`: dataset shortcut audit and reconstructed-fold lightweight baseline.
 3. `fig3_assay_shift`: cross-assay transfer, calibration, and failure analysis.
 4. `fig4_checkpoint_stability`: final ten-checkpoint native/transfer heterogeneity audit.
 5. `fig6_structires_ireslm_ablation`: matched five-arm IRES-LM, energy, ensemble, anchor and
    combined-constraint ablation.
-6. `fig7_iapv_case_v2`: provenance-locked IAPV parent / score-only / StructIRES ensemble case.
+6. `fig7_iapv_secondary_structure`: provenance-locked IAPV parent / score-only / StructIRES
+   ViennaRNA secondary-structure case plus the public MPRA edit-risk guardrail.
 7. `iapv_mpra_guardrail`: IAPV-only public direct-RNA mutational-scan guardrail table.
 
 Tables must identify the assay, split, tuning data, and whether a method is reproduced or copied as

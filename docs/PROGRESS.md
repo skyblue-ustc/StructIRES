@@ -369,3 +369,19 @@ model is trained from a documented architecture.
   \textsc{StructIRES-Rank} has IRES-LM 0.963, $|\Delta\mathrm{MFE}|=0.00$ and retention 1.000.
   This deterministic visual is explanatory only, never a candidate-activity claim. Manifest:
   `structires_iapv_case_v2_20260822`.
+
+## Main-text / supplement and visual audit (2026-08-22)
+
+- [x] Froze the first-draft evidence boundary in `docs/MAIN_TEXT_SCOPE_2026-08-22.md`.
+  The main text keeps the assay audit, matched five-arm design ablation, S3-held-out computational
+  proxy, and IAPV-only MPRA edit-risk guardrail. The complete metric ledger, detailed shortcut
+  controls, cargo stress test, and legacy 174-nt task are supplementary provenance.
+- [x] Rebuilt the workflow and primary ablation as repository-native vector figures using a fixed,
+  colour-vision-friendly method palette. Figure 6 is now a readable 2x2 matched-ablation layout.
+- [x] Replaced the earlier IAPV base-pair-probability matrix with a ViennaRNA NaviView MFE
+  secondary-structure case: parent / score-only / StructIRES-Rank layouts, edited positions,
+  retained or reduced parent-derived ensemble anchors, the public IAPV risk map, and its
+  same-budget guardrail summary. Output: `paper/figures/fig7_iapv_secondary_structure.pdf`.
+  It is a provenance-locked visual explanation, not a functional validation.
+- [x] Recompiled the venue-neutral PDF after the visual update; `paper/build/main.pdf` is the
+  current reviewed artifact.

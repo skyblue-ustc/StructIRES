@@ -14,9 +14,10 @@ evaluation for the locked benchmark.
 \begin{figure*}[t]
   \centering
   \includegraphics[width=0.98\textwidth]{figures/fig1_overview.pdf}
-  \caption{Assay-labelled project route. The legacy identification benchmark is reproduced but is
-  not treated as equivalent to direct-RNA activity. Full-length design is evaluated with independent
-  function, structural-ensemble, cargo-context, applicability, and diversity criteria.}
+  \caption{Assay-aware project route for \textsc{StructIRES-Rank}. Frozen public evidence defines
+  a shared full-length mutation pool and matched selection budget. The legacy IRES-LM score is a
+  proposal term; structural preservation, a held-out direct-RNA computational proxy, and the
+  IAPV-only MPRA edit-risk map remain assay-qualified evaluation layers.}
   \label{fig:overview}
 \end{figure*}
 
@@ -235,7 +236,8 @@ structure preservation, not improved IRES activity.
   \caption{Matched IRES-LM ablation of \textsc{StructIRES-Rank}. Each arm selects from the same
   512-candidate pool for every parent and random seed. Energy, global ensemble, and parent-anchor
   preservation each improve a distinct structural property; their combination has the strongest
-  direct-RNA held-out computational proxy score. Error bars are sample SD across 30 parent-by-run units.}
+  held-out direct-RNA computational proxy score. Error bars are sample SD across 30 parent-by-run
+  units; the proxy is not a candidate activity assay.}
   \label{fig:structires-ablation}
 \end{figure*}
 
@@ -251,12 +253,13 @@ deviation and 1.000 anchor retention. This visualizes the mechanism already meas
 
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=0.98\textwidth]{figures/fig7_iapv_case_v2.pdf}
-  \caption{Provenance-locked illustrative IAPV structural case. We plot the rank-1 candidate from
-  the frozen seed-42 mutation pool under IRES-LM score-only and \textsc{StructIRES-Rank} selection.
-  Colored squares show ViennaRNA ensemble base-pair probabilities; green circles and orange crosses
-  denote retained and reduced parent-derived $P\geq0.5$ anchors, respectively; pink lines are edited
-  positions. This is a computational structure illustration, not a measurement of candidate activity.}
+  \includegraphics[width=0.98\textwidth]{figures/fig7_iapv_secondary_structure.pdf}
+  \caption{Provenance-locked illustrative IAPV structural and MPRA case. Top: ViennaRNA MFE
+  secondary-structure layouts for the parent and rank-1 candidates from the frozen seed-42 pool;
+  green lines denote retained parent-derived ensemble anchors, dashed orange lines reduced anchors,
+  and red nodes edits. Bottom: the public direct-RNA IAPV mutational-risk map and same-budget
+  guardrail summary. The map is used only as an IAPV edit-risk constraint, not as a measurement of
+  generated-candidate activity.}
   \label{fig:structires-case}
 \end{figure*}
 

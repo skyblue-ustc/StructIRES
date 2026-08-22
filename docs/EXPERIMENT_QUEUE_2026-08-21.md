@@ -115,6 +115,20 @@ The old fold-7 file with SHA-256 `558517...81a4` remains quarantined and exclude
 active checkpoint downloads, no running P1 inference jobs and no pending RNA-FM classification
 folds. The only failed/pending baseline item is exact DeepCIP inference under its Python 3.8 ABI.
 
+## Draft-scope update on 2026-08-22 (CST)
+
+The initial manuscript evidence chain is frozen in `docs/MAIN_TEXT_SCOPE_2026-08-22.md`.
+No additional classification reruns are on the critical path to the first draft. The remaining
+work is intentionally separated from completed evidence:
+
+| Priority | Item | State | Gate / reason |
+|---|---|---|---|
+| P0 | Final manuscript visual/table QA | active | Rebuild only from frozen, provenance-backed outputs; no new result values. |
+| P1 | IRES-EA exact released baseline | blocked | Versioned predictor wrappers and model directory are absent upstream; request/download the author assets before retrying. |
+| P2 | DeepCIP official inference | time-boxed blocker | Requires a verified isolated legacy ABI and intact dependency archive; no approximation. |
+| P3 | IRES-DM shared-protocol legacy task | pending / supplementary | Different 174-nt reporter task; run only after task data and selection protocol are frozen. |
+| P4 | Project-owned trainable model | pending research phase | Requires a new, documented architecture and held-out evaluation; RFamLlama cannot be claimed as project pretraining. |
+
 The frozen classification reruns require 21 local weight files: one UTR-LM backbone, ten released
 IRES-RNAFM folds and ten released IRES-UTRLM folds. All are complete. A separate RNA-FM base
 checkpoint is unnecessary because every fine-tuned fold contains the full backbone state. The
