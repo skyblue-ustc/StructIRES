@@ -15,6 +15,8 @@ def main() -> int:
     parser.add_argument("--structure",type=Path,required=True)
     parser.add_argument("--output",type=Path,required=True)
     parser.add_argument("--top-k",type=int,default=50)
+    parser.add_argument("--score-column",default="utrlm_probability_mean")
+    parser.add_argument("--method",default="utrlm_score_only")
     args=parser.parse_args()
     if args.top_k < 1:
         raise ValueError("top-k must be positive")
@@ -38,12 +40,12 @@ def main() -> int:
     for (run_seed,parent_id), group in sorted(grouped.items()):
         if len(group) < args.top_k:
             raise ValueError(f"{parent_id} has fewer than {args.top_k} candidates")
-        for rank,row in enumerate(sorted(group,key=lambda x:float(x["utrlm_probability_mean"]),reverse=True)[:args.top_k],start=1):
-            selected.append({"method":"utrlm_score_only","selection_rank":rank,**row})
+        for rank,row in enumerate(sorted(group,key=lambda x:float(x[args.score_column]),reverse=True)[:args.top_k],start=1):
+            selected.append({"method":args.method,"selection_rank":rank,**row})
     args.output.parent.mkdir(parents=True,exist_ok=True)
     with args.output.open("w",newline="") as handle:
         writer=csv.DictWriter(handle,fieldnames=list(selected[0]));writer.writeheader();writer.writerows(selected)
-    print({"n_selected":len(selected),"n_units":len(grouped),"method":"utrlm_score_only"})
+    print({"n_selected":len(selected),"n_units":len(grouped),"method":args.method})
     return 0
 
 
