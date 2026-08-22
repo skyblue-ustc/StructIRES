@@ -38,6 +38,7 @@ def arguments() -> argparse.Namespace:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--validation-fraction", type=float, default=.15)
     parser.add_argument("--epochs", type=int, default=20)
+    parser.add_argument("--early-stopping-patience", type=int, default=3)
     parser.add_argument("--tokens-per-batch", type=int, default=32768)
     # The released IRES-RNAFM command used --truncate --truncate_num 1024.
     # Matching that preprocessing is required for long input records and for
@@ -197,7 +198,7 @@ def main() -> int:
     optimizer = torch.optim.AdamW([parameter for parameter in model.parameters() if parameter.requires_grad], lr=args.lr, weight_decay=1e-4)
     positive_weight = float(train.size / labels[train].sum() - 1.)
     criterion = nn.CrossEntropyLoss(weight=torch.tensor([1., positive_weight], device=device))
-    best, best_state, best_threshold, curve = -np.inf, None, .5, []
+    best, best_state, best_threshold, curve, epochs_without_improvement = -np.inf, None, .5, [], 0
     for epoch in range(1, args.epochs + 1):
         model.train(); model.base.eval()
         for indices, _, _, tokens, _, _ in train_loader:
@@ -211,6 +212,12 @@ def main() -> int:
         if report["aupr"] > best:
             best, best_threshold = report["aupr"], threshold
             best_state = {key: value.detach().cpu().clone() for key, value in model.state_dict().items()}
+            epochs_without_improvement = 0
+        else:
+            epochs_without_improvement += 1
+            if epochs_without_improvement >= args.early_stopping_patience:
+                print(json.dumps({"early_stopping": True, "epoch": epoch, "best_validation_aupr": best}), flush=True)
+                break
     assert best_state is not None; model.load_state_dict(best_state)
     adapter_test_index, adapter_test_probability = probabilities(model, test_loader, feature_tensor, device, adapter=True, truncate_num=args.truncate_num)
     if not np.array_equal(test_index, adapter_test_index):
@@ -218,7 +225,7 @@ def main() -> int:
     adapter_metrics = metrics(labels[test_index], adapter_test_probability, best_threshold)
     args.output_dir.mkdir(parents=True)
     with (args.output_dir / "metrics.json").open("w", encoding="utf-8") as handle:
-        json.dump({"fold": args.fold, "baseline_released_checkpoint": baseline, "adapter_validation_selected": adapter_metrics, "best_validation_aupr": best, "validation_curve": curve}, handle, indent=2, sort_keys=True); handle.write("\n")
+        json.dump({"fold": args.fold, "baseline_released_checkpoint": baseline, "adapter_validation_selected": adapter_metrics, "best_validation_aupr": best, "epochs_completed": len(curve), "validation_curve": curve}, handle, indent=2, sort_keys=True); handle.write("\n")
     with (args.output_dir / "metrics.csv").open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=["model", *baseline.keys()])
         writer.writeheader()
@@ -229,7 +236,7 @@ def main() -> int:
         for index, base_value, adapter_value in zip(test_index, test_probability, adapter_test_probability):
             writer.writerow({"id": frame.ID.iloc[int(index)], "label": int(labels[index]), "baseline_probability": float(base_value), "adapter_probability": float(adapter_value)})
     torch.save({"adapter_state": best_state, "fold": args.fold, "best_validation_aupr": best}, args.output_dir / "best_adapter.pt")
-    manifest = {"schema_version": 1, "experiment": "structires_release_checkpoint_zero_initialized_structure_adapter", "fold": args.fold, "dataset_sha256": sha256(args.dataset), "feature_cache_sha256": sha256(args.feature_cache), "checkpoint_sha256": sha256(args.checkpoint), "rnafm_base_sha256": sha256(args.rnafm_base), "validation_fraction": args.validation_fraction, "seed": args.seed, "epochs": args.epochs, "truncate_num": args.truncate_num, "baseline_parameters_frozen": True, "structure_residual_zero_initialized": True, "selection": "validation AUPR", "upstream_test_used_for_selection": False}
+    manifest = {"schema_version": 1, "experiment": "structires_release_checkpoint_zero_initialized_structure_adapter", "fold": args.fold, "dataset_sha256": sha256(args.dataset), "feature_cache_sha256": sha256(args.feature_cache), "checkpoint_sha256": sha256(args.checkpoint), "rnafm_base_sha256": sha256(args.rnafm_base), "validation_fraction": args.validation_fraction, "seed": args.seed, "epochs": args.epochs, "early_stopping_patience": args.early_stopping_patience, "epochs_completed": len(curve), "truncate_num": args.truncate_num, "baseline_parameters_frozen": True, "structure_residual_zero_initialized": True, "selection": "validation AUPR", "upstream_test_used_for_selection": False}
     (args.output_dir / "run_manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return 0
 
