@@ -2,6 +2,7 @@
 \centering
 \caption{Frozen transfer from legacy IRES identification data to direct-RNA IRES-TrAPPr labels. AUC and AUPR intervals are 95\% stratified-bootstrap intervals (2,000 replicates). Project-control thresholds were selected only on legacy validation folds; released models use their 0.5 thresholds. The RNA-FM ensemble is the predeclared arithmetic mean of all ten released checkpoints; fold 0 is retained to expose checkpoint heterogeneity.}
 \label{tab:assay-shift}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{llcccc}
 \toprule
 Model & Direct-RNA subset & $n$ (active) & AUC (95\% CI) & AUPR (95\% CI) & F1 \\
@@ -18,4 +19,5 @@ RNA-FM (released ensemble, 10/10) & All labelled & 2179 (111) & 0.600 (0.567--0.
 RNA-FM (released ensemble, 10/10) & $\geq$90\% identity, $\geq$80\% coverage & 1940 (67) & 0.577 (0.546--0.606) & 0.038 (0.036--0.041) & 0.067 \\
 \bottomrule
 \end{tabular}
+}
 \end{table*}
