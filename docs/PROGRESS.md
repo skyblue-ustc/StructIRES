@@ -420,6 +420,20 @@ model is trained from a documented architecture.
   sequence-only checkpoint before training can proceed.
 - [x] Corrected the first launch after it exposed a missing 1,024-token truncation. This was an
   input-preprocessing error, not an asset failure; no score from that failed launch is retained.
+- [x] Built the full released-benchmark, label-free position-profile cache at
+  `/9950backfile/lant/data/ires-design-external-runs/structires_release_position_profiles_1024_v1_20260823`.
+  It contains 46,774 unique public sequences as a memory-mappable
+  $46{,}774\times1{,}024\times5$ array: ensemble pairing probability, MFE state, centroid state,
+  normalized position and an explicit valid-position mask.  Only 68 source records exceed the
+  released model's 1,024-token upper bound; the cache manifest pins the source SHA-256 and
+  ViennaRNA 2.7.2.
+- [x] Added and pushed the position-aware successor
+  `scripts/train_structires_release_profile_adapter.py` (commits `c99542c`, `4679b03`).  It uses a
+  masked local CNN structural encoder and zero-initialized gated residual into the frozen released
+  checkpoint.  The first `fold4_v1` launch stopped during its numerical equivalence check because
+  of a batch-index normalization-shape bug; it produced no metrics and remains preserved as a
+  failure log.  The corrected immutable `fold4_v2` run is active.  The repair has an explicit
+  scalar-and-batch normalization smoke test; all repository unit tests remain green (32/32).
 - [ ] Running: released checkpoint fold 0 plus zero-initialized structural adapter,
   `structires_release_adapter_fold0_v1_20260823`, on node 56 GPU 1. Epoch 1 validation AUPR is
   0.7019. This is a validation-only trajectory, not a held-out result and not a paper claim.
