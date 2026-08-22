@@ -429,3 +429,9 @@ model is trained from a documented architecture.
   AUPR 0.6361 and F1 0.5626; the structure adapter has 0.7923, 0.6392 and 0.5644, respectively.
   Its ECE improves from 0.2267 to 0.1959. This is an audited *single-fold signal*, not a ten-fold
   conclusion or a manuscript headline. The JSON metrics exactly match a prediction-file recompute.
+- [x] Partial three-fold audit (folds 2, 5 and 7) in
+  `structires_release_adapter_partial_summary_folds2_5_7_v1_20260823`: mean AUROC is 0.7832 for
+  the checkpoint and 0.7835 for the adapter; mean AUPR is 0.6215 and 0.6217; mean F1 is 0.5478 and
+  0.5481; mean MCC is 0.4568 and 0.4637. Mean ECE decreases from 0.2302 to 0.1855. This mixed,
+  incomplete result supports a calibration/specificity signal but does **not** justify a claim of
+  material recognition improvement until the complete ten-fold audit is available.
