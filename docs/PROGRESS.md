@@ -464,3 +464,9 @@ model is trained from a documented architecture.
   0.5481; mean MCC is 0.4568 and 0.4637. Mean ECE decreases from 0.2302 to 0.1855. This mixed,
   incomplete result supports a calibration/specificity signal but does **not** justify a claim of
   material recognition improvement until the complete ten-fold audit is available.
+- [x] Clarified a provenance-sensitive output name in the legacy global-adapter runner.  Its
+  `adapter_validation_selected` JSON field contains **official-test** metrics; “validation” means
+  that the epoch and F1 threshold were selected using only the upstream-train validation subset.
+  It is not a validation-set score and must be reported, if at all, as
+  “official test, validation-selected.”  Existing immutable run artifacts retain the original key;
+  this clarification prevents an ambiguous label from entering the manuscript.
