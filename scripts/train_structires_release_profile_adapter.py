@@ -147,7 +147,10 @@ class PositionProfileResidualAdapter(nn.Module):
         sequence = self.base.hidden(tokens)
         structural = self.structure_hidden(profile)
         gate = self.gate(torch.cat((sequence, structural), dim=1))
-        return self.base.output(sequence + gate * structural)
+        # Reuse the released classifier's dropout before its output layer.
+        # This keeps head-only and fusion-head training matched; in eval mode
+        # dropout is identity, preserving the zero-initialization invariant.
+        return self.base.output(self.base.dropout3(sequence + gate * structural))
 
 
 def make_loader(data_module, alphabet, indices: np.ndarray, sequences: list[str], tokens_per_batch: int):
