@@ -19,13 +19,18 @@ respectively), but an all-checkpoint RNA-FM ensemble reached only AUROC 0.600
 on a zero-shot direct-RNA evaluation. This motivates treating a historical
 recognition model as a proposal signal rather than a complete activity oracle.
 
-We present \textsc{StructIRES-Rank}, a generator-agnostic constrained
-rank-selection method for seeded full-length IRES optimization. It makes three
-contributions:
+We present \textsc{StructIRES}, a two-stage framework linking structure-aware
+IRES recognition with constrained full-length IRES optimization. The completed
+design component is \textsc{StructIRES-Rank}; the recognition component,
+\textsc{StructIRES-Classifier}, is a preregistered structure-aware fusion model
+whose locked evaluation is pending. The framework makes four contributions:
 \begin{enumerate}
+  \item It tests whether RNA foundation-model sequence priors are improved by
+  thermodynamic ensemble features for IRES identification under a held-out
+  protocol.
   \item It combines sequence plausibility with parent-relative energy,
-  thermodynamic ensemble, and ensemble-anchor preservation.
-  \item It evaluates all alternatives on identical frozen candidate pools and
+  thermodynamic ensemble, and ensemble-anchor preservation during design.
+  \item It evaluates design alternatives on identical frozen candidate pools and
   selection budgets, isolating the value of each constraint.
   \item It uses direct-RNA evidence only as an explicitly assay-qualified
   evaluator or a parent-specific mutational guardrail, never as an inferred

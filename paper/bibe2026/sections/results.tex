@@ -1,5 +1,24 @@
 \section{Results}
 
+\subsection{IRES recognition establishes the sequence baseline}
+The first task is IRES identification: a sequence-level classifier estimates
+whether an RNA is IRES-like under the historical reporter benchmark. The
+released RNA-FM, UTR-LM, and IRESfinder implementations were locally rerun on
+their author-native repeated holdouts (Table~\ref{tab:recognition}). These
+results establish a reproducible sequence baseline for the proposal score used
+in constrained design. Published values for IRES-LM, DeepCIP, and IRESpy are
+retained as context but are visibly separated because their data and protocol
+conditions are not interchangeable.
+
+The proposed \textsc{StructIRES-Classifier} will test whether thermodynamic
+ensemble descriptors add held-out discrimination beyond sequence-only
+foundation-model scores. Its result cells are intentionally TBD in this draft:
+no improvement is claimed until the frozen train/validation/test evaluation is
+completed. This separation prevents recognition development from using either
+direct-RNA labels or design-stage outcomes for model selection.
+
+\input{tables/recognition}
+
 \subsection{Matched constraints preserve complementary properties}
 Score-only selection yields high IRES-LM scores but substantial parent drift
 (Table~\ref{tab:ablation}). Energy, global-ensemble, and anchor terms each

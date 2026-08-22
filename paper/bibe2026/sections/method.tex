@@ -9,6 +9,18 @@ IRES-LM, defined as the arithmetic mean probability over all ten released
 checkpoints of each backbone. Direct-RNA labels are not used for checkpoint
 selection, pool construction, ranking, or hyperparameter selection.
 
+\subsection{Structure-aware recognition component}
+\textsc{StructIRES-Classifier} is defined as a validation-trained fusion of
+RNA foundation-model sequence scores with thermodynamic ensemble descriptors:
+minimum free energy (with length-normalized variants), ensemble diversity, and
+summary statistics of the base-pairing-probability profile. The planned head,
+feature preprocessing, regularization strength, and decision threshold are
+selected using training/validation records only; the official test partition is
+not used for model selection. This component is included as a locked
+next-experiment specification in the present draft. Its performance cells are
+therefore explicitly marked ``TBD'' until predictions, manifests, and a
+reproducible test report exist.
+
 \subsection{Matched seeded optimization}
 We start with ten experimentally supported full-length viral IRES parents.
 For each parent, three deterministic mutation pools (seeds 42, 43, and 44)
@@ -21,9 +33,12 @@ For a variant $x$ and parent $p$, lower is preferred for absolute MFE deviation
 $|\Delta \mathrm{MFE}(x,p)|$ and global base-pairing-probability-profile
 distance $D_{\mathrm{BPP}}(x,p)$. We also maximize weighted retention
 $R_{\mathrm{anchor}}(x,p)$ of parent base pairs having ViennaRNA ensemble
-probability at least 0.5 \cite{lorenz2011viennarna}. These are predicted
-thermodynamic features, not experimentally mapped IRES motifs. The combined
-method ranks the IRES-LM score and each structural quantity equally:
+probability at least 0.5 \cite{lorenz2011viennarna}. The proposal score in the
+completed runs is the released IRES-LM ensemble; a future locked rerun may
+substitute the \textsc{StructIRES-Classifier} score only after its
+identification evaluation is complete. These are predicted thermodynamic
+features, not experimentally mapped IRES motifs. The combined method ranks the
+IRES-LM score and each structural quantity equally:
 \begin{equation}
 \operatorname{Rank}_{\mathrm{StructIRES}}(x)=
 \frac{1}{4}\left[r_s(x)+r_e(x)+r_b(x)+r_a(x)\right],
