@@ -318,3 +318,29 @@ The route to a trainable model called **StructIRES** is now a separate gated exp
 standard Transformers because its custom `bias_raw` weights are ignored. No claim about that
 checkpoint's performance is permitted until the exact custom implementation is recovered or a new
 model is trained from a documented architecture.
+
+## IRES-LM ensemble and parent-anchor milestone (2026-08-22)
+
+- [x] Completed the main release-compatible IRES-LM design baseline by averaging all ten released
+  RNA-FM and all ten released UTR-LM classifier probabilities on the same frozen 15,360-candidate
+  pool. The immutable score ledger is
+  `/9950backfile/lant/data/ires-design-external-runs/ireslm_ensemble_shared_pool_scores_v1_20260822`.
+- [x] Added a parent-derived thermodynamic ensemble-anchor metric. For each full-length seed, an
+  anchor is a parent base pair with ViennaRNA ensemble probability $P\geq0.5$; candidate retention
+  is the parent-probability-weighted retention of these pairs. This is a secondary-structure
+  preservation constraint, not an experimentally mapped IRES core or activity measurement. The
+  complete 15,360-candidate ledger is
+  `parent_ensemble_anchor_metrics_v1_20260822`.
+- [x] Completed a five-arm matched selection: IRES-LM score-only, energy, global ensemble, anchor,
+  and their equal-rank combination, with 1,500 candidates per arm and 30 parent-by-run units. The
+  combined method has $|\Delta\mathrm{MFE}|=0.666\pm0.226$ kcal/mol, pairing-profile
+  $L_1=0.037\pm0.010$, and ensemble-anchor retention $0.955\pm0.015$, versus
+  $4.021\pm1.254$, $0.164\pm0.027$, and $0.646\pm0.075$ for IRES-LM score-only.
+- [x] The S3-held-out direct-RNA computational proxy (three-seed 3--6-mer model, 1,957 training
+  records and 222 S3 test records) was never used in candidate selection. It is 0.41933 for
+  IRES-LM score-only and 0.43514 for combined \textsc{StructIRES-Rank}; paired gain is 0.01582
+  (95\% bootstrap CI 0.00789--0.02421). Run:
+  `structires_ireslm_anchor_direct_rna_s3_v2_20260822`.
+- [x] Updated the primary manuscript table, result section and figure to use the complete IRES-LM
+  ablation. Local unit tests pass (32 tests); the PDF compiles. **Remaining paper blocker:** the
+  current BibTeX output is empty and must be repaired before submission.

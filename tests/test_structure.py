@@ -7,10 +7,12 @@ from ires_design.structure import (
     base_pair_distance,
     context_structure_consistency,
     dot_bracket_pairs,
+    ensemble_anchor_pairs,
     ires_crosstalk_ratio,
     paired_fraction,
     pairing_profile_distance,
     structure_state_identity,
+    weighted_anchor_retention,
 )
 
 
@@ -48,6 +50,20 @@ class StructureMetricTests(unittest.TestCase):
         )
         self.assertAlmostEqual(ires_crosstalk_ratio(context, 4), 0.125)
         self.assertAlmostEqual(context_structure_consistency(reference, context), 0.925)
+
+    def test_parent_ensemble_anchor_retention(self) -> None:
+        parent = folded(
+            "ACGU",
+            (0.9, 0.9, 0.8, 0.8),
+            ((0, 3, 0.90), (1, 2, 0.80), (0, 2, 0.10)),
+        )
+        anchors = ensemble_anchor_pairs(parent, min_probability=0.5)
+        self.assertEqual(anchors, ((0, 3, 0.90), (1, 2, 0.80)))
+        self.assertAlmostEqual(
+            weighted_anchor_retention(anchors, ((0, 3, 0.90), (1, 2, 0.40))),
+            1.30 / 1.70,
+        )
+        self.assertTrue(str(weighted_anchor_retention((), ())).lower() == "nan")
 
     def test_unbalanced_structure_fails(self) -> None:
         with self.assertRaises(ValueError):

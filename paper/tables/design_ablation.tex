@@ -1,20 +1,22 @@
 \begin{table*}[t]
 \centering
-\caption{Matched ablation of \textsc{StructIRES-Rank} on a release-compatible RNA-FM fold-0
-score. Values are mean $\pm$ sample SD across 30 parent-by-run units (10 full-length IRES seeds
-$\times$ 3 frozen mutation pools); every arm retains the top 50 of the same 512 candidates per
-unit. The direct-RNA proxy is post-selection, S3-held-out and computational only. Lower is better
-for $|\Delta$MFE| and pairing-profile $L_1$.}
+\caption{Matched ablation of \textsc{StructIRES-Rank} using the released IRES-LM ensemble
+(mean of all ten RNA-FM and ten UTR-LM released classifiers). Values are mean $\pm$ sample SD
+across 30 parent-by-run units (10 full-length IRES seeds $\times$ 3 frozen mutation pools); every
+arm retains the top 50 of the same 512 candidates per unit. ``Anchor retention'' is the weighted
+retention of parent-derived high-confidence ensemble base pairs ($P\geq0.5$), not an experimentally
+mapped structural motif. The direct-RNA proxy is post-selection, S3-held-out and computational only.}
 \label{tab:design}
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{lccccc}
+\begin{tabular}{lcccccc}
 \toprule
-Selection method & $|\Delta$MFE| (kcal/mol) & Pairing-profile $L_1$ & Structure-state identity & Direct-RNA proxy & Comparison role \\
+Selection method & $|\Delta$MFE| & Pairing $L_1$ & State identity & Anchor retention & Direct-RNA proxy & Role \\
 \midrule
-Released RNA-FM score-only & $3.899\pm1.100$ & $0.161\pm0.026$ & $0.802\pm0.043$ & $0.419$ & Score-only baseline \\
-+ energy rank & $0.646\pm0.202$ & $0.115\pm0.021$ & $0.859\pm0.034$ & $0.428$ & Energy ablation \\
-+ ensemble rank & $2.005\pm0.489$ & $0.056\pm0.013$ & $0.930\pm0.047$ & $0.428$ & Ensemble ablation \\
-\textsc{StructIRES-Rank} & $0.575\pm0.177$ & $0.050\pm0.010$ & $0.937\pm0.039$ & $0.433$ & Combined constraints \\
+IRES-LM score-only & $4.021\pm1.254$ & $0.164\pm0.027$ & $0.798\pm0.048$ & $0.646\pm0.075$ & $0.419$ & Sequence baseline \\
++ energy rank & $0.647\pm0.196$ & $0.118\pm0.024$ & $0.857\pm0.042$ & $0.766\pm0.062$ & $0.427$ & Energy ablation \\
++ ensemble rank & $2.089\pm0.666$ & $0.055\pm0.014$ & $0.932\pm0.054$ & $0.915\pm0.026$ & $0.431$ & Ensemble ablation \\
++ anchor rank & $2.093\pm0.580$ & $0.062\pm0.015$ & $0.924\pm0.063$ & $0.920\pm0.028$ & $0.431$ & Anchor ablation \\
+\textsc{StructIRES-Rank} & $0.666\pm0.226$ & $0.037\pm0.010$ & $0.954\pm0.049$ & $0.955\pm0.015$ & $0.435$ & Combined constraints \\
 \bottomrule
 \end{tabular}
 }

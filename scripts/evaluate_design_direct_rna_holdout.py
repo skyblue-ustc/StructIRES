@@ -65,12 +65,17 @@ def main() -> int:
     selected=[]
     for path in a.selected:
         selected.extend(csv.DictReader(path.open()))
-    # selected CSV intentionally stores hashes only; recover sequences from sibling pool JSONL.
+    # Selected CSVs intentionally store hashes only. Recover sequences from
+    # their recorded immutable pools. This also supports a single selection
+    # file assembled from several random-mutation pools.
     by_id={}
     for path in a.selected:
-        pool=path.parent/'candidates.jsonl'
-        with pool.open() as h:
-            by_id.update({r['candidate_id']:r['sequence'] for r in map(json.loads,h)})
+        selected_rows=list(csv.DictReader(path.open()))
+        pool_dirs={row.get('pool_dir', str(path.parent)) for row in selected_rows}
+        for pool_dir in pool_dirs:
+            pool=Path(pool_dir)/'candidates.jsonl'
+            with pool.open() as h:
+                by_id.update({r['candidate_id']:r['sequence'] for r in map(json.loads,h)})
     seqs=[by_id[r['candidate_id']].replace('U','T') for r in selected]
     xp=vec.transform(seqs); sp=np.mean([m.predict_proba(xp)[:,1] for m in models],axis=0)
     rows=[]
@@ -84,7 +89,14 @@ def main() -> int:
     with (a.output_dir/'summary.csv').open('w',newline='') as h:
         w=csv.DictWriter(h,fieldnames=list(summary[0]));w.writeheader();w.writerows(summary)
     available={str(row['method']) for row in rows}
-    requested=[('robust_full','score_only'),('robust_full','random_mutation'),('structure_only','score_only'),
+    requested=[('ireslm_score_only','ireslm_plus_energy'),
+               ('ireslm_score_only','ireslm_plus_ensemble'),
+               ('ireslm_score_only','ireslm_plus_anchor'),
+               ('structires','ireslm_score_only'),
+               ('structires','ireslm_plus_energy'),
+               ('structires','ireslm_plus_ensemble'),
+               ('structires','ireslm_plus_anchor'),
+               ('robust_full','score_only'),('robust_full','random_mutation'),('structure_only','score_only'),
                ('robust_full','utrlm_score_only'),('utrlm_score_only','score_only'),
                ('robust_full','rnafm_fold0_score_only'),('rnafm_fold0_score_only','score_only'),
                ('rnafm_fold0_score_only','random_mutation'),

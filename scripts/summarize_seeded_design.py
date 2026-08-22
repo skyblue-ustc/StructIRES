@@ -15,6 +15,8 @@ METRICS = (
     "mfe_abs_delta_kcal_mol",
     "pairing_profile_l1",
     "mfe_structure_state_identity",
+    "parent_ensemble_anchor_retention",
+    "parent_ensemble_anchor_loss",
 )
 
 

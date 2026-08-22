@@ -5,14 +5,14 @@ parent energy landscape and structural ensemble, and reporter-trained scores may
 direct-RNA settings. We address this objective-misalignment problem with constraint-guided IRES
 optimization rather than treating a legacy classifier as a complete design oracle.
 \textbf{Results:} We introduce \textsc{StructIRES-Rank}, an assay-aware constrained rank-selection
-layer that combines a released IRES recognition score with parent-relative minimum-free-energy and
-ensemble-pairing preservation. Across three frozen 512-candidate mutation pools for each of ten
-experimentally supported full-length IRES seeds, all four arms receive identical candidate sets and
-selection budgets. Relative to the exactly reproduced release-compatible RNA-FM fold-0 score-only
-baseline, energy-only and ensemble-only constraints improve the held-out direct-RNA proxy from
-0.419 to 0.428, while their combination reaches 0.433 (paired gain 0.0143, 95\% bootstrap CI
-0.0074--0.0220). \textsc{StructIRES-Rank} also reduces absolute MFE deviation from
-3.899 to 0.575 kcal/mol and pairing-profile distance from 0.161 to 0.050. Reproduced legacy
+layer that combines the released IRES-LM ensemble with parent-relative energy, global ensemble
+pairing, and high-confidence parent-anchor preservation. Across three frozen 512-candidate mutation pools for each of ten
+experimentally supported full-length IRES seeds, all five arms receive identical candidate sets and
+selection budgets. Relative to IRES-LM score-only selection, the combined constraint set improves
+the held-out direct-RNA proxy from 0.419 to 0.435 (paired gain 0.0158, 95\% bootstrap CI
+0.0079--0.0242), reduces absolute MFE deviation from 4.021 to 0.666 kcal/mol, lowers
+pairing-profile distance from 0.164 to 0.037, and increases parent ensemble-anchor retention from
+0.646 to 0.955. Reproduced legacy
 predictor results and cross-assay tests serve as a design stress test: strong in-assay
 classification alone is insufficient for robust full-length optimization. Our results establish
 computational candidate enrichment and structural preservation, not experimentally verified

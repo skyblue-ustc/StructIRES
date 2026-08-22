@@ -74,6 +74,49 @@ def pairing_profile_distance(left: Iterable[float], right: Iterable[float]) -> f
     return fmean(abs(a - b) for a, b in zip(left_values, right_values))
 
 
+def ensemble_anchor_pairs(
+    fold: FoldResult, *, min_probability: float = 0.50
+) -> tuple[tuple[int, int, float], ...]:
+    """Return parent-specific, high-confidence ensemble base-pair anchors.
+
+    These anchors are derived only from the experimentally supported parent
+    sequence.  They are not asserted to be experimentally mapped IRES motifs;
+    they make explicit which stable features of the parent's thermodynamic
+    ensemble a candidate is asked to retain.
+    """
+    if not 0.0 < min_probability <= 1.0:
+        raise ValueError("min_probability must be in (0, 1]")
+    return tuple(
+        (left, right, probability)
+        for left, right, probability in fold.base_pair_probabilities
+        if probability >= min_probability
+    )
+
+
+def weighted_anchor_retention(
+    anchors: Iterable[tuple[int, int, float]],
+    candidate_pairs: Iterable[tuple[int, int, float]],
+) -> float:
+    """Return weighted retention of parent ensemble anchors in a candidate.
+
+    A value of one means that every parent anchor retains at least its parent
+    pairing probability; zero means no anchor probability remains.  This is a
+    parent-relative ensemble quantity, not a measured activity value.
+    """
+    anchor_values = tuple((int(i), int(j), float(p)) for i, j, p in anchors)
+    if not anchor_values:
+        return float("nan")
+    candidate = {(int(i), int(j)): float(p) for i, j, p in candidate_pairs}
+    denominator = sum(probability for _, _, probability in anchor_values)
+    if denominator <= 0.0:
+        return float("nan")
+    retained = sum(
+        min(probability, max(0.0, candidate.get((left, right), 0.0)))
+        for left, right, probability in anchor_values
+    )
+    return retained / denominator
+
+
 def ires_crosstalk_ratio(result: FoldResult, ires_length: int) -> float:
     """Expected IRES--cargo base pairs divided by IRES-domain length."""
     if not 0 < ires_length < len(result.sequence):
