@@ -10,6 +10,7 @@ from pathlib import Path
 LABELS = {
     "random_mutation": "Random",
     "score_only": "Score-only",
+    "rnafm_fold0_score_only": "Released RNA-FM\nfold-0 score-only",
     "utrlm_score_only": "Released UTR-LM\nscore-only",
     "structure_only": "Structure-only",
     "robust_full_first_pass": "Robust-full",
@@ -26,7 +27,7 @@ def main() -> int:
 
     with args.input.open(newline="", encoding="utf-8") as handle:
         rows = {row["method"]: row for row in csv.DictReader(handle)}
-    colors = ["#7f8c8d", "#d95f02", "#7570b3", "#1b9e77", "#386cb0"]
+    colors = ["#7f8c8d", "#d95f02", "#e7298a", "#7570b3", "#1b9e77", "#386cb0"]
     panels = [
         ("lm_log_likelihood_per_token", "RNA-LM likelihood\n(higher is better)"),
         ("mfe_abs_delta_kcal_mol", "$|\\Delta$MFE| (kcal/mol)\n(lower is better)"),

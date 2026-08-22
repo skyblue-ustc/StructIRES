@@ -199,6 +199,15 @@ mutation pools but showed the largest structural drift ($|\Delta\mathrm{MFE}|=4.
 kcal/mol; pairing-profile $L_1=0.166\pm0.028$). It was therefore retained as a direct external
 score-only baseline rather than silently omitted.
 
+We also ran the exact release-compatible RNA-FM fold-0 classifier as a separate score-only arm.
+The public predictor was first matched to all 4,678 frozen fold-0 native predictions to numerical
+precision before scoring the shared pools. Despite this native reproduction, RNA-FM score-only
+selection showed substantial structural drift ($|\Delta\mathrm{MFE}|=3.899\pm1.100$ kcal/mol;
+pairing-profile $L_1=0.161\pm0.026$) and a held-out direct-RNA proxy of 0.419, indistinguishable
+from random mutation (0.419). Robust-full exceeded this arm by 0.0142 (95\% bootstrap CI
+0.0059--0.0238) across the 30 matched parent-by-run units. Fold 0 was fixed for release
+compatibility before this comparison and was not selected using direct-RNA labels.
+
 As a deliberately independent check, we fitted a low-capacity three-seed hashed 3--6-mer proxy
 after excluding every S3-provenance record, then evaluated it once on the 222 held-out S3 direct-RNA
 records (AUC 0.592; AUPR 0.497). This proxy was not used during mutation-pool generation or selection.
@@ -218,7 +227,7 @@ necessary before any functional claim.
   \centering
   \includegraphics[width=0.92\textwidth]{figures/fig5_seeded_design.pdf}
   \caption{Matched first-pass seeded design. All arms select from the same 512-candidate pool for
-  every parent and random seed. The two score-only arms (local RNA-LM and released UTR-LM) display
+  every parent and random seed. The three score-only arms (local RNA-LM, released RNA-FM and released UTR-LM) display
   substantially larger structural drift than robust-full; robust-full retains stronger energy and
   ensemble preservation while avoiding the full plausibility loss of structure-only selection.
   Error bars are sample SD across 30 parent-by-run units. Neither score is an activity measurement.}
