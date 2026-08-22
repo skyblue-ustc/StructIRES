@@ -385,3 +385,24 @@ model is trained from a documented architecture.
   It is a provenance-locked visual explanation, not a functional validation.
 - [x] Recompiled the venue-neutral PDF after the visual update; `paper/build/main.pdf` is the
   current reviewed artifact.
+
+## StructIRES classifier milestone (started 2026-08-23)
+
+- [x] Defined the validation-clean classifier protocol and model ablations in
+  `docs/STRUCTIRES_EXPERIMENT_PLAN_2026-08-23.md`.  The formal development protocol is the existing
+  length-174 90%-identity cluster split; validation AUPR selects checkpoints and the test partition
+  is not used for selection.
+- [x] Built a label-free, position-aware ViennaRNA structural cache for exactly the 44,641 records
+  in that split: `structires_position_profiles_hamming90_len174_v1_20260823.npz` (44,641 x 174 x 4).
+  Channels are ensemble pairing probability, MFE paired state, centroid paired state and normalized
+  position.  The companion manifest pins the source dataset and assignment SHA-256 values.
+- [x] Audited the local RNA-FM classifier implementation against the released upstream
+  `IRES_RNAFM.py`: upstream mean-pools biological token embeddings (excluding BOS/EOS/padding).
+  An earlier three-epoch frozen-CLS smoke run (`structires_rnafm_sequence_only_hamming90_smoke_v1_20260823`)
+  had strict-test AUPR 0.1896 and is retained only as a failed pipeline smoke, not a result.
+  A last-two-layer CLS pilot was deliberately terminated after the same audit; its log remains
+  preserved at `logs/structires_rnafm_last2_pilot_v1_20260823.log`.
+- [ ] Running: upstream-aligned RNA-FM mean-pooling, last-two-layer sequence-only pilot
+  (`structires_rnafm_mean_last2_pilot_v1_20260823`) and three-seed position-profile-only control
+  (`structires_profile_only_hamming90_v1_20260823`).  Neither is reportable until the full run
+  manifests and held-out predictions are written.
