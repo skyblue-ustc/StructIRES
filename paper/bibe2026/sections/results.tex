@@ -74,6 +74,31 @@ Method & Risk & $|\Delta$MFE| & Pairing $L_1$ & Anchors \\
 \end{tabular}}
 \end{table}
 
+\subsection{A matched structural case makes preservation explicit}
+Figure~\ref{fig:structure-case} compares the deterministic rank-1 IAPV
+candidates selected from frozen pool 42. The score-only candidate has a
+slightly higher IRES-LM probability (0.976 versus 0.963), but $|\Delta
+\mathrm{MFE}|=3.70$ kcal/mol and all-anchor retention of 0.682. In contrast,
+the \textsc{StructIRES-Rank} candidate has zero MFE deviation and 1.000
+all-anchor retention. To maintain print-scale readability, the visual overlay
+uses the 16 highest-probability parent anchors; the numerical retention values
+use all 64 parent anchors. This is a representative mechanism illustration,
+not an activity measurement or a claim about experimentally mapped IRES motifs.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.98\textwidth]{figures/fig3_iapv_structure_preservation.pdf}
+  \caption{IAPV secondary-structure preservation case. Parent, score-only,
+  and \textsc{StructIRES-Rank} rank-1 candidates are selected from the same
+  frozen mutation pool. Teal outlines mark retained parent-derived high-
+  confidence ensemble anchors; dashed orange lines and crosses mark reduced
+  anchors; red nodes are edits. The display uses the top 16 parent anchors by
+  ensemble probability, while reported retention uses all 64. MFE layouts are
+  predicted with ViennaRNA and should not be interpreted as experimentally
+  mapped functional IRES structures.}
+  \label{fig:structure-case}
+\end{figure*}
+
 \subsection{Assay shift motivates constrained rather than score-only design}
 Released RNA-FM and UTR-LM checkpoint reruns recover their native benchmark
 summaries, confirming that the published classifiers are meaningful baseline

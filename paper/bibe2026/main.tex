@@ -8,6 +8,15 @@
 \usepackage[hidelinks]{hyperref}
 \usepackage{xcolor}
 
+% IEEE centers a page containing only a double-column float by default.  The
+% manuscript includes a deliberately tall structural-comparison figure, so keep
+% such a page top-aligned for normal conference-paper reading order.
+\makeatletter
+\setlength{\@dblfptop}{0pt}
+\setlength{\@dblfpsep}{8pt}
+\setlength{\@dblfpbot}{0pt plus 1fil}
+\makeatother
+
 \begin{document}
 
 \title{StructIRES-Rank: Structure- and Energy-Constrained\

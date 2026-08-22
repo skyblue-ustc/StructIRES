@@ -31,8 +31,11 @@ Current reviewed figure/table contract:
 4. `fig4_checkpoint_stability`: final ten-checkpoint native/transfer heterogeneity audit.
 5. `fig6_structires_ireslm_ablation`: matched five-arm IRES-LM, energy, ensemble, anchor and
    combined-constraint ablation.
-6. `fig7_iapv_secondary_structure`: provenance-locked IAPV parent / score-only / StructIRES
-   ViennaRNA secondary-structure case plus the public MPRA edit-risk guardrail.
+6. `fig7_iapv_secondary_structure`: provenance-locked extended IAPV parent / score-only /
+   StructIRES ViennaRNA secondary-structure case plus the public MPRA edit-risk guardrail.
+7. `bibe2026/figures/fig3_iapv_structure_preservation`: compact main-text IAPV parent /
+   score-only / StructIRES structural-preservation case. It displays the top 16 parent ensemble
+   anchors for print-scale readability; reported quantitative retention remains all-anchor.
 7. `iapv_mpra_guardrail`: IAPV-only public direct-RNA mutational-scan guardrail table.
 
 Tables must identify the assay, split, tuning data, and whether a method is reproduced or copied as
