@@ -102,10 +102,27 @@ def best_f1_threshold(labels: np.ndarray, probability: np.ndarray) -> float:
 
 
 def metric_row(labels: np.ndarray, probability: np.ndarray, threshold: float) -> dict[str, float]:
-    from sklearn.metrics import average_precision_score, f1_score, matthews_corrcoef, roc_auc_score
+    from sklearn.metrics import accuracy_score, average_precision_score, f1_score, matthews_corrcoef, roc_auc_score
     prediction = probability >= threshold
     negatives = labels == 0
-    return {"auc": float(roc_auc_score(labels, probability)), "aupr": float(average_precision_score(labels, probability)), "f1": float(f1_score(labels, prediction, zero_division=0)), "mcc": float(matthews_corrcoef(labels, prediction)), "sensitivity": float((prediction[labels == 1]).mean()), "specificity": float((~prediction[negatives]).mean()), "threshold": float(threshold)}
+    ece = 0.0
+    for low, high in zip(np.linspace(0.0, .9, 10), np.linspace(.1, 1.0, 10)):
+        in_bin = (probability >= low) & ((probability <= high) if high == 1.0 else (probability < high))
+        if in_bin.any(): ece += float(in_bin.mean() * abs(probability[in_bin].mean() - labels[in_bin].mean()))
+    return {"auc": float(roc_auc_score(labels, probability)), "aupr": float(average_precision_score(labels, probability)), "f1": float(f1_score(labels, prediction, zero_division=0)), "accuracy": float(accuracy_score(labels, prediction)), "mcc": float(matthews_corrcoef(labels, prediction)), "sensitivity": float((prediction[labels == 1]).mean()), "specificity": float((~prediction[negatives]).mean()), "ece10": float(ece), "threshold": float(threshold)}
+
+
+def stratified_bootstrap(labels: np.ndarray, probability: np.ndarray, *, seed: int, replicates: int = 1000) -> dict[str, float]:
+    """Post-hoc test uncertainty; it never affects model or threshold selection."""
+    from sklearn.metrics import average_precision_score, roc_auc_score
+    random_state = np.random.default_rng(seed)
+    positive, negative = np.flatnonzero(labels == 1), np.flatnonzero(labels == 0)
+    auc, aupr = np.empty(replicates), np.empty(replicates)
+    for index in range(replicates):
+        sample = np.concatenate((random_state.choice(positive, len(positive), replace=True), random_state.choice(negative, len(negative), replace=True)))
+        auc[index] = roc_auc_score(labels[sample], probability[sample])
+        aupr[index] = average_precision_score(labels[sample], probability[sample])
+    return {"auc_ci_low": float(np.quantile(auc, .025)), "auc_ci_high": float(np.quantile(auc, .975)), "aupr_ci_low": float(np.quantile(aupr, .025)), "aupr_ci_high": float(np.quantile(aupr, .975)), "bootstrap_replicates": replicates}
 
 
 class PositionProfileEncoder(nn.Module):
@@ -254,7 +271,7 @@ def main() -> int:
                 best_state = {key: value.detach().cpu().clone() for key, value in model.state_dict().items()}
         assert best_state is not None; model.load_state_dict(best_state)
         y_test, p_test = run_epoch(model, test_loader, labels, structure, device, criterion, mask_token_id=alphabet.tok_to_idx["<mask>"], mlm_loss_weight=0.0, cls_loss_weight=args.cls_loss_weight)
-        result = {"seed": seed, "best_validation_aupr": best, **metric_row(y_test, p_test, best_threshold)}; all_rows.append(result)
+        result = {"seed": seed, "best_validation_aupr": best, **metric_row(y_test, p_test, best_threshold), **stratified_bootstrap(y_test, p_test, seed=seed)}; all_rows.append(result)
         for record, probability in zip(np.asarray(records, dtype=object)[test], p_test): all_predictions.append({"seed": seed, "sequence_id": record.sequence_id, "label": record.label, "probability": float(probability)})
         args.output_dir.mkdir(parents=True, exist_ok=True); torch.save({"model": best_state, "seed": seed, "variant": args.variant, "best_validation_aupr": best}, args.output_dir / f"best_seed{seed}.pt")
         del model, backbone; torch.cuda.empty_cache()
