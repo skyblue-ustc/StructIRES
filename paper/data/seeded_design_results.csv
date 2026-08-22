@@ -1,5 +1,6 @@
 method,n_parent_run_units,lm_log_likelihood_per_token_mean,mfe_abs_delta_kcal_mol_mean,pairing_profile_l1_mean,mfe_structure_state_identity_mean,lm_log_likelihood_per_token_std,mfe_abs_delta_kcal_mol_std,pairing_profile_l1_std,mfe_structure_state_identity_std,source_run
 random_mutation,30,-1.8052046764,3.2896662623,0.1429755324,0.8284453990,0.1973519564,0.9517922618,0.0262783102,0.0439153540,/9950backfile/lant/data/ires-design-external-runs/seeded_design_matched_summary_v2_20260822
 score_only,30,-1.7740921410,3.2361332652,0.1467087427,0.8272351891,0.2518671286,0.9684566293,0.0416093943,0.0622450949,/9950backfile/lant/data/ires-design-external-runs/seeded_design_matched_summary_v2_20260822
+utrlm_score_only,30,-1.8093305998,4.0830664825,0.1659431297,0.7953120243,0.1900197813,1.3297306899,0.0279323764,0.0480367262,/9950backfile/lant/data/ires-design-external-runs/seeded_design_matched_summary_v4_with_utrlm_20260822
 structure_only,30,-1.7902115457,0.3395332921,0.0343981250,0.9585955332,0.2384187869,0.1203279403,0.0091511951,0.0422650654,/9950backfile/lant/data/ires-design-external-runs/seeded_design_matched_summary_v2_20260822
 robust_full_first_pass,30,-1.7827285900,0.5668666916,0.0481719726,0.9440787740,0.2477636036,0.1939176394,0.0133053053,0.0416798317,/9950backfile/lant/data/ires-design-external-runs/seeded_design_matched_summary_v2_20260822
