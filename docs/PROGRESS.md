@@ -584,6 +584,11 @@ model is trained from a documented architecture.
   The frozen `70/15/15` identity-aware assignment is unchanged.  If this adaptation finds a viable
   validation signal, the selected configuration will be rerun across seeds and tested once only;
   it will not overwrite or be pooled with the native-fold result.
+- [ ] Running the complementary strict structure-only ablation,
+  `structires_rnafm_structure_profile_only_hamming90_dev_s42_v1_20260823`, on the unchanged
+  90\%-identity assignment.  It trains only the profile CNN/classifier on the same label-free
+  ViennaRNA ensemble-pairing/MFE-state/position cache and never evaluates the test split.  This
+  separates an absent structural signal from an unsuccessful fusion optimization.
 - [ ] Running: released checkpoint fold 0 plus zero-initialized structural adapter,
   `structires_release_adapter_fold0_v1_20260823`, on node 56 GPU 1. Epoch 1 validation AUPR is
   0.7019. This is a validation-only trajectory, not a held-out result and not a paper claim.
