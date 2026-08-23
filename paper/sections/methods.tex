@@ -39,7 +39,11 @@ for each edge it concatenates the two contextual RNA-FM residue vectors, their p
 absolute difference, pools a learned edge encoding per sequence, and injects it through a
 zero-initialized gated residual. Validation AUPR selects the epoch and validation F1 selects the
 threshold. We compute all test metrics once from saved probabilities and independently recompute
-them before multi-fold aggregation.
+them before multi-fold aggregation. As a stricter generalization audit, the 174-nt subset is
+partitioned into 90\%-identity connected components before a 70/15/15 train/validation/test split.
+There, a matched full RNA-FM sequence-only arm is compared with a label-free BPP/MFE
+position-profile gate under a configuration fixed using validation only; negative outcomes are
+retained rather than being replaced by a test-selected architecture.
 
 \subsection{Cross-assay audit}
 Models trained on the legacy reporter assay are evaluated without adaptation on normalized

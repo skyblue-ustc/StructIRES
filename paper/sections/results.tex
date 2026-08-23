@@ -50,7 +50,7 @@ independent blind-test estimates; corrected reruns reserve validation data for m
 
 We next trained the author-style RNA-FM topology directly from the public t12 prior, reserving a
 stratified subset of each source-training fold for epoch and threshold selection.  Under this
-validation-clean protocol, 	extsc{StructIRES} adds only a sparse ViennaRNA MFE base-pair encoder
+validation-clean protocol, \textsc{StructIRES} adds only a sparse ViennaRNA MFE base-pair encoder
 and a gated residual to an otherwise matched full RNA-FM fine-tune.  Across three independently
 run native folds (0, 2 and 4), the sequence-only re-train reached AUC/AUPR/F1/MCC of
 $0.770\pm0.005$/$0.600\pm0.018$/$0.521\pm0.016$/$0.426\pm0.012$, whereas the contact-fusion
@@ -66,9 +66,11 @@ achieved AUC/AUPR/F1 of $0.559\pm0.004$/$0.188\pm0.005$/$0.295\pm0.002$.  The pr
 obtained $0.557\pm0.017$/$0.183\pm0.003$/$0.297\pm0.010$.  Thus its small mean F1 change
 (+0.002) was accompanied by lower AUC (-0.002) and AUPR (-0.005), with substantial seed variation.
 We retain this as a negative strict-split ablation rather than claiming that the global
-ViennaRNA-profile gate improves IRES recognition.  Together with the native contact result, this
-shows that structural information must be incorporated as contextual contact information and
-evaluated under a split appropriate to the intended claim.
+ViennaRNA-profile gate improves IRES recognition. A complementary contextual MFE-contact
+development arm also failed to exceed the sequence-only validation control and was stopped before
+any test evaluation. Thus the native-fold contact signal is limited to a controlled legacy
+recognition ablation; neither current structure representation supports a general strict-split
+recognition-improvement claim.
 
 We also ran the released IRESfinder classifier over all 46,774 unique sequences using its original
 Perl framed-k-mer extractor, released training data and feature indices, with only the Python 2.7

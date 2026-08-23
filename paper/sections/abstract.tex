@@ -9,7 +9,9 @@ validation-clean recognition with constrained full-length candidate ranking. Sta
 RNA-FM initialization, its recognition model pools contextual residue pairs over label-free
 ViennaRNA MFE contacts through a gated residual. Across three matched native folds, this contact
 fusion changes mean AUC/AUPR/F1 from 0.770/0.600/0.521 to 0.774/0.601/0.533 relative to an
-otherwise identical sequence-only re-train; calibration requires further improvement. For
+otherwise identical sequence-only re-train; this legacy-fold signal does not establish strict
+identity-aware generalization, where a profile-fusion ablation did not improve ranking.
+Calibration also requires further improvement. For
 full-length ranking, \textsc{StructIRES-Rank} combines the released IRES-LM ensemble with
 parent-relative energy, global ensemble pairing, and high-confidence parent-anchor preservation.
 Across three frozen 512-candidate mutation pools for each of ten experimentally supported seeds,
