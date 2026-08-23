@@ -152,6 +152,38 @@
       }
     },
     {
+      "result_id": "strict_retrain_sequence_3seed",
+      "model": "RNA-FM sequence-only",
+      "result_status": "strict_identity_heldout",
+      "evaluation_regime": "90% identity-aware held-out, 3 seeds",
+      "assay": "legacy reporter",
+      "note": "Public RNA-FM fully fine-tuned for three epochs; architecture and schedule locked from a validation-only development comparison; three seeds evaluated once on the untouched cluster-disjoint test set.",
+      "source": {
+        "run_id": "structires_rnafm_strict_locked_comparison_3seed_v2_20260823",
+        "metric_file": "aggregate_metrics.csv",
+        "aggregation": "first",
+        "selector": {"model": "rnafm_sequence_only"},
+        "metric_mapping": {"auc": "auc_mean", "aupr": "aupr_mean", "f1": "f1_mean", "accuracy": "accuracy_mean", "sensitivity": "sensitivity_mean", "specificity": "specificity_mean", "mcc": "mcc_mean", "ece10": "ece10_mean"},
+        "std_mapping": {"auc": "auc_std", "aupr": "aupr_std", "f1": "f1_std", "accuracy": "accuracy_std", "sensitivity": "sensitivity_std", "specificity": "specificity_std", "mcc": "mcc_std", "ece10": "ece10_std"}
+      }
+    },
+    {
+      "result_id": "strict_retrain_structires_profile_3seed",
+      "model": "StructIRES BPP/MFE profile fusion",
+      "result_status": "strict_identity_heldout",
+      "evaluation_regime": "90% identity-aware held-out, 3 seeds",
+      "assay": "legacy reporter",
+      "note": "Matched full RNA-FM training with a label-free ViennaRNA BPP/MFE position-profile encoder and learned gate. Strict aggregate shows no AUC/AUPR gain over the sequence-only arm; retained as an explicit negative ablation.",
+      "source": {
+        "run_id": "structires_rnafm_strict_locked_comparison_3seed_v2_20260823",
+        "metric_file": "aggregate_metrics.csv",
+        "aggregation": "first",
+        "selector": {"model": "structires_gated_profile"},
+        "metric_mapping": {"auc": "auc_mean", "aupr": "aupr_mean", "f1": "f1_mean", "accuracy": "accuracy_mean", "sensitivity": "sensitivity_mean", "specificity": "specificity_mean", "mcc": "mcc_mean", "ece10": "ece10_mean"},
+        "std_mapping": {"auc": "auc_std", "aupr": "aupr_std", "f1": "f1_std", "accuracy": "accuracy_std", "sensitivity": "sensitivity_std", "specificity": "specificity_std", "mcc": "mcc_std", "ece10": "ece10_std"}
+      }
+    },
+    {
       "result_id": "local_iresfinder_similarity",
       "model": "IRESfinder",
       "result_status": "released_model_rerun",

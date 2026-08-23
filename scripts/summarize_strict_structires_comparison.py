@@ -106,8 +106,8 @@ def main() -> int:
                     if reference.get(key) != manifest.get(key)}
         if mismatch: raise ValueError(f"unmatched locked protocol: {mismatch}")
     for seed in sorted(sequence_by_seed):
-        sequence_index_label = [(row["sample_index"], row["label"]) for row in sequence_by_seed[seed][3]]
-        fusion_index_label = [(row["sample_index"], row["label"]) for row in fusion_by_seed[seed][3]]
+        sequence_index_label = [(row["sequence_id"], row["label"]) for row in sequence_by_seed[seed][3]]
+        fusion_index_label = [(row["sequence_id"], row["label"]) for row in fusion_by_seed[seed][3]]
         if sequence_index_label != fusion_index_label:
             raise ValueError(f"test prediction ledgers are not paired for seed {seed}")
     args.output_dir.mkdir(parents=True)
@@ -123,6 +123,13 @@ def main() -> int:
                "gated_profile": {metric: mean_std([fusion_by_seed[seed][2][metric] for seed in sorted(fusion_by_seed)]) for metric in METRICS},
                "gated_minus_sequence": {metric: mean_std([fusion_by_seed[seed][2][metric] - sequence_by_seed[seed][2][metric] for seed in sorted(sequence_by_seed)]) for metric in METRICS}}
     (args.output_dir / "summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    aggregate_fields = ("model", "n_seeds", *(f"{metric}_{suffix}" for metric in METRICS for suffix in ("mean", "std")))
+    with (args.output_dir / "aggregate_metrics.csv").open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=aggregate_fields); writer.writeheader()
+        for model, key in (("rnafm_sequence_only", "sequence_only"), ("structires_gated_profile", "gated_profile")):
+            writer.writerow({"model": model, "n_seeds": len(sequence_by_seed),
+                             **{f"{metric}_{suffix}": summary[key][metric][suffix]
+                                for metric in METRICS for suffix in ("mean", "std")}})
     manifest = {"schema_version": 1, "experiment": "strict_structires_locked_seed_summary", "seeds": summary["seeds"],
                 "shared_protocol": {key: reference[key] for key in invariant},
                 "input_run_manifest_sha256": {"sequence_only": [sha256(path / "run_manifest.json") for path in args.sequence_dirs], "gated_profile": [sha256(path / "run_manifest.json") for path in args.fusion_dirs]},

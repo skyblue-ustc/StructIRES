@@ -59,6 +59,17 @@ The foldwise mean changes are therefore +0.004 AUC, +0.002 AUPR, +0.013 F1 and +
 increased by 0.043.  These overlapping native holdouts provide a controlled recognition ablation,
 not a claim of independent biological validation or calibration improvement.
 
+We next locked a length-174, 90\% identity-component-disjoint 70/15/15 split before final testing.
+The full RNA-FM and BPP/MFE profile gate were selected only from a seed-42 validation comparison;
+we then evaluated three fixed seeds once on the untouched test partition.  The sequence-only model
+achieved AUC/AUPR/F1 of $0.559\pm0.004$/$0.188\pm0.005$/$0.295\pm0.002$.  The profile fusion
+obtained $0.557\pm0.017$/$0.183\pm0.003$/$0.297\pm0.010$.  Thus its small mean F1 change
+(+0.002) was accompanied by lower AUC (-0.002) and AUPR (-0.005), with substantial seed variation.
+We retain this as a negative strict-split ablation rather than claiming that the global
+ViennaRNA-profile gate improves IRES recognition.  Together with the native contact result, this
+shows that structural information must be incorporated as contextual contact information and
+evaluated under a split appropriate to the intended claim.
+
 We also ran the released IRESfinder classifier over all 46,774 unique sequences using its original
 Perl framed-k-mer extractor, released training data and feature indices, with only the Python 2.7
 orchestration ported to the current scikit-learn API. Evaluation on the same ten repeated native

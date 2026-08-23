@@ -576,23 +576,33 @@ model is trained from a documented architecture.
   `structires_rnafm_sequence_only_hamming90_last2_dev_s42_v1_20260823` and
   `structires_rnafm_gated_profile_hamming90_last2_dev_s42_v1_20260823` have no test evaluation.
   This is evidence of insufficient adaptation capacity, not evidence against structural features.
-- [ ] Running the next strict development pair with the entire public RNA-FM t12 model trainable,
+- [x] Completed the strict development pair with the entire public RNA-FM t12 model trainable,
   seed 42, three epochs, validation-only selection and no test evaluation:
   `structires_rnafm_sequence_only_hamming90_full_dev_s42_v1_20260823` is the matched sequence
   control; `structires_rnafm_gated_profile_hamming90_full_dev_s42_v1_20260823` adds the existing
   label-free ViennaRNA ensemble-pairing/MFE-state/position profile cache and gated profile encoder.
   The frozen `70/15/15` identity-aware assignment is unchanged.  If this adaptation finds a viable
-  validation signal, the selected configuration will be rerun across seeds and tested once only;
-  it will not overwrite or be pooled with the native-fold result.
-- [ ] **Configuration locked for final strict testing.**  On the shared seed-42 validation split,
+  validation signal, after which the predeclared configuration was locked and rerun across seeds.
+  These development artifacts do not overwrite or pool with the native-fold result.
+- [x] **Completed locked final strict testing.**  On the shared seed-42 validation split,
   full gated profile fusion reached AUPR 0.25140 / AUROC 0.59707 / F1 0.31250 at epoch 3, versus
   the matched sequence-only best validation AUPR 0.22645 / AUROC 0.57774 / F1 0.30228 at epoch 2.
   The final comparison fixes three epochs for both arms so their optimization budget is identical.
-  Six new runs now evaluate the untouched test partition once: sequence-only seeds 42/43/44 in
+  Six runs evaluated the untouched test partition once: sequence-only seeds 42/43/44 in
   `structires_rnafm_sequence_only_hamming90_full_locked_test_s{42,43,44}_v1_20260823`, and gated
   profile fusion seeds 42/43/44 in
   `structires_rnafm_gated_profile_hamming90_full_locked_test_s{42,43,44}_v1_20260823`.  No result
-  from these test runs will be used to choose another architecture or training schedule.
+  from these test runs was used to choose another architecture or training schedule.  The
+  prediction-ledger verifier `scripts/summarize_strict_structires_comparison.py` independently
+  recomputed every metric from the six test prediction files and confirmed paired sequence IDs and
+  labels.  The final strict means are sequence-only AUC/AUPR/F1/MCC/ECE =
+  0.55926$\pm$0.00417/0.18788$\pm$0.00505/0.29457$\pm$0.00179/
+  0.07016$\pm$0.00511/0.16458$\pm$0.00000 and gated profile fusion =
+  0.55677$\pm$0.01652/0.18290$\pm$0.00334/0.29681$\pm$0.00987/
+  0.07405$\pm$0.02953/0.16458$\pm$0.00000.  Fusion minus sequence is -0.00249 AUC,
+  -0.00498 AUPR, +0.00224 F1 and +0.00389 MCC.  It is therefore an explicit negative strict
+  ablation, not a recognition-improvement claim.  Immutable summary:
+  `structires_rnafm_strict_locked_comparison_3seed_v2_20260823`.
 - [x] Stopped the complementary strict structure-only ablation after its first validation epoch.
   `structires_rnafm_structure_profile_only_hamming90_dev_s42_v1_20260823` reached AUPR 0.14883,
   below the 0.1658 validation positive fraction, with AUROC 0.45720.  It has no test evaluation;
