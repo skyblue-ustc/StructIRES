@@ -608,6 +608,19 @@ model is trained from a documented architecture.
   below the 0.1658 validation positive fraction, with AUROC 0.45720.  It has no test evaluation;
   the preserved log shows that this fixed global profile CNN does not carry usable standalone
   signal under the strict split.  This does not invalidate an RNA-FM-contextual contact encoder.
+- [x] Completed the complementary strict RNA-FM-contextual MFE-contact development ablation in
+  `structires_rnafm_gated_contact_hamming90_full_dev_s42_v1_20260823`.  It uses an immutable
+  44,641-record, label-free MFE base-pair cache aligned to the locked assignment
+  (`structires_strict_mfe_pair_contacts_hamming90_len174_v2_20260823`), pools contextual
+  RNA-FM representations across predicted paired positions, and adds a zero-initialized gated
+  residual.  The full t12 backbone, three-epoch budget, seed and validation-only selection match
+  the strict sequence-only development control.  Its validation AUPR/AUROC/F1 is
+  0.16734/0.52766/0.28700 at epoch 1, then declines to 0.16087/0.49806/0.28321 and
+  0.15761/0.48804/0.28275 at epochs 2 and 3.  The best AUPR is far below the matched
+  sequence-only development best (0.22645), so no test records were constructed or evaluated and
+  no multi-seed expansion was launched.  This is a preserved strict negative ablation, not a
+  paper result.  An earlier `...contacts...v1...` cache included all 46,774 canonical records and
+  was never used by any training run; v2 is the only strict-aligned cache.
 - [ ] Running: released checkpoint fold 0 plus zero-initialized structural adapter,
   `structires_release_adapter_fold0_v1_20260823`, on node 56 GPU 1. Epoch 1 validation AUPR is
   0.7019. This is a validation-only trajectory, not a held-out result and not a paper claim.
