@@ -1,0 +1,66 @@
+\section{Method}
+
+\subsection{Assay-aware evidence separation}
+We retain source study, assay context, construct, cell type, sequence length,
+and evidence level for every public record. Legacy DNA/lentiviral reporter
+labels, circRNA-plasmid measurements, and direct-RNA measurements are not
+pooled into one target. The released RNA-FM and UTR-LM classifiers form
+IRES-LM, defined as the arithmetic mean probability over all ten released
+checkpoints of each backbone. Direct-RNA labels are not used for checkpoint
+selection, pool construction, ranking, or hyperparameter selection.
+
+\subsection{Structure-aware recognition component}
+The StructIRES classifier starts from the public RNA-FM t12 checkpoint and
+fully fine-tunes the author-style IRES classifier head. Both arms use
+class-weighted IRES cross entropy and a 15 percent masked-LM auxiliary loss.
+The sequence-only arm leaves this topology unchanged. The contact-fusion arm
+obtains label-free ViennaRNA MFE base-pair edges; for each predicted pair it
+encodes the two contextual RNA-FM vectors, their elementwise product and their
+absolute difference. The pooled edge representation enters a zero-initialized
+gated residual, so the contact path initially reduces exactly to the
+sequence-only classifier. For every native fold, an internal stratified
+validation subset selects epoch by AUPR and threshold by F1; the
+author-provided test records are then evaluated once. A separate
+90-percent-identity-component-disjoint 70/15/15 split uses validation-only
+configuration selection and is reported as a robustness analysis rather than
+pooled with the native benchmark.
+
+\subsection{Matched seeded optimization}
+We start with ten experimentally supported full-length viral IRES parents.
+For each parent, three deterministic mutation pools (seeds 42, 43, and 44)
+contain 512 unique length-preserving substitution variants, each with at most
+3\% edited positions. Every selection arm retains 50 candidates from the
+same parent-specific pool. This fixes initial population, proposal set, edit
+limit, and scorer-query budget across alternatives.
+
+For a variant $x$ and parent $p$, lower is preferred for absolute MFE deviation
+$|\Delta \mathrm{MFE}(x,p)|$ and global base-pairing-probability-profile
+distance $D_{\mathrm{BPP}}(x,p)$. We also maximize weighted retention
+$R_{\mathrm{anchor}}(x,p)$ of parent base pairs having ViennaRNA ensemble
+probability at least 0.5 \cite{lorenz2011viennarna}. The proposal score in the
+completed runs is the released IRES-LM ensemble. The classifier is not
+retroactively inserted into these frozen candidate pools; a prospective
+matched rerun may use it only with a newly frozen pool and the same budget.
+These are predicted thermodynamic features, not experimentally mapped IRES
+motifs. The combined method ranks the
+IRES-LM score and each structural quantity equally:
+\begin{equation}
+\operatorname{Rank}_{\mathrm{StructIRES}}(x)=
+\frac{1}{4}\left[r_s(x)+r_e(x)+r_b(x)+r_a(x)\right],
+\end{equation}
+where $r_s$, $r_e$, $r_b$, and $r_a$ are within-pool ranks of sequence score,
+energy preservation, pairing-profile preservation, and anchor retention.
+
+\subsection{Independent evaluation and IAPV guardrail}
+For the primary ten-parent study, a three-seed character 3--6-mer logistic
+ensemble is trained after removing all S3-provenance direct-RNA records and
+evaluated once on 222 held-out S3 records. It is a post-selection computational
+proxy, not a candidate activity assay. We report parent-by-run means over 30
+paired units and bootstrap intervals for differences from score-only selection.
+
+For a separate IAPV case study, public direct-RNA mutational-scan tiles
+\cite{may2026irestrappr} define a per-position edit-risk map: the median
+non-negative measured translation reduction among overlapping observed tiles.
+Uncovered positions receive the median observed risk. Adding this term is an
+IAPV-specific conservation guardrail; it does not measure any newly designed
+candidate.

@@ -1,0 +1,50 @@
+\section{Introduction}
+
+Internal ribosome entry sites (IRESes) enable cap-independent translation and
+are useful regulatory components in RNA engineering. Their function is not
+defined by a short motif alone: sequence context, alternative RNA structures,
+host factors, cargo, and assay architecture can alter the measured output.
+Consequently, a design procedure that only maximizes an IRES-recognition score
+can produce candidates whose apparent improvement is disconnected from the
+structural state of an experimentally supported parent.
+
+Recent deep-learning work established IRES identification and evolutionary
+sequence optimization baselines using 46,774 labelled sequences
+\cite{chu2026iresai}. The dominant source, however, is a 174-nt
+DNA/lentiviral reporter library \cite{weingarten2016ires}; it is not identical
+to full-length or direct-RNA settings. We reproduced the released RNA-FM and
+UTR-LM classifier summaries on their native repeated holdouts
+(AUROC/AUPR/F1: $0.778/0.614/0.510$ and $0.765/0.581/0.493$,
+respectively), but an all-checkpoint RNA-FM ensemble reached only AUROC 0.600
+on a zero-shot direct-RNA evaluation. This motivates treating a historical
+recognition model as a proposal signal rather than a complete activity oracle.
+
+We present \textsc{StructIRES}, a two-stage framework linking structure-aware
+IRES recognition with constrained full-length IRES optimization. Its
+\textsc{StructIRES-Classifier} is a validation-clean RNA-FM re-training with
+an MFE-contact encoder and gated residual; \textsc{StructIRES-Rank} is the
+full-length constraint-guided selection component. The framework makes four
+contributions:
+\begin{enumerate}
+  \item It tests whether an RNA foundation-model sequence prior is improved by
+  contextual MFE base-pair features under matched validation-clean native
+  folds, while reporting a separate identity-aware robustness audit.
+  \item It combines sequence plausibility with parent-relative energy,
+  thermodynamic ensemble, and ensemble-anchor preservation during design.
+  \item It evaluates design alternatives on identical frozen candidate pools and
+  selection budgets, isolating the value of each constraint.
+  \item It uses direct-RNA evidence only as an explicitly assay-qualified
+  evaluator or a parent-specific mutational guardrail, never as an inferred
+  activity label for newly generated candidates.
+\end{enumerate}
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.96\textwidth]{figures/fig1_overview.pdf}
+  \caption{Overview of \textsc{StructIRES-Rank}. A released IRES-LM ensemble
+  proposes sequence plausibility; three parent-relative thermodynamic terms
+  rank candidates from a shared mutation pool. Direct-RNA resources are held
+  out for computational evaluation or used only as an IAPV-specific edit-risk
+  guardrail.}
+  \label{fig:overview}
+\end{figure*}

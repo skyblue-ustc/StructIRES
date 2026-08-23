@@ -1,0 +1,17 @@
+\begin{table}[t]
+\centering
+\caption{IAPV-only direct-RNA MPRA mutational-scan guardrail. Both arms select 50 candidates from
+each of the same three 512-candidate pools. MPRA risk is the mean parent-position risk induced by
+the selected edits; lower is preferred. It is derived from observed IAPV mutation tiles and is not
+a new-candidate activity measurement.}
+\label{tab:iapv-mpra-guardrail}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lcccc}
+\toprule
+Method & MPRA edit risk & $|\Delta$MFE| & Pairing $L_1$ & Anchor retention \\
+\midrule
+\textsc{StructIRES-Rank} & $2.438\pm0.174$ & $0.641\pm0.069$ & $0.032\pm0.006$ & $0.970\pm0.011$ \\
++ IAPV MPRA guardrail & $1.782\pm0.087$ & $0.887\pm0.131$ & $0.036\pm0.004$ & $0.963\pm0.008$ \\
+\bottomrule
+\end{tabular}}
+\end{table}

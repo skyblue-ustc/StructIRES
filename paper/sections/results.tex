@@ -1,0 +1,293 @@
+\section{Results}
+
+\subsection{Dataset composition reveals a strong assay and length imbalance}
+The assembled IRES-AI identification set contains 46,774 unique sequences, of which 9,172 are
+positive and 37,602 are negative. Of these, 44,641 sequences are exactly 174 nt.
+Figure~\ref{fig:structires-classifier} shows the validation-clean classifier protocol used for
+the controlled structure-fusion comparison.
+
+The released long-form split is not a mutually exclusive ten-fold partition: 16,176 sequences
+never occur in a test set and 12,294 occur in two or more test sets. We therefore separate external
+published values from a deterministic reconstructed-fold pilot and reserve similarity-cluster
+evaluation for the locked benchmark.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.98\textwidth]{figures/fig1_structires_classifier.pdf}
+  \caption{Validation-clean \textsc{StructIRES} classifier. Public RNA-FM t12 initialization is
+  jointly fine-tuned with the author-style IRES objective. The structure arm pools contextual
+  residue-pair features over label-free ViennaRNA MFE base-pair contacts and contributes through a
+  zero-initialized gated residual. Epoch and threshold selection use only a source-training
+  validation subset; the native test fold is evaluated once.}
+  \label{fig:structires-classifier}
+\end{figure*}
+
+\input{tables/data_sources}
+
+\subsection{Identification benchmark}
+On reconstructed nested folds, composition features already achieved AUC $0.710\pm0.009$ and AUPR
+$0.405\pm0.015$, while hashed 3--6-mer features achieved AUC $0.723\pm0.011$ and AUPR
+$0.452\pm0.016$. These are shortcut-control pilots rather than claims against published models.
+Published reference values and project runs remain visibly separated in
+Table~\ref{tab:prediction} and Figure~\ref{fig:prediction-pilot}.
+
+We independently recomputed the released ten-fold CSV aggregates and recovered RNA-FM
+AUC/AUPR/F1 of 0.779/0.615/0.506 and UTR-LM values of 0.765/0.581/0.493. We then executed all ten
+released UTR-LM checkpoints on their native test folds and obtained 0.764938/0.580823/0.492983;
+the maximum fold-level absolute deviation from the released CSV was $3.74\times10^{-6}$. The first
+verified released RNA-FM checkpoint was then rerun on its 4,678-record native test fold, giving
+AUC 0.777114, AUPR 0.594668 and F1 0.524311. After size, SHA-256 and deserialization checks, we
+executed all ten released checkpoints separately. Their final repeated-holdout mean and sample
+standard deviation were 0.778420$\pm$0.009106, 0.614020$\pm$0.013919 and
+0.509881$\pm$0.022686 for AUC, AUPR and F1, respectively. Accuracy, sensitivity, specificity,
+MCC and ECE were 0.771612$\pm$0.040410, 0.600109$\pm$0.054448,
+0.813427$\pm$0.062923, 0.377099$\pm$0.036561 and 0.219028$\pm$0.048236. These
+standard deviations are descriptive because the released test holdouts overlap. Source inspection
+further showed that both
+released training scripts evaluate the test set after every epoch and select the saved checkpoint
+using test AUPR. We therefore label these values as released-protocol references rather than
+independent blind-test estimates; corrected reruns reserve validation data for model selection.
+
+We next trained the author-style RNA-FM topology directly from the public t12 prior, reserving a
+stratified subset of each source-training fold for epoch and threshold selection.  Under this
+validation-clean protocol, \textsc{StructIRES} adds only a sparse ViennaRNA MFE base-pair encoder
+and a gated residual to an otherwise matched full RNA-FM fine-tune.  Across three independently
+run native folds (0, 2 and 4), the sequence-only re-train reached AUC/AUPR/F1/MCC of
+$0.770\pm0.005$/$0.600\pm0.018$/$0.521\pm0.016$/$0.426\pm0.012$, whereas the contact-fusion
+model reached $0.774\pm0.007$/$0.601\pm0.022$/$0.533\pm0.024$/$0.439\pm0.047$.
+The foldwise mean changes are therefore +0.004 AUC, +0.002 AUPR, +0.013 F1 and +0.013 MCC; ECE
+increased by 0.043.  These overlapping native holdouts provide a controlled recognition ablation,
+not a claim of independent biological validation or calibration improvement.
+
+We next locked a length-174, 90\% identity-component-disjoint 70/15/15 split before final testing.
+The full RNA-FM and BPP/MFE profile gate were selected only from a seed-42 validation comparison;
+we then evaluated three fixed seeds once on the untouched test partition.  The sequence-only model
+achieved AUC/AUPR/F1 of $0.559\pm0.004$/$0.188\pm0.005$/$0.295\pm0.002$.  The profile fusion
+obtained $0.557\pm0.017$/$0.183\pm0.003$/$0.297\pm0.010$.  Thus its small mean F1 change
+(+0.002) was accompanied by lower AUC (-0.002) and AUPR (-0.005), with substantial seed variation.
+We retain this as a negative strict-split ablation rather than claiming that the global
+ViennaRNA-profile gate improves IRES recognition. A complementary contextual MFE-contact
+development arm also failed to exceed the sequence-only validation control and was stopped before
+any test evaluation. Thus the native-fold contact signal is limited to a controlled legacy
+recognition ablation; neither current structure representation supports a general strict-split
+recognition-improvement claim.
+
+We also ran the released IRESfinder classifier over all 46,774 unique sequences using its original
+Perl framed-k-mer extractor, released training data and feature indices, with only the Python 2.7
+orchestration ported to the current scikit-learn API. Evaluation on the same ten repeated native
+test folds yielded AUC/AUPR/F1 of 0.605074/0.273844/0.346292, reproducing the published rounded
+values of 0.61/0.27/0.35. The author-provided 14-sequence example retained all labels and differed
+in probability by at most 0.000190 from the released output.
+
+An exact sequence audit showed that 695 of the 722 released IRESfinder training sequences occurred
+in the IRES-LM benchmark, all from the 55k source, with 100\% label agreement. Removing these records
+from every native test fold reduced mean AUC/AUPR/F1 from 0.605/0.274/0.346 to
+0.602/0.267/0.337. The frozen component-disjoint test contained 55 exact training overlaps;
+removing them yielded 0.602/0.197/0.309 versus 0.599/0.199/0.313 on the full cluster test. We
+therefore disclose the contamination and report both views rather than treating IRESfinder as a
+fully independent external model.
+
+The released DeepCIP data provide a complementary same-sequence assay audit. Its three balanced
+training subsets each contain 7,898 sequences and share the same 3,949 positives while subsampling
+the negative pool; the balanced 1,164-sequence fixed test set has no exact overlap with any of the
+three training subsets. However, 1,089 test sequences (93.6\%) occur exactly in the IRES-LM 55k
+source. The DeepCIP circRNA-screen label and IRES-LM legacy label agree for only 46.7\% of these
+identical sequences. Thus the released DeepCIP test is internally train-disjoint, yet it cannot be
+treated as an interchangeable label view of the legacy benchmark.
+
+Generalization weakened when an entire source was withheld. Training only on the 44,634-sequence
+55k reporter library and testing on all 276 \texttt{IRESite\_exp} records reduced composition AUC to 0.600
+(95\% bootstrap CI 0.533--0.668) and hashed k-mer AUC to 0.601 (0.537--0.664). AUPR was 0.694 and
+0.681, respectively, against a held-out positive prevalence of 0.565. Thresholds selected only
+within the 55k source gave low recall (0.199 and 0.179) and F1 (0.316 and 0.293). Thus even before
+sequence-cluster evaluation, a complete source holdout exposes materially weaker portability than
+the reconstructed mixed-source folds.
+
+The exact 174-nt similarity graph contained 85,039 edges at $\geq90\%$ identity and 32,538
+connected components; the two largest contained 3,318 and 3,202 sequences. Assigning complete
+components yielded 31,249 training, 6,696 validation, and 6,696 test sequences with zero identity
+edges crossing a split. On this frozen test set, composition achieved AUC 0.634 (95\% bootstrap CI
+0.616--0.650), AUPR 0.230, and F1 0.336. The three-seed k-mer ensemble fell from its reconstructed
+mixed-source AUC/AUPR of 0.723/0.452 to 0.578 (0.559--0.595)/0.250 (0.229--0.273), with F1 0.252.
+The reversal of the apparent k-mer advantage indicates that near-neighbour structure materially
+inflated the mixed-source random-fold estimate.
+
+Applying the released IRESfinder model without refitting to the same component-disjoint test set
+gave AUC 0.599, AUPR 0.199 and F1 0.313. Its AUC changed only modestly from the released repeated-fold
+rerun, although its ranking remained below the composition control and its AUPR was only 0.035 above
+the cluster-test positive prevalence of 0.165. This result separates robustness to the particular
+near-neighbour split from strong absolute discrimination.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.98\textwidth]{figures/fig2_prediction_pilot.pdf}
+  \caption{Dataset shortcut audit and identification controls. In panel b, bars and error bars
+  show repeated-fold mean and standard deviation (reconstructed project folds for the two controls
+  and released native folds for IRESfinder); diamonds show the frozen 90\%-identity
+  cluster-disjoint 174-nt test result. Project thresholds are chosen only on validation data;
+  IRESfinder uses its released threshold.}
+  \label{fig:prediction-pilot}
+\end{figure*}
+
+\input{tables/prediction}
+
+Table~\ref{tab:unified-results} provides the full metric panel while preserving the distinction
+between published references, local official-split reruns, similarity-aware evaluation and
+cross-assay transfer. Its local rows are generated from explicit immutable run directories and
+include hashes of the metric file and run manifest in the accompanying CSV ledger.
+
+\input{tables/unified_results}
+
+\subsection{Cross-assay transfer}
+The normalized IRES-TrAPPr supplement contained 2,300 unique sequences, including 111 with an
+unambiguous active call and 2,068 with an unambiguous inactive call. Only one sequence exactly
+matched the legacy benchmark. Nevertheless, 2,048 sequences had a nearest legacy sequence at
+$\geq90\%$ local-alignment identity and $\geq80\%$ coverage, and a 174-nt legacy fragment was
+exactly contained in 1,405 direct-RNA constructs. This apparent overlap did not imply functional
+agreement: the nearest legacy label agreed with the direct-RNA call for only 28.2\% of labelled
+sequences, and agreement among exact-containment cases was 21.1\%.
+
+Both frozen shortcut controls lost substantial discrimination and calibration under assay transfer
+(Table~\ref{tab:assay-shift}; Figure~\ref{fig:assay-shift}). Composition features yielded AUC
+0.579 and AUPR 0.058 on all 2,179 labelled direct-RNA sequences, only slightly above the 0.051
+positive prevalence. The hashed 3--6-mer model reversed below random ranking (AUC 0.368; AUPR
+0.037), despite reaching AUC 0.723 and AUPR 0.452 on reconstructed legacy folds. Restricting the
+analysis to high-similarity sequences did not rescue transfer: composition fell to AUC 0.500 and
+the k-mer model to 0.274. These results support treating the historical reporter score as
+assay-specific rather than as a portable activity oracle.
+
+The released IRESfinder model failed under the same zero-shot transfer despite reproducing its
+native benchmark. Across all labelled direct-RNA records it achieved AUC 0.460 (95\% CI
+0.422--0.496), AUPR 0.043 (0.041--0.047) against prevalence 0.051, and F1 0.081 at its released
+0.5 threshold. Its calibration error was 0.518. On the high-similarity subset, AUC decreased to
+0.393. Thus successful software reproduction on the legacy benchmark does not validate a model as
+a direct-RNA activity oracle.
+
+The released RNA-FM fold-0 checkpoint retained modest zero-shot rank signal on the direct-RNA set
+(AUC 0.618, 95\% CI 0.582--0.652), but this did not generalize consistently across equally
+native-performing checkpoints. Across all ten folds, frozen post hoc AUC varied from 0.251 to
+0.821 and pairwise checkpoint rank correlations ranged from only 0.338 to 0.705. The predeclared
+arithmetic-mean ten-checkpoint ensemble reached AUC 0.600 (0.567--0.632) and AUPR 0.058
+(0.054--0.063), against prevalence 0.051. Earlier immutable five-, six-, seven- and
+nine-checkpoint snapshots ranged from AUC 0.432 to 0.602, illustrating that out-of-assay ranking
+is sensitive to checkpoint composition. At the released 0.5 threshold, the final ensemble
+assigned every active record and 99.85\% of inactive records to the positive class, yielding F1
+0.097, specificity 0.001 and ECE 0.906. On the high-similarity subset it reached AUC 0.577 and
+AUPR 0.038. Thus neither the best post hoc fold nor fold 0 is a valid standalone transfer result.
+The final aggregate uses every released checkpoint without selecting a fold, direction or
+threshold on direct-RNA labels.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.99\textwidth]{figures/fig4_checkpoint_stability.pdf}
+  \caption{Released RNA-FM checkpoint stability audit. (a) Each line connects one checkpoint's
+  native-holdout and zero-shot direct-RNA AUROC; the black diamond is the ten-checkpoint arithmetic
+  ensemble. (b) Native AUROC is only weakly associated with direct-RNA AUROC. (c) Pairwise
+  Spearman correlations of direct-RNA predictions show substantial checkpoint heterogeneity. All
+  direct-RNA analyses are post hoc frozen evaluations and are not used for checkpoint selection.}
+  \label{fig:checkpoint-stability}
+\end{figure*}
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.99\textwidth]{figures/fig3_assay_shift.pdf}
+  \caption{Frozen lightweight assay-shift audit. (a) Sequence similarity and exact fragment
+  containment are common but distributed differently among direct-RNA labels. (b) Bars show the
+  reconstructed legacy-fold result; diamonds show zero-shot direct-RNA transfer. The dashed line
+  is direct-RNA active prevalence. (c) Reliability curves show severe probability
+  miscalibration; marker area scales with bin count.}
+  \label{fig:assay-shift}
+\end{figure*}
+
+\input{tables/assay_shift}
+
+\subsection{Constrained full-length optimization}
+We evaluated \textsc{StructIRES-Rank} over ten experimentally supported full-length IRES seeds.
+For each of three deterministic pools, every parent contributed 512 unique length-preserving
+substitution mutants with at most 3\% edited positions. Each arm retained 50 candidates per
+parent from exactly the same pool, yielding 30 matched parent-by-run comparison units.
+
+The sequence term is the released IRES-LM ensemble: the arithmetic mean of all ten RNA-FM and ten
+UTR-LM released classifiers.  Its components reproduce the released native benchmark summaries
+without using direct-RNA labels for checkpoint selection. On the shared mutation pools, IRES-LM
+score-only optimization created substantial parent drift ($|\Delta\mathrm{MFE}|=4.021\pm1.254$
+kcal/mol; pairing-profile $L_1=0.164\pm0.027$) and retained only $0.646\pm0.075$ of weighted
+parent-derived high-confidence ensemble anchors. Energy ranking reduced MFE shift to
+$0.647\pm0.196$; global ensemble ranking reduced pairing-profile distance to $0.055\pm0.014$;
+and anchor ranking independently increased anchor retention to $0.920\pm0.028$. The combined
+rank, \textsc{StructIRES-Rank}, retained all three properties simultaneously
+($|\Delta\mathrm{MFE}|=0.666\pm0.226$; pairing-profile $L_1=0.037\pm0.010$; anchor retention
+$0.955\pm0.015$) and improved structure-state identity from $0.798\pm0.048$ to
+$0.954\pm0.049$ (Table~\ref{tab:design}; Figure~\ref{fig:structires-ablation}). These anchors
+are thermodynamic ensemble features of the parent sequence, not experimentally mapped IRES motifs.
+
+As an independent post-selection check, we fitted a low-capacity three-seed hashed 3--6-mer
+direct-RNA proxy after excluding every S3-provenance record, and evaluated it once on the 222
+held-out S3 records (AUC 0.592; AUPR 0.497). The proxy was never used for candidate generation,
+rank selection or tuning. IRES-LM score-only candidates averaged 0.419 on this evaluator. Energy,
+global ensemble, and anchor terms independently improved this value to 0.427, 0.431, and 0.431;
+the combined \textsc{StructIRES-Rank} reached 0.435. Its paired gain over IRES-LM score-only was
+0.0158 (95\% bootstrap CI 0.0079--0.0242), and its gains over the energy, ensemble, and anchor
+ablations were 0.0086 (0.0035--0.0147), 0.0046 (0.0018--0.0080), and 0.0045
+(0.0018--0.0080), respectively. This controlled ablation supports complementary roles for energy,
+global ensemble, and parent-anchor constraints rather than an advantage attributable to an
+increased query budget.
+
+The public direct-RNA IAPV mutational scan provides a complementary, experimentally grounded
+guardrail rather than another sequence predictor. Across 208 overlapping A-substitution tiles, 169
+of 213 IAPV positions had direct measurement coverage. We converted the observed loss of IRES
+translation at each position into a conservative edit-risk map, imputing the median measured risk
+for unobserved positions. Adding this guardrail to the matched IAPV selection reduced mean MPRA
+edit risk from $2.438\pm0.174$ to $1.782\pm0.087$ across the three frozen pools (paired difference
+$-0.656$, bootstrap interval $-0.933$ to $-0.480$; Table~\ref{tab:iapv-mpra-guardrail}). This
+reduction necessarily trades against a small amount of thermodynamic preservation
+($|\Delta\mathrm{MFE}|$ rises from $0.641$ to $0.887$ kcal/mol), which is precisely why the
+functional guardrail is reported as a separate, transparent ablation rather than folded into the
+ten-seed headline result. It demonstrates that the framework can encode direct assay-derived
+mutational knowledge, but does not establish activity for new sequences.
+
+\input{tables/iapv_mpra_guardrail}
+
+A reporter-only cargo-context stress test using NanoLuc, Firefly and mCherry contexts further
+showed that constraint-guided designs had the lowest mean crosstalk ratio (0.163) and highest
+mean context consistency (0.841) among the local and released score-only comparators. This is a
+computational top-1 context stress test, not a translation assay. Collectively, all results are
+computational structural and proxy metrics only; they establish candidate enrichment and
+structure preservation, not improved IRES activity.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.98\textwidth]{figures/fig6_structires_ireslm_ablation.pdf}
+  \caption{Matched IRES-LM ablation of \textsc{StructIRES-Rank}. Each arm selects from the same
+  512-candidate pool for every parent and random seed. Energy, global ensemble, and parent-anchor
+  preservation each improve a distinct structural property; their combination has the strongest
+  held-out direct-RNA computational proxy score. Error bars are sample SD across 30 parent-by-run
+  units; the proxy is not a candidate activity assay.}
+  \label{fig:structires-ablation}
+\end{figure*}
+
+\input{tables/design_ablation}
+
+Figure~\ref{fig:structires-case} gives a deterministic case illustration rather than a
+representative-performance claim: it compares the rank-1 IAPV candidate from the frozen seed-42
+pool under each selection rule. The score-only candidate has a slightly higher IRES-LM probability
+(0.976 versus 0.963), but loses substantial parent-anchor probability (retention 0.682) and has
+$|\Delta\mathrm{MFE}|=3.70$ kcal/mol. The \textsc{StructIRES-Rank} candidate has 0.000 MFE
+deviation and 1.000 anchor retention. This visualizes the mechanism already measured across all
+30 paired units; it does not imply that either candidate has experimentally verified activity.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.98\textwidth]{figures/fig7_iapv_secondary_structure.pdf}
+  \caption{Provenance-locked illustrative IAPV structural and MPRA case. Top: ViennaRNA MFE
+  secondary-structure layouts for the parent and rank-1 candidates from the frozen seed-42 pool;
+  green lines denote retained parent-derived ensemble anchors, dashed orange lines reduced anchors,
+  and red nodes edits. Bottom: the public direct-RNA IAPV mutational-risk map and same-budget
+  guardrail summary. The map is used only as an IAPV edit-risk constraint, not as a measurement of
+  generated-candidate activity.}
+  \label{fig:structires-case}
+\end{figure*}
+
+\subsection{Legacy 174-nt de novo benchmark}
+IRES-DM released outputs are an external reference. A strict superiority claim requires retraining
+under the shared data and budget protocol.

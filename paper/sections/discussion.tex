@@ -1,0 +1,20 @@
+\section{Discussion}
+
+The project is designed to distinguish three questions that are often conflated: whether a sequence
+resembles positives in a historical reporter assay, whether a model transfers to an RNA-based
+measurement, and whether an optimized full-length IRES remains structurally and contextually
+plausible. A numerical gain on the first question alone is insufficient evidence of improved
+translation.
+
+The completed classifier reproduction makes this distinction concrete. RNA-FM and UTR-LM match
+their released native benchmark values, showing that the software and checkpoints were recovered
+faithfully. Yet equally plausible RNA-FM checkpoints disagree sharply under direct-RNA transfer,
+and their ten-checkpoint mean is severely miscalibrated at the released threshold. This rules out
+using a single legacy checkpoint as an unqualified activity oracle and motivates assay-aware model
+selection or conservative multi-scorer aggregation in the next optimization stage.
+
+The principal limitations are the small direct-RNA active set, imperfect thermodynamic structure
+models in cellular and circular contexts, and the absence of prospective wet-lab validation. The
+framework addresses these limits through conservative claims, independent evaluators, uncertainty
+and applicability reporting, and a frozen candidate shortlist suitable for later experimental
+testing.

@@ -1,0 +1,25 @@
+\section{Discussion}
+
+\textsc{StructIRES} separates two related but distinct questions: whether a
+sequence is IRES-like in a defined identification benchmark, and whether a
+candidate can be optimized without losing the predicted structural state of an
+experimentally supported parent. The completed \textsc{StructIRES-Rank}
+component turns an IRES-recognition score into one component of a controlled
+multi-objective selection procedure. Under a fixed proposal budget, it selects
+candidates that retain parent energy and ensemble state more faithfully while
+improving a held-out direct-RNA computational proxy. The IAPV case further
+shows how direct-RNA mutational knowledge can be added transparently as a local
+edit-risk guardrail.
+
+The structure-aware recognition component is intentionally not claimed as a
+completed performance gain in this draft. It becomes a contribution only if a
+validation-locked run improves held-out ranking beyond the sequence baseline;
+otherwise the paper remains a constrained-design study with transparent
+sequence baselines.
+
+The study has limitations. Secondary-structure predictions do not represent
+all cellular or circular RNA effects, and the direct-RNA proxy is not a
+functional assay. We therefore make no claim of experimentally verified IRES
+activity for selected variants. Future work should evaluate the frozen
+shortlists prospectively in matched direct-RNA settings and extend the
+assay-aware framework to cargo and cell-context robustness.

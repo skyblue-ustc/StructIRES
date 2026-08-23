@@ -1,0 +1,29 @@
+\section{Introduction}
+
+IRES elements recruit translation machinery independently of the canonical cap-dependent pathway
+and are attractive components for synthetic and therapeutic RNA systems. Their activity depends on
+more than a short sequence motif: alternative RNA structures, host factors, construct design, cell
+type, and downstream coding context can all alter translation.
+
+Recent IRES-AI work established useful same-task prediction, evolutionary mutation, and diffusion
+generation baselines using 46,774 labelled sequences \cite{chu2026iresai}. However, 95.4\% of that
+identification set comes from a 174-nt DNA/lentiviral reporter library \cite{weingarten2016ires}.
+RNA-based IRES-TrAPPr measurements \cite{may2026irestrappr} motivate an explicit audit of whether
+this legacy signal transfers to direct-RNA and full-length contexts.
+
+We therefore formulate IRES design as a constrained optimization problem rather than a pure
+classifier-maximization task: can a candidate retain the energy and ensemble-structural features
+of an experimentally supported full-length parent while improving a released IRES-recognition
+score? Prior computational IRES mutagenesis already establishes that MFE and a single predicted
+fold alone are insufficient as a novelty claim \cite{delliponti2026structure}. Our contributions are:
+(i) \textsc{StructIRES}, a validation-clean RNA-FM classifier that couples contextual MFE
+base-pair pooling to the author-style IRES head through a gated residual, with matched
+sequence-only controls; (ii) \textsc{StructIRES-Rank}, an assay-aware, generator-agnostic
+rank-selection layer that combines the released IRES-LM ensemble score, parent-relative energy
+preservation, global ensemble preservation, and parent-anchor preservation; (iii) a controlled
+full-length design matrix in which IRES-LM score-only, energy-only, global-ensemble-only,
+anchor-only and combined selection operate on exactly the same candidates and budget; (iv) an
+independent direct-RNA held-out proxy that tests whether the combined constraints improve
+computational candidate enrichment beyond each score-only or single-constraint alternative; and
+(v) a cross-assay benchmark audit that explains why legacy IRES classifiers are useful baselines
+but insufficient standalone design objectives.

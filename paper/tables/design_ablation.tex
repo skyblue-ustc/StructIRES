@@ -1,0 +1,23 @@
+\begin{table*}[t]
+\centering
+\caption{Matched ablation of \textsc{StructIRES-Rank} using the released IRES-LM ensemble
+(mean of all ten RNA-FM and ten UTR-LM released classifiers). Values are mean $\pm$ sample SD
+across 30 parent-by-run units (10 full-length IRES seeds $\times$ 3 frozen mutation pools); every
+arm retains the top 50 of the same 512 candidates per unit. ``Anchor retention'' is the weighted
+retention of parent-derived high-confidence ensemble base pairs ($P\geq0.5$), not an experimentally
+mapped structural motif. The direct-RNA proxy is post-selection, S3-held-out and computational only.}
+\label{tab:design}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccc}
+\toprule
+Selection method & $|\Delta$MFE| & Pairing $L_1$ & State identity & Anchor retention & Direct-RNA proxy & Role \\
+\midrule
+IRES-LM score-only & $4.021\pm1.254$ & $0.164\pm0.027$ & $0.798\pm0.048$ & $0.646\pm0.075$ & $0.419$ & Sequence baseline \\
++ energy rank & $0.647\pm0.196$ & $0.118\pm0.024$ & $0.857\pm0.042$ & $0.766\pm0.062$ & $0.427$ & Energy ablation \\
++ ensemble rank & $2.089\pm0.666$ & $0.055\pm0.014$ & $0.932\pm0.054$ & $0.915\pm0.026$ & $0.431$ & Ensemble ablation \\
++ anchor rank & $2.093\pm0.580$ & $0.062\pm0.015$ & $0.924\pm0.063$ & $0.920\pm0.028$ & $0.431$ & Anchor ablation \\
+\textsc{StructIRES-Rank} & $0.666\pm0.226$ & $0.037\pm0.010$ & $0.954\pm0.049$ & $0.955\pm0.015$ & $0.435$ & Combined constraints \\
+\bottomrule
+\end{tabular}
+}
+\end{table*}
