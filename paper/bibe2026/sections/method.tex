@@ -10,16 +10,20 @@ checkpoints of each backbone. Direct-RNA labels are not used for checkpoint
 selection, pool construction, ranking, or hyperparameter selection.
 
 \subsection{Structure-aware recognition component}
-\textsc{StructIRES-Classifier} is defined as a validation-trained fusion of
-RNA foundation-model sequence scores with thermodynamic ensemble descriptors:
-minimum free energy (with length-normalized variants), ensemble diversity, and
-summary statistics of the base-pairing-probability profile. The planned head,
-feature preprocessing, regularization strength, and decision threshold are
-selected using training/validation records only; the official test partition is
-not used for model selection. This component is included as a locked
-next-experiment specification in the present draft. Its performance cells are
-therefore explicitly marked ``TBD'' until predictions, manifests, and a
-reproducible test report exist.
+The StructIRES classifier starts from the public RNA-FM t12 checkpoint and
+fully fine-tunes the author-style IRES classifier head. Both arms use
+class-weighted IRES cross entropy and a 15 percent masked-LM auxiliary loss.
+The sequence-only arm leaves this topology unchanged. The contact-fusion arm
+obtains label-free ViennaRNA MFE base-pair edges; for each predicted pair it
+encodes the two contextual RNA-FM vectors, their elementwise product and their
+absolute difference. The pooled edge representation enters a zero-initialized
+gated residual, so the contact path initially reduces exactly to the
+sequence-only classifier. For every native fold, an internal stratified
+validation subset selects epoch by AUPR and threshold by F1; the
+author-provided test records are then evaluated once. A separate
+90-percent-identity-component-disjoint 70/15/15 split uses validation-only
+configuration selection and is reported as a robustness analysis rather than
+pooled with the native benchmark.
 
 \subsection{Matched seeded optimization}
 We start with ten experimentally supported full-length viral IRES parents.
@@ -34,10 +38,11 @@ $|\Delta \mathrm{MFE}(x,p)|$ and global base-pairing-probability-profile
 distance $D_{\mathrm{BPP}}(x,p)$. We also maximize weighted retention
 $R_{\mathrm{anchor}}(x,p)$ of parent base pairs having ViennaRNA ensemble
 probability at least 0.5 \cite{lorenz2011viennarna}. The proposal score in the
-completed runs is the released IRES-LM ensemble; a future locked rerun may
-substitute the \textsc{StructIRES-Classifier} score only after its
-identification evaluation is complete. These are predicted thermodynamic
-features, not experimentally mapped IRES motifs. The combined method ranks the
+completed runs is the released IRES-LM ensemble. The classifier is not
+retroactively inserted into these frozen candidate pools; a prospective
+matched rerun may use it only with a newly frozen pool and the same budget.
+These are predicted thermodynamic features, not experimentally mapped IRES
+motifs. The combined method ranks the
 IRES-LM score and each structural quantity equally:
 \begin{equation}
 \operatorname{Rank}_{\mathrm{StructIRES}}(x)=

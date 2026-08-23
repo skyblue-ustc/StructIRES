@@ -1,11 +1,13 @@
 \begin{table*}[t]
 \centering
-\caption{IRES identification benchmark and planned structure-aware extension.
+\caption{IRES identification benchmark and matched structure-aware extension.
 The task is $\mathrm{sequence}\rightarrow P(\mathrm{IRES\text{-}like})$ on the
 legacy reporter benchmark. ``Local rerun'' rows are our executed released-model
 reproductions; ``published reference'' rows are copied from the source study and
-are not presented as same-protocol local experiments. \textsc{StructIRES-Classifier}
-is deliberately left as TBD pending a validation-locked, reproducible run.}
+are not presented as same-protocol local experiments. Matched re-training rows
+start from the same public RNA-FM prior and reserve a source-training validation
+subset for selection; their native test folds overlap and are therefore a
+controlled legacy benchmark, not an identity-aware generalization claim.}
 \label{tab:recognition}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{llllccc}
@@ -19,7 +21,8 @@ IRES-LM & RNA-FM + UTR-LM ensemble & Published reference & source-paper native p
 DeepCIP & IRES-specific & Published reference & circRNA-screen protocol & $0.730$ & $0.500$ & $0.270$ \\
 IRESpy & IRES-specific & Published reference & source-paper native protocol & $0.670$ & $0.370$ & $0.110$ \\
 \midrule
-\textsc{StructIRES-Classifier} & sequence + ensemble structure & \textbf{TBD} & locked train/validation/test protocol & \textbf{TBD} & \textbf{TBD} & \textbf{TBD} \\
+RNA-FM sequence-only re-train & public RNA-FM & Matched local re-train & three validation-clean native folds & $0.770\pm0.005$ & $0.600\pm0.018$ & $0.521\pm0.016$ \\
+\textsc{StructIRES-Classifier} & RNA-FM + MFE contacts & Matched local re-train & three validation-clean native folds & $0.774\pm0.007$ & $0.601\pm0.022$ & $0.533\pm0.024$ \\
 \bottomrule
 \end{tabular}}
 \end{table*}

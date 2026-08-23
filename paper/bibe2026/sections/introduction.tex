@@ -20,14 +20,15 @@ on a zero-shot direct-RNA evaluation. This motivates treating a historical
 recognition model as a proposal signal rather than a complete activity oracle.
 
 We present \textsc{StructIRES}, a two-stage framework linking structure-aware
-IRES recognition with constrained full-length IRES optimization. The completed
-design component is \textsc{StructIRES-Rank}; the recognition component,
-\textsc{StructIRES-Classifier}, is a preregistered structure-aware fusion model
-whose locked evaluation is pending. The framework makes four contributions:
+IRES recognition with constrained full-length IRES optimization. Its
+\textsc{StructIRES-Classifier} is a validation-clean RNA-FM re-training with
+an MFE-contact encoder and gated residual; \textsc{StructIRES-Rank} is the
+full-length constraint-guided selection component. The framework makes four
+contributions:
 \begin{enumerate}
-  \item It tests whether RNA foundation-model sequence priors are improved by
-  thermodynamic ensemble features for IRES identification under a held-out
-  protocol.
+  \item It tests whether an RNA foundation-model sequence prior is improved by
+  contextual MFE base-pair features under matched validation-clean native
+  folds, while reporting a separate identity-aware robustness audit.
   \item It combines sequence plausibility with parent-relative energy,
   thermodynamic ensemble, and ensemble-anchor preservation during design.
   \item It evaluates design alternatives on identical frozen candidate pools and

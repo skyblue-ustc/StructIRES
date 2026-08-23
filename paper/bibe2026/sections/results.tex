@@ -10,14 +10,42 @@ in constrained design. Published values for IRES-LM, DeepCIP, and IRESpy are
 retained as context but are visibly separated because their data and protocol
 conditions are not interchangeable.
 
-The proposed \textsc{StructIRES-Classifier} will test whether thermodynamic
-ensemble descriptors add held-out discrimination beyond sequence-only
-foundation-model scores. Its result cells are intentionally TBD in this draft:
-no improvement is claimed until the frozen train/validation/test evaluation is
-completed. This separation prevents recognition development from using either
-direct-RNA labels or design-stage outcomes for model selection.
+We next retrained the author-style RNA-FM classifier from the same public t12
+prior while reserving a stratified subset of each source-training fold for
+epoch and threshold selection. The matched \textsc{StructIRES-Classifier}
+differs only by its label-free MFE-contact encoder and zero-initialized gated
+residual. Across folds 0, 2 and 4, sequence-only re-training obtained
+AUROC/AUPR/F1/MCC of
+$0.770\pm0.005$/$0.600\pm0.018$/$0.521\pm0.016$/$0.426\pm0.012$;
+contact fusion obtained
+$0.774\pm0.007$/$0.601\pm0.022$/$0.533\pm0.024$/$0.439\pm0.047$.
+The mean changes are therefore +0.004 AUROC, +0.002 AUPR, +0.013 F1 and
++0.013 MCC. ECE increases by 0.043, so the result is a controlled
+legacy-reporter discrimination signal rather than a calibration claim.
+
+The native holdouts are sequence-proximal and overlap across the released
+repeated-fold protocol. We therefore also retained a separate 90\%
+identity-component-disjoint test. In that harder three-seed evaluation,
+sequence-only attained AUC/AUPR/F1
+$0.559\pm0.004$/$0.188\pm0.005$/$0.295\pm0.002$, whereas a BPP/MFE
+profile-fusion control attained
+$0.557\pm0.017$/$0.183\pm0.003$/$0.297\pm0.010$. Thus the strict audit does
+not establish general identity-aware ranking improvement and is not used to
+select the native classifier or design model.
 
 \input{tables/recognition}
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.98\textwidth]{../figures/fig1_structires_classifier.pdf}
+  \caption{Validation-clean \textsc{StructIRES-Classifier}. Both matched
+  arms fully fine-tune public RNA-FM t12 with the author-style IRES objective.
+  The structure path pools contextual residue-pair features only over
+  label-free ViennaRNA MFE contacts and contributes through a zero-initialized
+  gated residual. Validation selects epoch and threshold; each native test
+  fold is evaluated once.}
+  \label{fig:classifier}
+\end{figure*}
 
 \subsection{Matched constraints preserve complementary properties}
 Score-only selection yields high IRES-LM scores but substantial parent drift
