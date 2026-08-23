@@ -584,6 +584,15 @@ model is trained from a documented architecture.
   The frozen `70/15/15` identity-aware assignment is unchanged.  If this adaptation finds a viable
   validation signal, the selected configuration will be rerun across seeds and tested once only;
   it will not overwrite or be pooled with the native-fold result.
+- [ ] **Configuration locked for final strict testing.**  On the shared seed-42 validation split,
+  full gated profile fusion reached AUPR 0.25140 / AUROC 0.59707 / F1 0.31250 at epoch 3, versus
+  the matched sequence-only best validation AUPR 0.22645 / AUROC 0.57774 / F1 0.30228 at epoch 2.
+  The final comparison fixes three epochs for both arms so their optimization budget is identical.
+  Six new runs now evaluate the untouched test partition once: sequence-only seeds 42/43/44 in
+  `structires_rnafm_sequence_only_hamming90_full_locked_test_s{42,43,44}_v1_20260823`, and gated
+  profile fusion seeds 42/43/44 in
+  `structires_rnafm_gated_profile_hamming90_full_locked_test_s{42,43,44}_v1_20260823`.  No result
+  from these test runs will be used to choose another architecture or training schedule.
 - [x] Stopped the complementary strict structure-only ablation after its first validation epoch.
   `structires_rnafm_structure_profile_only_hamming90_dev_s42_v1_20260823` reached AUPR 0.14883,
   below the 0.1658 validation positive fraction, with AUROC 0.45720.  It has no test evaluation;
