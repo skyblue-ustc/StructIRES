@@ -31,13 +31,15 @@ from ires_design.prediction import load_ires_ai_records
 
 def arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--variant", choices=("sequence_only", "structure_profile_only", "concat_profile", "gated_profile"), required=True)
+    parser.add_argument("--variant", choices=("sequence_only", "structure_profile_only", "concat_profile", "gated_profile", "gated_contact"), required=True)
     parser.add_argument("--dataset", type=Path, required=True)
     parser.add_argument("--assignments", type=Path, required=True)
     parser.add_argument("--rnafm-base", type=Path, required=True)
     parser.add_argument("--upstream-fm-dir", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--structure-profile-cache", type=Path)
+    parser.add_argument("--contact-dir", type=Path,
+                        help="label-free MFE contact cache aligned to canonical sequence_id order")
     parser.add_argument("--seeds", default="42")
     parser.add_argument("--epochs", type=int, default=8)
     parser.add_argument("--tokens-per-batch", type=int, default=8192)
@@ -146,15 +148,51 @@ class StructIRES(nn.Module):
     def __init__(self, backbone: nn.Module, *, variant: str, profile_channels: int, dropout: float, pooling: str, pad_token_id: int):
         super().__init__(); self.backbone = backbone; self.variant = variant; self.pooling = pooling; self.pad_token_id = pad_token_id
         self.sequence = nn.Sequential(nn.LayerNorm(640), nn.Linear(640, 256), nn.GELU(), nn.Dropout(dropout), nn.Linear(256, 128), nn.GELU())
-        if variant != "sequence_only":
+        if variant in {"structure_profile_only", "concat_profile", "gated_profile"}:
             self.structure = PositionProfileEncoder(profile_channels, dropout)
         if variant == "concat_profile":
             self.combine = nn.Sequential(nn.Linear(256, 128), nn.GELU())
         if variant == "gated_profile":
             self.gate = nn.Sequential(nn.Linear(256, 128), nn.Sigmoid())
+        if variant == "gated_contact":
+            # Encodes actual MFE base-pair edges from contextual RNA-FM token
+            # embeddings.  The final projection is zero-initialized, making
+            # the new path exactly sequence-only at initialization.
+            self.contact = nn.Sequential(
+                nn.Linear(4 * 640, 128), nn.GELU(), nn.Dropout(dropout), nn.Linear(128, 128),
+            )
+            self.contact_gate = nn.Sequential(nn.Linear(256, 128), nn.Sigmoid())
+            nn.init.zeros_(self.contact[-1].weight)
+            nn.init.zeros_(self.contact[-1].bias)
         self.classifier = nn.Sequential(nn.Dropout(dropout), nn.Linear(128, 2))
 
-    def forward(self, tokens: torch.Tensor, structure: torch.Tensor | None = None, *, return_mlm: bool = False):
+    def contact_hidden(self, residue: torch.Tensor, record_indices: np.ndarray, offsets: np.ndarray,
+                       pairs: np.ndarray, tokens: torch.Tensor) -> torch.Tensor:
+        """Pool contextual representations over predicted MFE base-pair edges."""
+        values, owners = [], []
+        for batch, record in enumerate(record_indices.tolist()):
+            start, stop = int(offsets[record]), int(offsets[record + 1])
+            edge = pairs[start:stop]
+            # Cache coordinates are biological 0-based; tokens include BOS.
+            length = int((tokens[batch, 1:-1] != self.pad_token_id).sum().item())
+            edge = edge[(edge[:, 0] < length) & (edge[:, 1] < length)]
+            if len(edge):
+                edge = torch.as_tensor(edge, dtype=torch.long, device=residue.device) + 1
+                left, right = residue[batch, edge[:, 0]], residue[batch, edge[:, 1]]
+                values.append(torch.cat((left, right, left * right, (left - right).abs()), dim=1))
+                owners.append(torch.full((len(edge),), batch, dtype=torch.long, device=residue.device))
+        pooled = torch.zeros((len(record_indices), 128), dtype=residue.dtype, device=residue.device)
+        if not values:
+            return pooled
+        encoded = self.contact(torch.cat(values, dim=0))
+        owner = torch.cat(owners, dim=0)
+        pooled.index_add_(0, owner, encoded)
+        count = torch.bincount(owner, minlength=len(record_indices)).to(residue.dtype).clamp_min(1.).unsqueeze(1)
+        return pooled / count
+
+    def forward(self, tokens: torch.Tensor, structure: torch.Tensor | None = None, *,
+                record_indices: np.ndarray | None = None, contact_offsets: np.ndarray | None = None,
+                contact_pairs: np.ndarray | None = None, return_mlm: bool = False):
         if self.variant == "structure_profile_only":
             assert structure is not None
             return self.classifier(self.structure(structure)), None
@@ -169,14 +207,21 @@ class StructIRES(nn.Module):
             mask = (tokens[:, 1:-1] != self.pad_token_id).to(biological.dtype)
             encoded = (biological * mask.unsqueeze(-1)).sum(dim=1) / mask.sum(dim=1, keepdim=True).clamp_min(1.0)
         sequence = self.sequence(encoded)
+        if self.variant == "gated_contact":
+            if record_indices is None or contact_offsets is None or contact_pairs is None:
+                raise ValueError("gated_contact requires record indices and an MFE contact cache")
+            contact = self.contact_hidden(representations, record_indices, contact_offsets, contact_pairs, tokens)
+            gate = self.contact_gate(torch.cat((sequence, contact), dim=1))
+            sequence = sequence + gate * contact
         if self.variant != "sequence_only":
-            assert structure is not None
-            structural = self.structure(structure)
-            if self.variant == "concat_profile":
-                sequence = self.combine(torch.cat((sequence, structural), dim=1))
-            elif self.variant == "gated_profile":
-                gate = self.gate(torch.cat((sequence, structural), dim=1))
-                sequence = gate * sequence + (1.0 - gate) * structural
+            if self.variant != "gated_contact":
+                assert structure is not None
+                structural = self.structure(structure)
+                if self.variant == "concat_profile":
+                    sequence = self.combine(torch.cat((sequence, structural), dim=1))
+                elif self.variant == "gated_profile":
+                    gate = self.gate(torch.cat((sequence, structural), dim=1))
+                    sequence = gate * sequence + (1.0 - gate) * structural
         return self.classifier(sequence), (output.get("logits") if return_mlm else None)
 
 
@@ -201,7 +246,7 @@ def batches(data_module, alphabet, indices: np.ndarray, sequences: list[str], la
     return torch.utils.data.DataLoader(dataset, collate_fn=alphabet.get_batch_converter(), batch_sampler=batch_indices)
 
 
-def run_epoch(model, loader, labels, structure, device, criterion, optimizer=None, *, mask_token_id: int, mlm_loss_weight: float, cls_loss_weight: float):
+def run_epoch(model, loader, labels, structure, contact, device, criterion, optimizer=None, *, mask_token_id: int, mlm_loss_weight: float, cls_loss_weight: float):
     train = optimizer is not None; model.train(train)
     # Frozen pretrained features must remain deterministic while the small
     # classifier head is learned.  Otherwise backbone dropout injects noise
@@ -216,7 +261,12 @@ def run_epoch(model, loader, labels, structure, device, criterion, optimizer=Non
         tokens = masked_tokens if train and mlm_loss_weight > 0.0 else clean_tokens
         structural = None if structure is None else structure[idx].to(device)
         with torch.set_grad_enabled(train):
-            logits, mlm_logits = model(tokens, structural, return_mlm=train and mlm_loss_weight > 0.0)
+            logits, mlm_logits = model(
+                tokens, structural, record_indices=idx.numpy(),
+                contact_offsets=None if contact is None else contact[0],
+                contact_pairs=None if contact is None else contact[1],
+                return_mlm=train and mlm_loss_weight > 0.0,
+            )
             loss = cls_loss_weight * criterion(logits, target)
             if mlm_logits is not None:
                 masked_targets = clean_tokens.clone()
@@ -231,7 +281,7 @@ def run_epoch(model, loader, labels, structure, device, criterion, optimizer=Non
 def main() -> int:
     args = arguments()
     if args.output_dir.exists(): raise FileExistsError(f"refusing to overwrite {args.output_dir}")
-    profile_variant = args.variant != "sequence_only"
+    profile_variant = args.variant in {"structure_profile_only", "concat_profile", "gated_profile"}
     if profile_variant and args.structure_profile_cache is None: raise ValueError(f"{args.variant} requires --structure-profile-cache")
     records, assignment = locked_records(args.dataset, args.assignments)
     sequences, labels = [row.sequence for row in records], np.asarray([row.label for row in records], dtype=np.int64)
@@ -245,6 +295,18 @@ def main() -> int:
         if values.ndim != 3 or values.shape[0] != len(records): raise ValueError("invalid structure-profile cache")
         mean, std = values[train].mean(axis=(0, 1)), values[train].std(axis=(0, 1))
         structure = torch.from_numpy((values - mean[None, None, :]) / np.maximum(std[None, None, :], 1e-6))
+    contact = None
+    if args.variant == "gated_contact":
+        if args.contact_dir is None:
+            raise ValueError("gated_contact requires --contact-dir")
+        contact_ids = np.load(args.contact_dir / "sequence_ids.npy", allow_pickle=False).astype(str)
+        if list(contact_ids) != [row.sequence_id for row in records]:
+            raise ValueError("contact cache IDs differ")
+        offsets = np.load(args.contact_dir / "pair_offsets.npy", mmap_mode="r")
+        pairs = np.load(args.contact_dir / "pairs.npy", mmap_mode="r")
+        if offsets.shape != (len(records) + 1,) or pairs.ndim != 2 or pairs.shape[1] != 2:
+            raise ValueError("invalid contact cache")
+        contact = (offsets, pairs)
     data_module, pretrained = load_fm(args.upstream_fm_dir)
     device = torch.device(args.device)
     seeds = [int(value) for value in args.seeds.split(",") if value.strip()]
@@ -267,8 +329,8 @@ def main() -> int:
         )
         best, best_state, best_threshold, best_validation = -np.inf, None, .5, None
         for epoch in range(1, args.epochs + 1):
-            run_epoch(model, train_loader, labels, structure, device, criterion, optimizer, mask_token_id=alphabet.tok_to_idx["<mask>"], mlm_loss_weight=args.mlm_loss_weight, cls_loss_weight=args.cls_loss_weight)
-            y_val, p_val = run_epoch(model, val_loader, labels, structure, device, criterion, mask_token_id=alphabet.tok_to_idx["<mask>"], mlm_loss_weight=0.0, cls_loss_weight=args.cls_loss_weight)
+            run_epoch(model, train_loader, labels, structure, contact, device, criterion, optimizer, mask_token_id=alphabet.tok_to_idx["<mask>"], mlm_loss_weight=args.mlm_loss_weight, cls_loss_weight=args.cls_loss_weight)
+            y_val, p_val = run_epoch(model, val_loader, labels, structure, contact, device, criterion, mask_token_id=alphabet.tok_to_idx["<mask>"], mlm_loss_weight=0.0, cls_loss_weight=args.cls_loss_weight)
             threshold = best_f1_threshold(y_val, p_val); values = metric_row(y_val, p_val, threshold)
             print(json.dumps({"seed": seed, "epoch": epoch, "validation": values}), flush=True)
             if values["aupr"] > best:
@@ -280,7 +342,7 @@ def main() -> int:
             all_rows.append({"seed": seed, "best_validation_aupr": best, **best_validation})
         else:
             assert test_loader is not None
-            y_test, p_test = run_epoch(model, test_loader, labels, structure, device, criterion, mask_token_id=alphabet.tok_to_idx["<mask>"], mlm_loss_weight=0.0, cls_loss_weight=args.cls_loss_weight)
+            y_test, p_test = run_epoch(model, test_loader, labels, structure, contact, device, criterion, mask_token_id=alphabet.tok_to_idx["<mask>"], mlm_loss_weight=0.0, cls_loss_weight=args.cls_loss_weight)
             result = {"seed": seed, "best_validation_aupr": best, **metric_row(y_test, p_test, best_threshold), **stratified_bootstrap(y_test, p_test, seed=seed)}; all_rows.append(result)
             for record, probability in zip(np.asarray(records, dtype=object)[test], p_test): all_predictions.append({"seed": seed, "sequence_id": record.sequence_id, "label": record.label, "probability": float(probability)})
         args.output_dir.mkdir(parents=True, exist_ok=True); torch.save({"model": best_state, "seed": seed, "variant": args.variant, "best_validation_aupr": best}, args.output_dir / f"best_seed{seed}.pt")
@@ -290,7 +352,7 @@ def main() -> int:
     with (args.output_dir / output_name).open("w", encoding="utf-8", newline="") as handle: writer = csv.DictWriter(handle, fieldnames=list(all_rows[0])); writer.writeheader(); writer.writerows(all_rows)
     if not args.skip_test:
         with gzip.open(args.output_dir / "test_predictions.csv.gz", "wt", encoding="utf-8", newline="") as handle: writer = csv.DictWriter(handle, fieldnames=list(all_predictions[0])); writer.writeheader(); writer.writerows(all_predictions)
-    manifest = {"schema_version": 1, "experiment": "structires_rnafm_validation_clean", "variant": args.variant, "pooling": args.pooling, "mask_prob_training_only": args.mask_prob, "mlm_loss_weight": args.mlm_loss_weight, "cls_loss_weight": args.cls_loss_weight, "dataset_sha256": sha256(args.dataset), "assignments_sha256": sha256(args.assignments), "rnafm_base_sha256": sha256(args.rnafm_base), "structure_profile_cache_sha256": sha256(args.structure_profile_cache) if args.structure_profile_cache else None, "seeds": seeds, "epochs": args.epochs, "unfreeze_last_layers": args.unfreeze_last_layers, "model_selection": "validation AUPR", "test_evaluation_skipped": args.skip_test, "test_labels_used_for_training_threshold_selection_or_epoch_selection": False}
+    manifest = {"schema_version": 1, "experiment": "structires_rnafm_validation_clean", "variant": args.variant, "pooling": args.pooling, "mask_prob_training_only": args.mask_prob, "mlm_loss_weight": args.mlm_loss_weight, "cls_loss_weight": args.cls_loss_weight, "dataset_sha256": sha256(args.dataset), "assignments_sha256": sha256(args.assignments), "rnafm_base_sha256": sha256(args.rnafm_base), "structure_profile_cache_sha256": sha256(args.structure_profile_cache) if args.structure_profile_cache else None, "contact_manifest_sha256": sha256(args.contact_dir / "manifest.json") if args.contact_dir else None, "seeds": seeds, "epochs": args.epochs, "unfreeze_last_layers": args.unfreeze_last_layers, "model_selection": "validation AUPR", "test_evaluation_skipped": args.skip_test, "test_labels_used_for_training_threshold_selection_or_epoch_selection": False}
     (args.output_dir / "run_manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return 0
 
