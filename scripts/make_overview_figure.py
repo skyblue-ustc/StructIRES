@@ -1,83 +1,81 @@
 #!/usr/bin/env python3
-"""Render the publication-style StructIRES-Rank overview (Figure 1)."""
+"""Render the high-level, print-readable StructIRES study overview."""
 from __future__ import annotations
 
 from pathlib import Path
 
 import matplotlib
-
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
 
-from publication_style import ANCHOR, ENERGY, ENSEMBLE, INK, NAVY, RISK, STRUCTIRES, apply_style
-
+from publication_style import ENERGY, INK, NAVY, RISK, STRUCTIRES, apply_style
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "paper" / "figures" / "fig1_overview"
+MUTED = "#52616F"
 
 
-def rounded_box(axis, xy, width, height, title, lines, colour, *, fill="#FFFFFF"):
-    x, y = xy
-    axis.add_patch(FancyBboxPatch(xy, width, height, boxstyle="round,pad=0.012,rounding_size=0.025",
-                                  linewidth=1.25, edgecolor=colour, facecolor=fill, zorder=2))
-    axis.text(x + 0.025, y + height - 0.06, title, ha="left", va="top", fontsize=7.8,
-              weight="bold", color=colour, zorder=3)
-    axis.text(x + 0.025, y + height - 0.15, "\n".join(lines), ha="left", va="top", fontsize=6.1,
-              color=INK, linespacing=1.45, zorder=3)
+def box(ax, x, y, w, h, title, lines, colour, fill):
+    ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=.012,rounding_size=.026",
+                                linewidth=1.25, edgecolor=colour, facecolor=fill, zorder=2))
+    ax.text(x + .025, y + h - .055, title, ha="left", va="top", fontsize=9.2,
+            weight="bold", color=colour, zorder=3)
+    ax.text(x + .025, y + h - .145, "\n".join(lines), ha="left", va="top", fontsize=7.1,
+            color=INK, linespacing=1.42, zorder=3)
 
 
-def arrow(axis, start, end, *, colour=INK):
-    axis.add_patch(FancyArrowPatch(start, end, arrowstyle="-|>", mutation_scale=12,
-                                   linewidth=1.0, color=colour, zorder=1))
+def arrow(ax, start, end, colour=NAVY):
+    ax.add_patch(FancyArrowPatch(start, end, arrowstyle="-|>", mutation_scale=14,
+                                 linewidth=1.45, color=colour, zorder=1))
+
+
+def title(ax, tag, heading, subheading):
+    ax.text(.02, .97, tag, fontsize=10.2, weight="bold", color="white", ha="left", va="top",
+            bbox=dict(boxstyle="round,pad=.18", facecolor=INK, edgecolor=INK))
+    ax.text(.09, .975, heading, fontsize=10.2, weight="bold", color=INK, ha="left", va="top")
+    ax.text(.09, .915, subheading, fontsize=6.8, color=MUTED, ha="left", va="top")
 
 
 def main() -> None:
     apply_style(plt)
-    fig, axis = plt.subplots(figsize=(7.2, 5.25))
-    axis.set(xlim=(0, 1), ylim=(0, 1))
-    axis.axis("off")
-    axis.text(0.02, 0.965, "Assay-aware, structure-robust full-length IRES optimization",
-              fontsize=10.5, weight="bold", color=INK, va="top")
-    axis.text(0.02, 0.915,
-              "Frozen public evidence informs constraints; every selection arm ranks the same candidate pool under the same budget.",
-              fontsize=6.8, color="#4B5563", va="top")
-    rounded_box(axis, (0.025, 0.585), 0.205, 0.24, "1  Assay-qualified evidence", [
-        "Legacy IRES-LM classifiers", "Direct-RNA IRES-TrAPPr labels", "IAPV mutational MPRA scan",
-    ], NAVY, fill="#F6F9FC")
-    rounded_box(axis, (0.275, 0.585), 0.205, 0.24, "2  Frozen design pool", [
-        "10 supported full-length parents", "3 deterministic pools", "512 length-preserving variants / unit",
-    ], STRUCTIRES, fill="#F3FBF8")
-    rounded_box(axis, (0.525, 0.535), 0.23, 0.34, "3  StructIRES-Rank", [
-        "Released IRES-LM ensemble", "Equal-rank structural objectives", "Energy, ensemble and parent anchors",
-    ], STRUCTIRES, fill="#F3FBF8")
-    rounded_box(axis, (0.80, 0.585), 0.175, 0.24, "4  Matched selection", [
-        "Top 50 / parent / pool", "Same variants and query budget", "Five-arm ablation",
-    ], NAVY, fill="#F6F9FC")
-    arrow(axis, (0.23, 0.705), (0.27, 0.705), colour=NAVY)
-    arrow(axis, (0.48, 0.705), (0.52, 0.705), colour=STRUCTIRES)
-    arrow(axis, (0.755, 0.705), (0.795, 0.705), colour=NAVY)
-    for index, (text, colour) in enumerate((("energy", ENERGY), ("ensemble", ENSEMBLE), ("parent anchors", ANCHOR))):
-        x = 0.543 + index * 0.067
-        axis.add_patch(FancyBboxPatch((x, 0.56), 0.06, 0.042, boxstyle="round,pad=0.008,rounding_size=0.014",
-                                      linewidth=0.6, edgecolor=colour, facecolor="white", zorder=4))
-        axis.text(x + 0.03, 0.581, text, fontsize=5.8, ha="center", va="center", color=colour, zorder=5)
-    axis.text(0.025, 0.46, "Independent, assay-qualified evaluation", fontsize=8.3, weight="bold", color=INK)
-    rounded_box(axis, (0.025, 0.12), 0.285, 0.26, "Structure preservation", [
-        "|ΔMFE|; pairing-profile distance", "parent-anchor retention", "structure-state identity",
-    ], ENERGY, fill="#FFF9ED")
-    rounded_box(axis, (0.358, 0.12), 0.285, 0.26, "Post-selection direct-RNA proxy", [
-        "Train: non-S3 provenance records", "Evaluate once: held-out S3", "Not used for selection or tuning",
-    ], NAVY, fill="#F6F9FC")
-    rounded_box(axis, (0.69, 0.12), 0.285, 0.26, "IAPV MPRA edit-risk guardrail", [
-        "Observed mutational-loss map", "IAPV-only constrained selection", "Not a candidate activity measurement",
-    ], RISK, fill="#FFF5F1")
-    for start, end, colour in [((0.887, 0.585), (0.17, 0.38), ENERGY), ((0.887, 0.585), (0.50, 0.38), NAVY), ((0.887, 0.585), (0.83, 0.38), RISK)]:
-        arrow(axis, start, end, colour=colour)
-    axis.text(0.5, 0.035, "Scope: computational candidate enrichment and structural preservation; no new-candidate activity is claimed.",
-              fontsize=6.2, color="#4B5563", ha="center")
+    # Sized at final IEEE two-column width: no downscaling of typography.
+    fig = plt.figure(figsize=(7.35, 6.55), layout="constrained")
+    grid = fig.add_gridspec(3, 1, hspace=.035)
+
+    ax = fig.add_subplot(grid[0]); ax.set(xlim=(0, 1), ylim=(0, 1)); ax.axis("off")
+    title(ax, "A", "Recognize IRES-like sequences with structure-aware fusion",
+          "Classifier training uses native source-train records only; structural contacts are label-free.")
+    box(ax, .03, .24, .20, .42, "RNA sequence", ["candidate IRES", "up to 1,024 nt"], NAVY, "#F4F8FB")
+    box(ax, .39, .24, .25, .42, "StructIRES-Classifier", ["RNA-FM sequence representation", "+ ViennaRNA MFE contacts", "+ gated residual fusion"], STRUCTIRES, "#EFF9F5")
+    box(ax, .80, .24, .17, .42, "Output", ["IRES-like", "probability"], NAVY, "#F4F8FB")
+    arrow(ax, (.23, .45), (.38, .45)); arrow(ax, (.64, .45), (.79, .45), STRUCTIRES)
+    ax.text(.515, .125, "joint objective: weighted IRES classification + masked-LM regularization", fontsize=6.8,
+            color=MUTED, ha="center")
+
+    ax = fig.add_subplot(grid[1]); ax.set(xlim=(0, 1), ylim=(0, 1)); ax.axis("off")
+    title(ax, "B", "Optimize local IRES variants under matched structural constraints",
+          "All methods select from the same length-preserving, fixed-budget candidate pool.")
+    box(ax, .03, .24, .20, .42, "Parent IRES", ["full-length", "supported sequence"], NAVY, "#F4F8FB")
+    box(ax, .31, .24, .20, .42, "Shared pool", ["512 substitutions", "at most 3% edits"], NAVY, "#F4F8FB")
+    box(ax, .59, .16, .27, .58, "StructIRES-Rank", ["proposal score", "energy deviation", "ensemble-profile distance", "parent-anchor retention"], STRUCTIRES, "#EFF9F5")
+    box(ax, .90, .24, .08, .42, "Top 50", ["per", "pool"], STRUCTIRES, "#EFF9F5")
+    arrow(ax, (.23, .45), (.30, .45)); arrow(ax, (.51, .45), (.58, .45)); arrow(ax, (.86, .45), (.89, .45), STRUCTIRES)
+    ax.text(.725, .095, "Score-only and each ablation have identical parents, pools, edit budget and retained-set size.", fontsize=6.55,
+            color=MUTED, ha="center")
+
+    ax = fig.add_subplot(grid[2]); ax.set(xlim=(0, 1), ylim=(0, 1)); ax.axis("off")
+    title(ax, "C", "Report structural preservation and assay-qualified external evidence",
+          "Direct-RNA observations are held out from candidate selection and do not establish new-candidate activity.")
+    box(ax, .03, .24, .26, .42, "Structural endpoints", [r"|ΔMFE| energy deviation", "pairing-profile distance", "anchor retention"], ENERGY, "#FFF8E9")
+    box(ax, .37, .24, .26, .42, "Held-out proxy", ["direct-RNA 3–6-mer model", "test once after selection", "computational enrichment only"], NAVY, "#F4F8FB")
+    box(ax, .71, .24, .26, .42, "IAPV MPRA guardrail", ["observed tile-loss by edit", "IAPV-specific risk rank", "not activity prediction"], RISK, "#FFF3EE")
+    ax.text(.50, .10, "Claim boundary: predicted structural preservation and in-silico candidate enrichment; experimental validation remains future work.",
+            fontsize=6.55, color=MUTED, ha="center")
+
+    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(OUTPUT.with_suffix(".pdf"), bbox_inches="tight")
-    fig.savefig(OUTPUT.with_suffix(".png"), dpi=300, bbox_inches="tight")
+    fig.savefig(OUTPUT.with_suffix(".png"), dpi=350, bbox_inches="tight")
     plt.close(fig)
 
 

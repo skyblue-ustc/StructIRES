@@ -9,6 +9,22 @@ checkpoints passed size, SHA-256 and `torch.load` checks and were evaluated sepa
 official test holdouts. The final native summary and ten-checkpoint direct-RNA transfer are frozen.
 DeepCIP official inference remains a time-boxed environment blocker rather than a claimed result.
 
+### Active submission-strengthening runs (2026-08-31)
+
+- [~] The validation-clean, author-style `sequence` versus MFE-contact `contact` pair is
+  running for native fold 1 on node 56 GPUs 5/6.  Both arms use the immutable v2 protocol:
+  public RNA-FM t12 initialization, the same source-fold train/validation/test records,
+  seed 1337, 15% within-train validation, 10-epoch maximum budget, class CE*2 + masked-LM
+  CE*1, and validation-only AUPR/F1 selection.
+- [~] Fixed-order, fail-fast queues for the remaining missing folds 3, 5, 6, 7, 8 and 9 are
+  waiting behind fold 1 on the same two GPUs.  The fold list was fixed before observing fold-1
+  metrics; a queue stops on its first execution error and does not retry or overwrite a run.
+- [x] Replaced the BIBE Figure 1 overview with a three-panel vector figure that separates
+  the actual MFE-contact gated classifier, the matched four-objective rank selection, and the
+  assay-qualified direct-RNA/MPRA evidence boundary.  The BIBE caption and Discussion now
+  scope the three-fold classifier result as a modest native-fold signal rather than a
+  generalization or calibration claim.
+
 ## Completed
 
 - [x] Migrated the active work into an independent `ires-design` repository.

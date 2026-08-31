@@ -41,10 +41,14 @@ contributions:
 \begin{figure*}[t]
   \centering
   \includegraphics[width=0.96\textwidth]{figures/fig1_overview.pdf}
-  \caption{Overview of \textsc{StructIRES-Rank}. A released IRES-LM ensemble
-  proposes sequence plausibility; three parent-relative thermodynamic terms
-  rank candidates from a shared mutation pool. Direct-RNA resources are held
-  out for computational evaluation or used only as an IAPV-specific edit-risk
-  guardrail.}
+  \caption{Overview of \textsc{StructIRES}. \textbf{A}, the recognition
+  component augments an author-style RNA-FM classifier with contextual
+  residue-pair features over label-free ViennaRNA MFE contacts, fused through
+  a zero-initialized gated residual. \textbf{B}, the completed design study
+  ranks a shared, length-preserving mutation pool using a frozen released
+  IRES-LM proposal score plus parent-relative energy, ensemble-profile and
+  anchor-preservation objectives. \textbf{C}, direct-RNA resources are kept
+  outside selection: they serve only as a held-out computational proxy or an
+  IAPV-specific MPRA edit-risk guardrail.}
   \label{fig:overview}
 \end{figure*}

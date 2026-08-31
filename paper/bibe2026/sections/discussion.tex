@@ -11,11 +11,13 @@ improving a held-out direct-RNA computational proxy. The IAPV case further
 shows how direct-RNA mutational knowledge can be added transparently as a local
 edit-risk guardrail.
 
-The structure-aware recognition component is intentionally not claimed as a
-completed performance gain in this draft. It becomes a contribution only if a
-validation-locked run improves held-out ranking beyond the sequence baseline;
-otherwise the paper remains a constrained-design study with transparent
-sequence baselines.
+The structure-aware recognition component yields a modest matched native-fold
+signal: MFE-contact fusion improves mean AUROC, AUPR, F1 and MCC relative to
+the author-style sequence-only re-training. This result is deliberately scoped
+to the validation-clean legacy reporter protocol. Its identity-aware audit did
+not improve ranking, and the higher ECE of contact fusion means that it is not
+presented as a calibration improvement or a claim of assay-independent
+generalization.
 
 The study has limitations. Secondary-structure predictions do not represent
 all cellular or circular RNA effects, and the direct-RNA proxy is not a
