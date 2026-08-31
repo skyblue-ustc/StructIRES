@@ -84,6 +84,11 @@ run_contact_queue() {
   done
 }
 
+# The external fold may not create its output directory until training ends.
+# Wait for it before the local queues inspect outputs, otherwise a fast local
+# queue could accidentally start the same fold in parallel.
+wait_for_remote_pids
+
 run_sequence_queue > /tmp/structires_native_sequence_queue_skip_existing_20260831.log 2>&1 &
 sequence_queue_pid=$!
 run_contact_queue > /tmp/structires_native_contact_queue_skip_existing_20260831.log 2>&1 &
@@ -91,8 +96,6 @@ contact_queue_pid=$!
 
 wait "$sequence_queue_pid"
 wait "$contact_queue_pid"
-wait_for_remote_pids
-
 for fold in 1 3 5 6 7 8 9; do
   sequence_run="$external/structires_native_sequence_authorstyle_batchshuffle_fold${fold}_v2_20260831"
   contact_run="$external/structires_native_contact_authorstyle_batchshuffle_fold${fold}_v2_20260831"

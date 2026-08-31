@@ -30,7 +30,8 @@ DeepCIP official inference remains a time-boxed environment blocker rather than 
   protocol, the not-yet-started matched fold-5 sequence/contact pair was launched once on
   node 47 GPUs 0/1 after confirming roughly 60 GB free memory on each.  The replacement
   launcher `scripts/queue_structires_remaining_folds.sh` waits for the existing fold-1/3 jobs,
-  skips only the already-running fold-5 output directories, continues folds 6--9, and then
+  waits for the external fold-5 processes to finish — because the training program creates its
+  output directory only at completion — then skips their output directories, continues folds 6--9, and then
   applies the same fail-fast independent pair and multifold summaries.  It never overwrites an
   existing run; a missing external result causes the final pairing step to fail visibly.
 - [x] Fold 1 contact fusion completed with validation early stopping at epoch 6 (best
