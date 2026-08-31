@@ -26,6 +26,13 @@ DeepCIP official inference remains a time-boxed environment blocker rather than 
   summaries for folds 1/3/5/6/7/8/9 and aggregates them with the existing verified folds 0/2/4.
   It targets `structires_native_authorstyle_batchshuffle_multifold_0_9_v2_20260831`; it uses
   `set -e`, refuses pre-existing outputs, and leaves a log rather than retrying on any error.
+- [~] To shorten the fixed schedule without changing its data, initialization, or per-fold
+  protocol, the not-yet-started matched fold-5 sequence/contact pair was launched once on
+  node 47 GPUs 0/1 after confirming roughly 60 GB free memory on each.  The replacement
+  launcher `scripts/queue_structires_remaining_folds.sh` waits for the existing fold-1/3 jobs,
+  skips only the already-running fold-5 output directories, continues folds 6--9, and then
+  applies the same fail-fast independent pair and multifold summaries.  It never overwrites an
+  existing run; a missing external result causes the final pairing step to fail visibly.
 - [x] Replaced the BIBE Figure 1 overview with a three-panel vector figure that separates
   the actual MFE-contact gated classifier, the matched four-objective rank selection, and the
   assay-qualified direct-RNA/MPRA evidence boundary.  The BIBE caption and Discussion now
