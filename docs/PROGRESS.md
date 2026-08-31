@@ -33,6 +33,12 @@ DeepCIP official inference remains a time-boxed environment blocker rather than 
   skips only the already-running fold-5 output directories, continues folds 6--9, and then
   applies the same fail-fast independent pair and multifold summaries.  It never overwrites an
   existing run; a missing external result causes the final pairing step to fail visibly.
+- [x] Fold 1 contact fusion completed with validation early stopping at epoch 6 (best
+  validation AUPR at epoch 3).  Its run directory contains the selected checkpoint,
+  metrics, provenance manifest and 4,678 saved locked-test predictions; the manifest records
+  `test_labels_used_for_selection=false`.  The complementary fold-1 sequence run was already
+  verified, while the global finalizer intentionally waits for all fixed folds before writing
+  any paired or aggregate result.
 - [x] Replaced the BIBE Figure 1 overview with a three-panel vector figure that separates
   the actual MFE-contact gated classifier, the matched four-objective rank selection, and the
   assay-qualified direct-RNA/MPRA evidence boundary.  The BIBE caption and Discussion now
