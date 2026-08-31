@@ -38,7 +38,7 @@ def main() -> None:
 
     box(ax, .025, .57, .16, .20, "RNA input", ["IRES candidate", "up to 1,024 nt"], NAVY, "#F6F9FC")
     box(ax, .245, .60, .22, .20, "Sequence encoder", ["public RNA-FM t12", "BOS: 640 → 40"], NAVY, "#F6F9FC")
-    box(ax, .245, .34, .22, .19, "Structure encoder", ["ViennaRNA MFE pair graph", "contextual pair pooling"], ENSEMBLE, "#F2FBFA")
+    box(ax, .245, .34, .22, .19, "MFE-contact encoder", ["ViennaRNA pair graph", "edge [hᵢ; hⱼ; hᵢ⊙hⱼ; |hᵢ−hⱼ|]", "MLP 2,560 → 128 → 40; mean pool"], ENSEMBLE, "#F2FBFA")
     box(ax, .545, .54, .22, .22, "Gated fusion", ["trainable sequence + graph", "structural residual"], STRUCTIRES, "#F3FBF8")
     box(ax, .83, .57, .145, .20, "Output", ["IRES-like", "probability"], NAVY, "#F6F9FC")
     arrow(ax, (.185, .68), (.24, .70), NAVY)
