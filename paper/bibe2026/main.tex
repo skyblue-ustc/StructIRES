@@ -39,9 +39,10 @@ reporter-trained recognition scores do not necessarily transfer to direct-RNA
 measurements. We introduce \textsc{StructIRES}, a two-stage framework. Its
 structure-aware classifier starts from public RNA-FM initialization, pools
 contextual residue pairs over label-free ViennaRNA MFE contacts, and injects a
-gated residual into an otherwise matched IRES head. Across three
-validation-clean native folds, contact fusion changes AUROC/AUPR/F1 from
-0.770/0.600/0.521 to 0.774/0.601/0.533 relative to sequence-only
+gated residual into an otherwise matched IRES head. Across
+\StructIRESNativeFoldCount validation-clean native folds, contact fusion changes AUROC/AUPR/F1 from
+$\StructIRESNativeSeqAUC$/$\StructIRESNativeSeqAUPR$/$\StructIRESNativeSeqFOne$ to
+$\StructIRESNativeContactAUC$/$\StructIRESNativeContactAUPR$/$\StructIRESNativeContactFOne$ relative to sequence-only
 retraining. This is a controlled legacy-reporter benchmark result; a stricter
 identity-aware profile-fusion audit does not improve ranking. Its
 \textsc{StructIRES-Rank} component is a generator-agnostic, assay-aware

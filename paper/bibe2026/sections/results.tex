@@ -14,13 +14,16 @@ We next retrained the author-style RNA-FM classifier from the same public t12
 prior while reserving a stratified subset of each source-training fold for
 epoch and threshold selection. The matched \textsc{StructIRES-Classifier}
 differs only by its label-free MFE-contact encoder and zero-initialized gated
-residual. Across folds 0, 2 and 4, sequence-only re-training obtained
-AUROC/AUPR/F1/MCC of
-$0.770\pm0.005$/$0.600\pm0.018$/$0.521\pm0.016$/$0.426\pm0.012$;
+residual. Across \StructIRESNativeFoldCount validation-clean native folds,
+sequence-only re-training obtained AUROC/AUPR/F1/MCC of
+$\StructIRESNativeSeqAUC$/$\StructIRESNativeSeqAUPR$/$\StructIRESNativeSeqFOne$/$\StructIRESNativeSeqMCC$;
 contact fusion obtained
-$0.774\pm0.007$/$0.601\pm0.022$/$0.533\pm0.024$/$0.439\pm0.047$.
-The mean changes are therefore +0.004 AUROC, +0.002 AUPR, +0.013 F1 and
-+0.013 MCC. ECE increases by 0.043, so the result is a controlled
+$\StructIRESNativeContactAUC$/$\StructIRESNativeContactAUPR$/$\StructIRESNativeContactFOne$/$\StructIRESNativeContactMCC$.
+The mean changes are therefore $\StructIRESNativeDeltaAUC$ AUROC,
+$\StructIRESNativeDeltaAUPR$ AUPR, $\StructIRESNativeDeltaFOne$ F1 and
+$\StructIRESNativeDeltaMCC$ MCC. ECE changes by $\StructIRESNativeDeltaECE$
+(sequence-only: $\StructIRESNativeSeqECE$; contact fusion:
+$\StructIRESNativeContactECE$), so the result is a controlled
 legacy-reporter discrimination signal rather than a calibration claim.
 
 The native holdouts are sequence-proximal and overlap across the released
@@ -38,12 +41,14 @@ select the native classifier or design model.
 \begin{figure*}[t]
   \centering
   \includegraphics[width=0.98\textwidth]{../figures/fig2_native_classifier_results.pdf}
-  \caption{Paired locked-test results on the three independently recomputed
-  validation-clean native folds. Each vertical segment links models trained
+  \caption{Paired locked-test results on the independently recomputed
+  validation-clean native folds shown. Each vertical segment links models trained
   from the identical public RNA-FM prior and evaluated on the same fold. MFE
-  contact fusion improves the fold-average AUROC, AUPR, F1, and MCC by 0.004,
-  0.002, 0.013, and 0.013, respectively. The accompanying table reports ECE:
-  it increases for fusion, so this discrimination signal is not a calibration
+  contact fusion changes the fold-average AUROC, AUPR, F1, and MCC by
+  $\StructIRESNativeDeltaAUC$, $\StructIRESNativeDeltaAUPR$,
+  $\StructIRESNativeDeltaFOne$, and $\StructIRESNativeDeltaMCC$,
+  respectively. The accompanying table reports ECE: it changes by
+  $\StructIRESNativeDeltaECE$, so this discrimination signal is not a calibration
   claim or an identity-aware generalization result.}
   \label{fig:native-classifier}
 \end{figure*}
