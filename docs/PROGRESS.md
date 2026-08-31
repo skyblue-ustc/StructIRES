@@ -16,9 +16,12 @@ DeepCIP official inference remains a time-boxed environment blocker rather than 
   public RNA-FM t12 initialization, the same source-fold train/validation/test records,
   seed 1337, 15% within-train validation, 10-epoch maximum budget, class CE*2 + masked-LM
   CE*1, and validation-only AUPR/F1 selection.
-- [~] Fixed-order, fail-fast queues for the remaining missing folds 3, 5, 6, 7, 8 and 9 are
-  waiting behind fold 1 on the same two GPUs.  The fold list was fixed before observing fold-1
-  metrics; a queue stops on its first execution error and does not retry or overwrite a run.
+- [~] To reduce elapsed time without changing the pre-fixed protocol, fold 3 sequence-only was
+  launched on node 56 GPU 4 (which had 55 GB free and zero compute utilisation); its matched
+  contact arm remains in the original GPU-6 queue.  The sequence queue now waits for folds 1 and
+  3 before fixed-order, fail-fast folds 5, 6, 7, 8 and 9; the contact queue retains folds 3, 5,
+  6, 7, 8 and 9.  The fold list was fixed before observing fold-1 metrics; queues stop on their
+  first execution error and do not retry or overwrite a run.
 - [x] Replaced the BIBE Figure 1 overview with a three-panel vector figure that separates
   the actual MFE-contact gated classifier, the matched four-objective rank selection, and the
   assay-qualified direct-RNA/MPRA evidence boundary.  The BIBE caption and Discussion now
