@@ -40,6 +40,12 @@ DeepCIP official inference remains a time-boxed environment blocker rather than 
   `test_labels_used_for_selection=false`.  The complementary fold-1 sequence run was already
   verified, while the global finalizer intentionally waits for all fixed folds before writing
   any paired or aggregate result.
+- [x] The independently launched fold-3 and fold-5 sequence/contact pairs completed and passed
+  temporary independent pairing audits without touching the official finalizer outputs.  Each
+  arm has 4,678 locked-test predictions, matching manifests, sample ordering and labels.  The
+  two fold-level effects are mixed (fold 3: AUC +0.003315, AUPR -0.007894, F1 -0.007495;
+  fold 5: AUC -0.004210, AUPR +0.000727, F1 +0.008127), so no interim claim is made.  The
+  predefined ten-fold aggregate remains the only source for final classifier language.
 - [x] Replaced the BIBE Figure 1 overview with a three-panel vector figure that separates
   the actual MFE-contact gated classifier, the matched four-objective rank selection, and the
   assay-qualified direct-RNA/MPRA evidence boundary.  The BIBE caption and Discussion now
