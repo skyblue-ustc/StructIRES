@@ -1,6 +1,6 @@
 # Project progress
 
-Last updated: 2026-08-22 (Asia/Shanghai)
+Last updated: 2026-08-31 (Asia/Shanghai)
 
 ## Current phase
 
@@ -31,6 +31,12 @@ DeepCIP official inference remains a time-boxed environment blocker rather than 
   assay-qualified direct-RNA/MPRA evidence boundary.  The BIBE caption and Discussion now
   scope the three-fold classifier result as a modest native-fold signal rather than a
   generalization or calibration claim.
+- [x] Verified the current IEEE conference draft with Tectonic on 2026-08-31:
+  `paper/bibe2026/build/main.pdf` compiles successfully as a seven-page PDF.  The project
+  unit-test suite (`32` tests) also passes.  Remaining TeX output consists only of
+  underfull-box layout warnings; it contains no unresolved citations, missing figures, or
+  compilation errors.  The definitive classifier table remains pending the active ten-fold
+  finalizer and must not be replaced with provisional validation metrics.
 
 ## Completed
 
