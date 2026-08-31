@@ -37,6 +37,19 @@ select the native classifier or design model.
 
 \begin{figure*}[t]
   \centering
+  \includegraphics[width=0.98\textwidth]{../figures/fig2_native_classifier_results.pdf}
+  \caption{Paired locked-test results on the three independently recomputed
+  validation-clean native folds. Each vertical segment links models trained
+  from the identical public RNA-FM prior and evaluated on the same fold. MFE
+  contact fusion improves the fold-average AUROC, AUPR, F1, and MCC by 0.004,
+  0.002, 0.013, and 0.013, respectively. The accompanying table reports ECE:
+  it increases for fusion, so this discrimination signal is not a calibration
+  claim or an identity-aware generalization result.}
+  \label{fig:native-classifier}
+\end{figure*}
+
+\begin{figure*}[t]
+  \centering
   \includegraphics[width=0.98\textwidth]{../figures/fig1_structires_classifier.pdf}
   \caption{Validation-clean \textsc{StructIRES-Classifier}. Both matched
   arms fully fine-tune public RNA-FM t12 with the author-style IRES objective.
