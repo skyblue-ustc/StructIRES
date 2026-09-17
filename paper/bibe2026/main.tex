@@ -1,0 +1,92 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xcolor}
+\input{tables/recognition_native_rows}
+
+% IEEE centers a page containing only a double-column float by default.  The
+% manuscript includes a deliberately tall structural-comparison figure, so keep
+% such a page top-aligned for normal conference-paper reading order.
+\makeatletter
+\setlength{\@dblfptop}{0pt}
+\setlength{\@dblfpsep}{8pt}
+\setlength{\@dblfpbot}{0pt plus 1fil}
+\makeatother
+
+\begin{document}
+
+\title{StructIRES: Structure-Aware IRES Recognition and\
+Constraint-Guided Optimization of Full-Length IRES Sequences}
+
+% Replace this anonymous block only after confirming BIBE's review policy and
+% authorship/affiliation order with the supervisor.
+\author{\IEEEauthorblockN{Anonymous Authors}
+\IEEEauthorblockA{Anonymous Institution\\
+China\\
+Contact information withheld for review}}
+
+\maketitle
+
+\begin{abstract}
+Sequence-score optimization can select full-length internal ribosome entry site
+(IRES) variants that drift from the parent thermodynamic ensemble, while
+reporter-trained recognition scores do not necessarily transfer to direct-RNA
+measurements. We introduce \textsc{StructIRES}, a two-stage framework. Its
+structure-aware classifier starts from public RNA-FM initialization, pools
+contextual residue pairs over label-free ViennaRNA MFE contacts, and injects a
+gated residual into an otherwise matched IRES head. Across
+\StructIRESNativeFoldCount validation-clean native folds, contact fusion changes AUROC/AUPR/F1 from
+$\StructIRESNativeSeqAUC$/$\StructIRESNativeSeqAUPR$/$\StructIRESNativeSeqFOne$ to
+$\StructIRESNativeContactAUC$/$\StructIRESNativeContactAUPR$/$\StructIRESNativeContactFOne$ relative to sequence-only
+retraining. This is a controlled legacy-reporter benchmark result; a stricter
+identity-aware profile-fusion audit does not improve ranking. Its
+\textsc{StructIRES-Rank} component is a generator-agnostic, assay-aware
+rank-selection layer that combines a released IRES language-model ensemble
+with parent-relative energy, global pairing-profile, and high-confidence
+ensemble-anchor constraints. In a controlled experiment over
+ten experimentally supported full-length IRES seeds and three frozen mutation
+pools, every method selects 50 variants from the same 512 candidates. Compared
+with score-only selection, \textsc{StructIRES-Rank} reduces absolute minimum
+free-energy deviation from 4.021 to 0.666 kcal/mol, pairing-profile distance
+from 0.164 to 0.037, and increases parent-anchor retention from 0.646 to
+0.955. It also improves an independent held-out direct-RNA computational proxy
+from 0.419 to 0.435 (paired gain 0.0158; 95\% bootstrap interval
+0.0079--0.0242). A public IAPV direct-RNA mutational scan further supplies an
+assay-derived edit-risk guardrail. The results establish computational
+candidate enrichment and structural preservation, rather than experimentally
+verified translation improvement. Recognition findings are not inferred from
+design outcomes.
+\end{abstract}
+
+\begin{IEEEkeywords}
+RNA design, internal ribosome entry site, RNA secondary structure, constrained
+optimization, translation regulation
+\end{IEEEkeywords}
+
+\input{sections/introduction}
+\input{sections/method}
+\input{sections/results}
+\input{sections/discussion}
+
+\section*{Data and Code Availability}
+The release package will contain frozen split and candidate-pool manifests,
+executable baseline adapters, aggregate results, and scripts for all figures.
+Large externally licensed assets and model weights will be referenced by
+provenance manifests rather than redistributed. Candidate sequences remain
+outside the public repository pending disclosure and publication review.
+
+% The full IAPV secondary-structure case illustration is supplementary material:
+% ../figures/fig7_iapv_secondary_structure.pdf
+
+\section*{Acknowledgment}
+To be completed after funding and authorship review.
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

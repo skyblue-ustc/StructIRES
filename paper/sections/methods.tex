@@ -1,0 +1,96 @@
+\section{Methods}
+
+\subsection{Data provenance and assay labels}
+Every record retains its source study, assay context, construct, cell type, length, IRES type or
+family, and evidence level. DNA/lentiviral reporter labels, circRNA-plasmid measurements, and
+direct-RNA measurements are never pooled into an unlabeled target. Exact and similarity-based
+overlaps are frozen before model fitting.
+
+\subsection{IRES identification benchmark}
+The released random-split file was audited as ten repeated stratified 90/10 holdouts rather than a
+mutually exclusive ten-fold partition. Published values are retained as external references. For a
+leakage-aware random-split pilot, we reconstruct deterministic folds stratified by label, source,
+and coarse length group, and reserve the next fold for threshold selection. The strict view clusters
+the dominant 174-nt subset by exhaustive all-pairs ungapped Hamming identity at 90\%, takes graph
+connected components, and assigns whole components to a deterministic 70/15/15
+train/validation/test split. All identity edges are checked after assignment and any crossing edge
+invalidates the split. This exact equal-length view is reported separately from the pending gapped,
+cross-length and family-held-out audits. AUPR is primary
+because positives comprise about 19.6\% of the published dataset; AUC, F1, calibration, and
+source/length-stratified performance are secondary outcomes. As a strict source-holdout control,
+models are fitted only to the 44,634-sequence 55k library, with ten internal validation folds for
+threshold selection and ensembling, and are evaluated once on all 276 \texttt{IRESite\_exp} records.
+The held-out source is not used for fitting, thresholding, calibration, or model selection.
+Released RNA-FM, UTR-LM and IRESfinder models are also executed on their author-native repeated
+holdouts. Every local run stores predictions, input and checkpoint hashes, and a run manifest. We
+report mean and sample standard deviation across holdouts but do not interpret them as independent
+folds. The released RNA-FM and UTR-LM checkpoints were selected upstream on test AUPR, so these
+rows are protocol reproductions rather than independent blind-test estimates.
+
+\subsection{Validation-clean StructIRES classifier}
+For each selected native fold, we retain its author-provided test records untouched and make one
+stratified 15\% validation split inside the corresponding source-training records. Both matched
+arms start from the same public RNA-FM t12 checkpoint and fully fine-tune the author-style
+BOS $640\rightarrow40\rightarrow2$ classifier with class-weighted IRES cross entropy (weight 2)
+and a 15\% masked-LM auxiliary loss (weight 1). Length-aware batches are reshuffled per epoch and
+the learning rate follows the upstream linear schedule. The sequence-only arm is this topology
+unchanged. \textsc{StructIRES} additionally extracts the label-free ViennaRNA MFE base-pair edges;
+for each edge it concatenates the two contextual RNA-FM residue vectors, their product and their
+absolute difference, pools a learned edge encoding per sequence, and injects it through a
+zero-initialized gated residual. Validation AUPR selects the epoch and validation F1 selects the
+threshold. We compute all test metrics once from saved probabilities and independently recompute
+them before multi-fold aggregation. As a stricter generalization audit, the 174-nt subset is
+partitioned into 90\%-identity connected components before a 70/15/15 train/validation/test split.
+There, a matched full RNA-FM sequence-only arm is compared with a label-free BPP/MFE
+position-profile gate under a configuration fixed using validation only; negative outcomes are
+retained rather than being replaced by a test-selected architecture.
+
+\subsection{Cross-assay audit}
+Models trained on the legacy reporter assay are evaluated without adaptation on normalized
+IRES-TrAPPr measurements. We report rank association, calibration where labels permit, top-$k$
+overlap, and disagreements stratified by length, type, source, and distance from the training
+distribution. As low-capacity shortcut controls, composition logistic regression and hashed
+3--6-mer linear classifiers are fitted as ten-member ensembles. Each member excludes one legacy
+test fold and the following fold for validation; direct-RNA labels are never used for fitting,
+threshold selection, or model choice. AUC and AUPR uncertainty is estimated with 2,000 stratified
+bootstrap resamples of the direct-RNA evaluation set.
+For RNA-FM, each released checkpoint is first evaluated separately. The predeclared transfer
+result is the arithmetic mean probability across all ten checkpoints; no fold, probability
+direction or threshold is selected using direct-RNA labels. Pairwise prediction correlations and
+per-checkpoint direct-RNA metrics are reported only as a frozen post hoc stability audit.
+
+\subsection{Seeded full-length optimization}
+Starting from ten experimentally supported full-length viral IRESes, we deterministically generated
+three shared pools (seeds 42, 43 and 44), each containing 512 unique substitution mutants per parent.
+Each mutant retained length and made at most 3\% substitutions. The primary sequence score is the
+arithmetic mean of all ten released RNA-FM and all ten released UTR-LM IRES-classifier probabilities
+(IRES-LM). Every selection arm retained 50 candidates from the identical parent-specific pool.
+Energy preservation ranks lower absolute MFE deviation. Global ensemble preservation ranks lower
+base-pairing-probability-profile $L_1$ distance. Parent-anchor preservation ranks lower loss of the
+parent's base pairs with ViennaRNA ensemble probability $P\geq0.5$ \cite{lorenz2011viennarna}, weighted by the parent
+probability. \textsc{StructIRES-Rank} equally ranks these three structural quantities and IRES-LM;
+the one-term and two-term alternatives are explicit matched ablations. These are thermodynamic
+secondary-structure constraints, not experimentally mapped IRES motifs.
+
+\subsection{IAPV direct-RNA MPRA mutational-scan guardrail}
+To test a genuinely assay-derived functional guardrail without treating a generic proxy as ground
+truth, we used the public IRES-TrAPPr S1 IAPV A-substitution tiles. For each parent position, the
+risk is the median non-negative reduction in measured IRES translation among overlapping observed
+tiles relative to IAPV-WT. There are 208 tiles covering 169 of 213 positions. Uncovered positions
+receive the median observed risk, preventing an optimizer from exploiting missing assay coverage.
+For IAPV only, an additional matched arm equally ranks IRES-LM, the three \textsc{StructIRES-Rank}
+structural terms, and lower direct-RNA MPRA edit risk. This is a conservation guardrail derived from
+measured parent mutations; it does not measure the activity of any newly generated candidate.
+
+\subsection{Evaluation and statistics}
+Optimization scorers are not used as sole final evaluators. For the primary ablation, we report the
+parent-by-run means over 30 paired units and bootstrap confidence intervals for \textsc{StructIRES-Rank}
+minus IRES-LM score-only effects. The IAPV MPRA guardrail is reported separately over three frozen
+pools because only IAPV has the appropriate direct-RNA mutational-scan coverage. As an independent
+post-selection proxy for the primary, non-MPRA-selection ablation, a three-seed hashed character 3--6-mer
+logistic ensemble is fitted after removing every record with S3 provenance from the normalized
+direct-RNA table, and is evaluated once on the remaining 222 S3 records. This proxy is never used
+for pool generation, selection, thresholding or hyperparameter choice. It is not reused as an
+evaluator of the IAPV MPRA-guardrail arm. RNA-LM likelihood and the proxy score are explicitly
+computational quantities; the resulting effects are interpreted as computational robustness rather
+than activity unless prospectively validated in an appropriate assay.

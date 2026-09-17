@@ -1,0 +1,35 @@
+\begin{table*}[t]
+\centering
+\caption{IRES identification benchmark. Published values are references. RNA-FM and UTR-LM were
+rerun from all ten released checkpoints. Upstream native training
+selects checkpoints on test AUPR. Project pilots are not directly comparable with that released
+repeated-holdout protocol.}
+\label{tab:prediction}
+\begin{tabular}{llccc}
+\toprule
+Status & Method & AUC & AUPR & F1 \\
+\midrule
+Released CSV audit & RNA-FM & 0.779 & 0.615 & 0.506 \\
+Released checkpoint rerun & RNA-FM & .778$\pm$.009 & .614$\pm$.014 & .510$\pm$.023 \\
+Released checkpoint rerun & UTR-LM & 0.765 & 0.581 & 0.493 \\
+Published & RNA-BERT & 0.740 & 0.530 & 0.460 \\
+Published & ERNIE-RNA & 0.670 & 0.350 & 0.330 \\
+Published & Evo-2 & 0.610 & 0.310 & 0.330 \\
+Published & IRES-LM & 0.770 & 0.600 & 0.500 \\
+Published & DeepCIP & 0.730 & 0.500 & 0.270 \\
+Published & IRESpy & 0.670 & 0.370 & 0.110 \\
+Released model rerun & IRESfinder & 0.605 & 0.274 & 0.346 \\
+Training-overlap removed & IRESfinder & 0.602 & 0.267 & 0.337 \\
+\midrule
+Project pilot, reconstructed & Composition logistic & .710$\pm$.009 & .405$\pm$.015 & .436$\pm$.016 \\
+Project pilot, reconstructed & Hashed k-mer linear & .723$\pm$.011 & .452$\pm$.016 & .452$\pm$.013 \\
+Project, source held out & Composition logistic & .600 & .694 & .316 \\
+Project, source held out & Hashed k-mer linear & .601 & .681 & .293 \\
+Project, exact 90\% cluster split & Composition logistic & .634 & .230 & .336 \\
+Project, exact 90\% cluster split & Hashed k-mer linear & .578 & .250 & .252 \\
+Project, exact 90\% cluster split & IRESfinder released & .599 & .199 & .313 \\
+Project, strict 90\% cluster split & RNA-FM sequence-only & .559$\pm$.004 & .188$\pm$.005 & .295$\pm$.002 \\
+Project, strict 90\% cluster split & StructIRES BPP/MFE profile fusion & .557$\pm$.017 & .183$\pm$.003 & .297$\pm$.010 \\
+\bottomrule
+\end{tabular}
+\end{table*}

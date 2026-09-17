@@ -1,0 +1,27 @@
+\begin{table*}[t]
+\centering
+\caption{IRES identification benchmark and matched structure-aware extension.
+The task is $\mathrm{sequence}\rightarrow P(\mathrm{IRES\text{-}like})$ on the
+legacy reporter benchmark. ``Local rerun'' rows are our executed released-model
+reproductions; ``published reference'' rows are copied from the source study and
+are not presented as same-protocol local experiments. Matched re-training rows
+start from the same public RNA-FM prior and reserve a source-training validation
+subset for selection; their native test folds overlap and are therefore a
+controlled legacy benchmark, not an identity-aware generalization claim.}
+\label{tab:recognition}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llllccc}
+\toprule
+Model & Category & Evidence status & Assay / protocol & AUROC & AUPR & F1 \\
+\midrule
+RNA-FM & RNA foundation model & Local rerun & released native repeated holdouts & $0.778\pm0.009$ & $0.614\pm0.014$ & $0.510\pm0.023$ \\
+UTR-LM & RNA foundation model & Local rerun & released native repeated holdouts & $0.765\pm0.009$ & $0.581\pm0.016$ & $0.493\pm0.016$ \\
+IRESfinder & IRES-specific & Local rerun & released native repeated holdouts & $0.605\pm0.010$ & $0.274\pm0.008$ & $0.346\pm0.006$ \\
+IRES-LM & RNA-FM + UTR-LM ensemble & Published reference & source-paper native protocol & $0.770$ & $0.600$ & $0.500$ \\
+DeepCIP & IRES-specific & Published reference & circRNA-screen protocol & $0.730$ & $0.500$ & $0.270$ \\
+IRESpy & IRES-specific & Published reference & source-paper native protocol & $0.670$ & $0.370$ & $0.110$ \\
+\midrule
+\StructIRESNativeRows
+\bottomrule
+\end{tabular}}
+\end{table*}

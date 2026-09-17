@@ -1,0 +1,37 @@
+{
+  "release": "bibe2026-minimal-v1",
+  "created": "2026-09-17",
+  "recognition_protocol": {
+    "folds": [0, 1, 2],
+    "seed": 1337,
+    "evaluation_n_per_fold": 6315,
+    "positive_n_per_fold": 1238,
+    "negative_n_per_fold": 5077,
+    "dataset_sha256": "993b0db756efe05cc3598a8c28330d97cdcb6ab4fadad5194a7660b0a7d6f23b",
+    "rnafm_checkpoint_sha256": "5b5d7d87b37c291ef42c140ef9edf7aea29f255fa2a4fd435f776c52e93d5e99"
+  },
+  "candidate_selection": {
+    "viennarna_version": "2.7.2",
+    "parents": 10,
+    "pool_seeds": [42, 43, 44],
+    "pool_size": 512,
+    "top_k": 50,
+    "scored_candidates": 15360,
+    "selected_rows": 7500,
+    "raw_manifest_location": "external run archive; not redistributed",
+    "activity_labels_used_for_selection": false
+  },
+  "excluded_from_git": [
+    "benchmark sequences",
+    "pretrained and trained weights",
+    "generated candidate sequences",
+    "raw predictions containing sequence identifiers",
+    "W&B metadata",
+    "cluster logs"
+  ],
+  "known_limitations": [
+    "UTR-LM fold 2 was stopped at epoch 18; best epoch-14 metrics were recovered from its log, with no retained checkpoint or raw predictions.",
+    "Candidate-selection diagnostics are computational and do not establish improved biological activity.",
+    "Raw candidate sequences remain excluded pending disclosure review."
+  ]
+}

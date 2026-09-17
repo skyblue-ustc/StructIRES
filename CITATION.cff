@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the accompanying StructIRES manuscript."
+title: "StructIRES: Structure-Constrained IRES Recognition and Candidate Selection"
+type: software
+authors:
+  - family-names: Lan
+    given-names: Tian
+  - family-names: Xiong
+    given-names: Peng
+repository-code: "https://github.com/skyblue-ustc/ires-design"
+license: Apache-2.0
+version: 0.1.0
+date-released: 2026-09-17
