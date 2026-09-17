@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0",
+  "experiment": "bibe2026_structires_adapter",
+  "task": "binary_ires_recognition",
+  "folds": [0, 1, 2],
+  "seed": 1337,
+  "validation_fraction": 0.15,
+  "evaluation_samples_per_fold": 6315,
+  "positive_samples_per_fold": 1238,
+  "model": {
+    "backbone": "RNA-FM",
+    "backbone_checkpoint_sha256": "5b5d7d87b37c291ef42c140ef9edf7aea29f255fa2a4fd435f776c52e93d5e99",
+    "backbone_representation": "BOS, 640 dimensions",
+    "backbone_projection_dimensions": 40,
+    "variant": "pretrained_deep_adapter",
+    "adapter_dimensions": 16,
+    "joint_dimensions": 56,
+    "structure_channels": [
+      "base-pairing probability sum",
+      "MFE paired state",
+      "centroid paired state",
+      "normalized position"
+    ]
+  },
+  "training": {
+    "epochs": 12,
+    "head_only_epochs": 3,
+    "tokens_per_batch": 4096,
+    "gradient_accumulation_steps": 2,
+    "optimizer": "AdamW",
+    "backbone_learning_rate": 1e-5,
+    "head_learning_rate": 3e-4,
+    "weight_decay": 1e-4
+  },
+  "data": {
+    "dataset_sha256": "993b0db756efe05cc3598a8c28330d97cdcb6ab4fadad5194a7660b0a7d6f23b",
+    "distribution": "not redistributed; obtain from the cited benchmark"
+  },
+  "candidate_selection": {
+    "parent_count": 10,
+    "pool_seeds": [42, 43, 44],
+    "candidates_per_parent_pool": 512,
+    "top_k": 50,
+    "maximum_substitution_fraction": 0.03,
+    "rank_objectives": [
+      "StructIRES recognition score (maximize)",
+      "absolute MFE shift (minimize)",
+      "BPP distance (minimize)",
+      "anchor retention (maximize)"
+    ]
+  }
+}

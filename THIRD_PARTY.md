@@ -15,6 +15,8 @@ locally and are not committed.
 | RFamLlama | <https://github.com/JinyuanSun/RFamLlama> | optional RNA proposal/likelihood backbone | Cite Sun, Li, and Deng (2024); verify code and weight licenses separately. |
 | GenerRNA | <https://huggingface.co/pfnet/GenerRNA> | optional RNA proposal/likelihood backbone | Preserve the model-card license and exact checkpoint revision. |
 | IRES-LM / IRES-EA / IRES-DM | <https://github.com/a96123155/IRES_Prediction_Design> | IRES scorer, mutation baseline, diffusion reference | Do not copy the nested repository into this project; record upstream commit and data terms. |
+| DeepIRES | <https://github.com/SongLab-at-NUAA/DeepIRES> | Independent one-hot dilated-CNN/BiGRU/attention recognition baseline and classification-head inspiration | MIT-licensed upstream; this repository contains an independent PyTorch topology port, not copied TensorFlow source or weights. Cite Zhao et al. (2024). |
+| IRESpy | <https://doi.org/10.1093/bioinformatics/btz420> | Positional k-mer gradient-boosting recognition baseline | This repository independently constructs documented global/local sequence features; do not describe the adaptation as the authors' released model. |
 | IRES-TrAPPr | <https://pmc.ncbi.nlm.nih.gov/articles/PMC13174604/> | RNA-based assay audit and full-length seed data | Preprint under CC BY 4.0; record supplement and SRA hashes. |
 | Albatross | <https://albatrossrna.org/> | independent IRES structure audit | Record code/data revision and model terms; do not redistribute dependency-map archives by default. |
 | LAMAR | <https://github.com/rnasys/LAMAR> | secondary locked IRES evaluator | Evaluation only; record checkpoint and training-source overlap. |

@@ -15,6 +15,7 @@ venv/
 .idea/
 .vscode/
 .codex
+.scratch/
 
 # Secrets and local configuration
 .env

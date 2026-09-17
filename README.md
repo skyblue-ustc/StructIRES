@@ -4,6 +4,21 @@ Reproducible, baseline-first experiments for assay- and context-aware computatio
 
 > Status: active research repository. The current claims are computational candidate enrichment under specified reporter/MPRA settings; no generated sequence is claimed to have improved biological activity without experimental validation.
 
+## BIBE 2026 reproducibility snapshot
+
+The minimal, sequence-free artifacts used for the BIBE 2026 manuscript are in
+[`release/bibe2026`](release/bibe2026/README.md). The snapshot contains the
+locked three-fold recognition metrics, aggregate candidate-selection results,
+provenance hashes, and the exact model contract. It intentionally excludes raw
+benchmark data, pretrained weights, checkpoints, generated candidate
+sequences, W&B files, and cluster logs.
+
+Validate the committed snapshot with:
+
+```bash
+python scripts/verify_bibe2026_release.py
+```
+
 ## Scope
 
 This repository has one main story: optimize experimentally supported, full-length viral IRESes while resisting single-oracle score hacking and preserving structural function in downstream cargo contexts.
@@ -58,6 +73,18 @@ Model weights, datasets, generated libraries, external repositories, and experim
 ## Quick start
 
 Python 3.10 or newer is required.
+
+Route all temporary files and framework caches to the project's personal
+storage before running commands.  Do not use the compute nodes' shared
+`/tmp`:
+
+```bash
+source scripts/ires_project_env.sh
+```
+
+The portable default scratch root is `$HOME/.cache/ires-design`. On a cluster,
+set `IRES_SCRATCH_ROOT` to a personal high-capacity location before sourcing
+the script.
 
 ```bash
 python -m pip install -e .
